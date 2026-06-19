@@ -21,6 +21,7 @@
 |---|---|---|
 | `NumberInput` | `onUpdate` отдаёт `number \| null` (null при очистке поля). Стейт `number \| undefined` его не примет → TS2322 на `onUpdate={setX}` | держи стейт `number \| null`: `useState<number \| null>(10)` (или оборачивай: `onUpdate={(v) => setX(v ?? undefined)}`) |
 | `Select` | пропа `style` нет — `<Select style={{maxWidth}}/>` не типизируется → TS2322 | ширину задавай пропом `width` (`number \| 'auto' \| 'max'`); для max-width оберни в `<div style={{maxWidth}}>` + `width="max"` |
+| `TextInput` | пропа `width` НЕТ (это `Select`) → `width="max"` на `TextInput` = TS2322 | полноширинный по умолчанию; нужна ширина — оберни в `<div style={{width}}>` / Flex с шириной |
 
 ## Идиомы (как принято — находки прогонов)
 

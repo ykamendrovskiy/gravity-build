@@ -112,17 +112,22 @@ export default defineConfig({
 
 `type:`-строки ниже — это только список «что есть». **Точную форму пропов каждого блока и sub-блока бери из собственных AI-доков page-constructor**, иначе блок отрендерится частично/криво (а `tsc` это не поймает — тип `PageContent` пермиссивный):
 
+- **Лучший источник — УСТАНОВЛЕННЫЙ пакет** (офлайн, не протухает, без 404):
+  - **канонический конфиг блока** — `node_modules/@gravity-ui/page-constructor/build/esm/editor/data/templates/<block>.json` (copy-paste рабочий шаблон на каждый блок: `slider-block.json`, `header-block.json`, …). **Начинай отсюда** — берёшь рабочую структуру целиком, а не угадываешь.
+  - **точные формы пропов** — `…/build/esm/models/constructor-items/{blocks,sub-blocks}.d.ts`.
 - Корневой `AGENTS.md`: <https://github.com/gravity-ui/page-constructor/blob/main/AGENTS.md>
 - Поштучные usage-доки: `memory-bank/usage/<componentName>.md`. **Имя файла — camelCase имя компонента (`headerBlock.md`, `heroBlock.md`, `priceCard.md`), а НЕ kebab-`type` (`header-block`).**
 - **Не угадывай имя файла** (raw-URL не листит директорию → 404). Сначала **перечисли папку через GitHub API**: <https://api.github.com/repos/gravity-ui/page-constructor/contents/memory-bank/usage> (отдаёт список имён) → потом тяни нужный `<name>.md`.
-- **Покрыты НЕ все блоки.** В `memory-bank/usage/` ~45 файлов, но, напр., **`extended-features-block` и `questions-block` там отсутствуют**. Если доки блока нет — **не ретрай 404**, возьми пропы из TS-типов в `src/blocks/<Block>/` репозитория.
+- **Покрыты НЕ все блоки.** В `memory-bank/usage/` ~45 файлов, но, напр., **`extended-features-block` и `questions-block` там отсутствуют**. Если usage-доки блока нет — **не ретрай 404**: возьми структуру из канонического шаблона (`editor/data/templates/<block>.json`) и формы пропов из установленных `.d.ts` (`models/constructor-items/{blocks,sub-blocks}.d.ts`).
 - Маршрут — `r/library-docs.json` (page-constructor → route на upstream).
 
 **Частые промахи угадывания (проверь по usage-доку):**
 - `theme` у карточек — только `default` / `light` / `dark` (НЕ `'normal'` — это view кнопки uikit).
 - **Тарифы:** `PriceCard` кладёт фичи в `list`, у `PriceDetailed` — в `details` (+ `items` для строк цены); не сваливай цену в `items` из 1 элемента и не теряй `title`/`details`.
-- **`slider-block`** обычно требует `slidesToShow` — без него карточки не складываются в карусель, а встают вертикально.
-- **Иконки фич** — не внешние CDN (`iconify`/случайные URL): флакают и не грузятся. Бери из набора page-constructor / Gravity или надёжный self-hosted ассет.
+- **`slider-block`** — структуру бери из канонического `editor/data/templates/slider-block.json` (плоский массив карточек-сабблоков). Канон `slidesToShow` **не задаёт**; если задаёшь — это число карточек на вид (`число | {desktop,tablet,mobile}`), вслепую не ставь.
+- **Иконки фич — реши по смыслу:** подходит иконка из `@gravity-ui/icons` → бери её; не подходит → подбери уместную из надёжного источника. Нельзя: внешние CDN (`iconify`/случайные URL — флакают) и «нарисую кривой SVG сам», не посмотрев набор. Self-host обязателен (`ThemedImage` = path).
+- **`companies-block`** — это ОДНА картинка-полоса `images:{desktop,mobile}`, а НЕ массив логотипов (частый неверный угад).
+- **`quote`** (сабблок слайдера/карточек) — `image` И `logo` обязательны; автор — `author:{firstName,secondName,description,avatar}`.
 
 ## Block type reference
 
