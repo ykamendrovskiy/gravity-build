@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 — beta (2026-06-19)
+
+- Исправлен роутинг доков page-constructor: блоки перечислять через GitHub API contents (а не угадывать имена файлов → 404); имя файла usage-доки = camelCase имя компонента (`headerBlock.md`), не kebab-`type` (`header-block`); покрытие неполное (`extended-features-block`/`questions-block` без usage-доки) → fallback на TS-типы в `src/blocks/`.
+
 ## 0.1.1 — beta (2026-06-19)
 
 - Скилл сборки переименован `gravity-prototype` → `create` (вызывается как `gravity-build:create`).

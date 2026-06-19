@@ -113,7 +113,9 @@ export default defineConfig({
 `type:`-строки ниже — это только список «что есть». **Точную форму пропов каждого блока и sub-блока бери из собственных AI-доков page-constructor**, иначе блок отрендерится частично/криво (а `tsc` это не поймает — тип `PageContent` пермиссивный):
 
 - Корневой `AGENTS.md`: <https://github.com/gravity-ui/page-constructor/blob/main/AGENTS.md>
-- Поштучные usage-доки: `memory-bank/usage/<block>.md` — напр. [`priceCard.md`](https://github.com/gravity-ui/page-constructor/blob/main/memory-bank/usage/priceCard.md), `priceDetailed.md`, `quote.md`, `headerBlock.md`.
+- Поштучные usage-доки: `memory-bank/usage/<componentName>.md`. **Имя файла — camelCase имя компонента (`headerBlock.md`, `heroBlock.md`, `priceCard.md`), а НЕ kebab-`type` (`header-block`).**
+- **Не угадывай имя файла** (raw-URL не листит директорию → 404). Сначала **перечисли папку через GitHub API**: <https://api.github.com/repos/gravity-ui/page-constructor/contents/memory-bank/usage> (отдаёт список имён) → потом тяни нужный `<name>.md`.
+- **Покрыты НЕ все блоки.** В `memory-bank/usage/` ~45 файлов, но, напр., **`extended-features-block` и `questions-block` там отсутствуют**. Если доки блока нет — **не ретрай 404**, возьми пропы из TS-типов в `src/blocks/<Block>/` репозитория.
 - Маршрут — `r/library-docs.json` (page-constructor → route на upstream).
 
 **Частые промахи угадывания (проверь по usage-доку):**
