@@ -8,7 +8,7 @@
 ## gravity-build · beta feedback
 
 **Сборка:** <что собирал, дословно со слов тестера>
-**Скилл(ы):** gravity-build | synthesize-profile | write-back | feedback
+**Скилл(ы):** create | synthesize-profile | write-back | feedback
 **Профиль:** есть (<сервис/характер>) | нет (baseline)
 
 **Окружение** (снято автоматически, где возможно):

@@ -1,5 +1,5 @@
 ---
-name: gravity-prototype
+name: create
 description: >-
   Сборка прототипа / приложения / экрана / страницы на Gravity UI (Гравити) «как принято» — на
   настоящих компонентах (@gravity-ui/uikit, navigation, table, page-constructor, icons,

@@ -19,19 +19,30 @@
 
 | Скилл | Что делает |
 |---|---|
-| `gravity-build` | Собирает UI: registry + (опц.) профиль → React + TypeScript. |
+| `create` | Собирает UI: registry + (опц.) профиль → React + TypeScript. |
 | `synthesize-profile` | Интервью → создаёт `service-profile.json` («как принято у нас»). |
 | `write-back` | Сворачивает фидбек по сборке в нужный слой знания (профиль / registry / фикс). |
 | `feedback` | Помогает тестеру оформить фидбек в структурированный отчёт + GitHub-issue. |
 
 ## Установка
 
+Это **две отдельные команды** — введи первую, нажми Enter, дождись `✔`, затем вторую. Не вставляй обе разом.
+
+Добавь marketplace:
+
 ```text
-/plugin marketplace add ykamendrovskiy/gravity-build
+/plugin marketplace add https://github.com/ykamendrovskiy/gravity-build.git
+```
+
+Установи плагин:
+
+```text
 /plugin install gravity-build@gravity-build
 ```
 
 Дальше просто попроси собрать что-нибудь на Gravity UI — скилл подхватится сам.
+
+> **Падает с `git@github.com: Permission denied (publickey)`?** Это локальная SSH-настройка, а не репозиторий — он публичный. Полный `https://…`-URL в команде выше клонирует по HTTPS (авторизация не нужна), минуя SSH.
 
 ## Профиль сервиса (опционально)
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 — beta (2026-06-19)
+
+- Скилл сборки переименован `gravity-prototype` → `create` (вызывается как `gravity-build:create`).
+- README: команды установки разнесены на отдельные блоки + HTTPS-URL + troubleshooting (SSH).
+
 ## 0.1.0 — beta (2026-06-19)
 
 - Первая публичная бета.

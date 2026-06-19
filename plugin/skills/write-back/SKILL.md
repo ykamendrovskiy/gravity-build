@@ -41,5 +41,5 @@ description: >-
 
 ## Связь
 
-- Профиль создаёт `synthesize-profile`; собирает по нему скилл сборки (`gravity-prototype`).
+- Профиль создаёт `synthesize-profile`; собирает по нему скилл сборки (`create`).
   Write-back замыкает цикл «синтез → сборка → уточнение».
