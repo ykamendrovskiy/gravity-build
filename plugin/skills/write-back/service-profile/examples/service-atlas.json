@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "1",
+  "name": "service-atlas",
+  "tenant": "gravity-ui",
+  "service": {
+    "title": "Atlas",
+    "domain": "Внутреннее управление пользователями, ролями и доступами (IAM)",
+    "audience": "Администраторы безопасности и платформенные инженеры",
+    "description": "Внутренняя админка: таблицы пользователей/ролей, формы выдачи прав, аудит. Консервативный и предсказуемый инструмент — стандартная плотность, без визуальных вольностей, строгий набор зависимостей."
+  },
+  "theme": {
+    "base": "light",
+    "allowSwitch": true,
+    "note": "Стандартная светлая тема Гравити БЕЗ брендовых переопределений (внутренний инструмент, бренд не нужен); переключатель темы доступен. themeConfig/brandTokens намеренно опущены — омиссия = дефолтный акцент Гравити (служит контролем no-theme)."
+  },
+  "density": {
+    "default": "normal",
+    "note": "Стандартная плотность: size=\"m\", таблицы читаемы, формы не теснятся."
+  },
+  "contentLayout": {
+    "width": "centered-fixed",
+    "maxWidth": "1200px",
+    "align": "center",
+    "adaptive": {
+      "policy": "desktop-first",
+      "breakpoints": "Desktop-first: основная работа на десктопе; ниже md — упрощённая раскладка. Мобильный не приоритет, но не ломается."
+    },
+    "note": "Контент по центру, фикс max-width 1200px — длинные строки таблиц не растягиваются на широких мониторах."
+  },
+  "formPolicy": {
+    "fieldWidth": "uniform",
+    "widthBuckets": {
+      "narrow": "200px — срок действия, числовые лимиты",
+      "medium": "360px — имя / email / роль"
+    },
+    "formMaxWidth": "720px",
+    "labelPlacement": "form-row-top",
+    "descriptionDefault": "field-description",
+    "requiredMarking": "per-field",
+    "note": "Единая ширина в секции (правые края выровнены, подтягиваем к большему значимому полю); подпись сверху; описания под полем; обязательные — звёздочкой."
+  },
+  "approvedComponents": {
+    "policy": "allowlist",
+    "allow": [
+      "@gravity-ui/uikit",
+      "@gravity-ui/icons",
+      "@gravity-ui/navigation",
+      "@gravity-ui/table",
+      "@gravity-ui/components",
+      "@gravity-ui/date-components",
+      "@gravity-ui/date-utils"
+    ],
+    "preferred": {
+      "Срок действия доступа / окно": "@gravity-ui/date-components (не самописный календарь)"
+    },
+    "note": "Строгий allowlist — security-инструмент, новые зависимости только через ревью. page-constructor и markdown-editor вне набора (не нужны в админке)."
+  },
+  "archetypes": [
+    {
+      "name": "Список пользователей / ролей",
+      "when": "Основной экран администрирования",
+      "structure": "AsideHeader → панель фильтров → uikit Table + withTableSelection + withTableActions (плоская таблица, без группировки); массовые действия через ActionsPanel.",
+      "ref": "recipe-dashboard"
+    },
+    {
+      "name": "Форма прав доступа",
+      "when": "Выдача / редактирование прав",
+      "structure": "Полоса 720px по центру, FormRow с подписью сверху, Select ролей, date-components для срока действия, per-field required, описания под полем, Toaster.",
+      "ref": "recipe-settings-form"
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Принципал",
+      "meaning": "Субъект доступа — пользователь или сервисный аккаунт",
+      "preferredLabel": "Субъект доступа"
+    },
+    {
+      "term": "Роль",
+      "meaning": "Именованный набор прав",
+      "preferredLabel": "Роль"
+    },
+    {
+      "term": "Политика",
+      "meaning": "Правило, связывающее субъект, действие и ресурс",
+      "preferredLabel": "Политика"
+    },
+    {
+      "term": "Scope",
+      "meaning": "Область видимости, в которой действует право",
+      "preferredLabel": "Область видимости"
+    }
+  ],
+  "referenceScreens": [
+    {
+      "name": "Список пользователей (эталон)",
+      "ref": "internal://atlas/src/pages/Principals.tsx",
+      "note": "Канонский список: uikit Table + withTableSelection + ActionsPanel."
+    },
+    {
+      "name": "Выдача прав (эталон)",
+      "ref": "internal://atlas/src/pages/GrantAccess.tsx",
+      "note": "Канонская форма: полоса 720, Select ролей, date-components на срок."
+    }
+  ],
+  "conventions": [
+    "Таблицы пользователей/ролей — плоский uikit Table (не @gravity-ui/table): группировки по умолчанию нет, @gravity-ui/table тут оверкилл. (Противоположно Meridian — у разных сервисов разный дефолт «таблицы».)",
+    "Аудит-значимые действия (выдача/отзыв прав) — после успеха показываем тост с подтверждением; необратимые — через Dialog с outlined-danger.",
+    "email и идентификаторы субъектов — Text с возможностью копирования (CopyToClipboard рядом)."
+  ],
+  "provenance": {
+    "synthesizedFrom": [
+      "Вручную (PoC-пример). В проде — синтез из кода/макетов сервиса + write-back правок с прогонов."
+    ],
+    "lastUpdated": "2026-06-09",
+    "notes": "Фиктивная внутренняя админка. Намеренно отличается от Meridian при том же «внутреннем» характере (normal/light/centered/uniform/uikit-Table/allowlist) — демонстрирует, что per-service ≠ tenant-wide."
+  }
+}

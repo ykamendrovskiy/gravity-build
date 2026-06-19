@@ -1,0 +1,33 @@
+{
+  "name": "library-table",
+  "type": "registry:library",
+  "title": "table — каталог (@gravity-ui/table, TanStack)",
+  "description": "Что есть в @gravity-ui/table и для чего. Это таблица на базе TanStack Table с батарейками: выбор строк, DnD-переупорядочивание, дерево, настройка колонок, виртуализация. Бери её для данных-heavy экранов (НЕ простую uikit Table и НЕ блок table из page-constructor — см. library-routing). Нет upstream AI-доков → этот каталог + recipe-dashboard — основной источник; детали из README/Storybook. Полный список — в гайде (поле doc).",
+  "packages": [
+    {
+      "name": "@gravity-ui/table",
+      "version": "^1.15.3",
+      "note": "версия из version-index; peer uikit ^6||^7"
+    }
+  ],
+  "routing": [
+    {
+      "want": "Таблица с группировкой / деревом / DnD-строками / настройкой колонок / большим объёмом",
+      "use": "@gravity-ui/table: Table (+ useTable, column-хелперы, TableSettings).",
+      "avoid": "uikit Table (простая, без этих фич); блок table из page-constructor (он для маркетинга).",
+      "why": "Три разных «table» в Гравити; эта — единственная с фичами данных.",
+      "ref": "recipe-dashboard"
+    }
+  ],
+  "antiPatterns": [
+    "Импортить ColumnDef из '@gravity-ui/table/tanstack' — бери из главного '@gravity-ui/table', иначе нет withNestingStyles (TS2353 на nested-колонках).",
+    "Ждать поле info в cell/CellContext — его нет; значение бери через getValue() (cell: ({getValue}) => getValue()).",
+    "Выдумывать промежуточную версию (цепочка 0.9 → 1.0 → 1.15 реальна, между ними не сочинять)."
+  ],
+  "doc": "recipes/library-table.md",
+  "seeAlso": [
+    "library-routing",
+    "recipe-dashboard",
+    "version-index"
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "name": "library-routing",
+  "type": "registry:routing",
+  "title": "Cross-library routing (когда какую библиотеку Гравити брать)",
+  "description": "Карта disambiguation по библиотекам Gravity UI: какое намерение → какая библиотека. Стартовая точка перед генерацией — сопоставь каждый блок метаструктуры с таблицей и возьми указанную библиотеку. Гравити приходит в обучающие данные слабее массовых UI-библиотек, поэтому не подставляй компоненты и пропы по памяти из других дизайн-систем — сверяй каждое имя с этим registry. И не выбирай наугад, когда выбор неоднозначен (напр. три «table» или несколько графических библиотек). Подробные recipe есть для ядра (uikit / navigation / table / page-constructor / icons); для остальных библиотек routing указывает пакет, точный API бери из его README.",
+  "routing": [
+    {
+      "want": "Лендинг / маркетинговая / промо / продуктовая страница из блоков",
+      "use": "@gravity-ui/page-constructor — <PageConstructor content={...}/> внутри <PageConstructorProvider>",
+      "avoid": "@gravity-ui/uikit Card + Button + Box руками",
+      "why": "page-constructor — config-driven библиотека готовых блоков (Hero / Features / Pricing / FAQ / CTA). Собирать их из uikit вручную = больше кода и хуже консистентность.",
+      "ref": "recipe-landing"
+    },
+    {
+      "want": "Постоянный сайдбар с разделами + сворачивание в иконки",
+      "use": "@gravity-ui/navigation — AsideHeader",
+      "avoid": "самописный <aside>; @gravity-ui/uikit",
+      "why": "В uikit нет сайдбар-компонента. AsideHeader даёт compact / menuItems / renderContent / renderFooter из коробки.",
+      "ref": "recipe-dashboard"
+    },
+    {
+      "want": "Таблица с группировкой / tree-rows / DnD-строк / virtualization / range-selection",
+      "use": "@gravity-ui/table — useTable, Table, selectionColumn",
+      "avoid": "@gravity-ui/uikit Table; @tanstack/react-table напрямую; @gravity-ui/react-data-table",
+      "why": "@gravity-ui/table — TanStack-обёртка с готовыми grouping / reordering / virtualization и правильной мемоизацией. uikit/Table — простая, без grouping.",
+      "ref": "recipe-dashboard"
+    },
+    {
+      "want": "Обычная таблица (selection / sorting / actions, без группировки и DnD-колонок)",
+      "use": "@gravity-ui/uikit Table + HOC по нужде: withTableSelection / withTableSorting / withTableActions",
+      "avoid": "@gravity-ui/table (overkill для плоской таблицы)",
+      "why": "uikit/Table + HOC покрывает selection/sorting/actions — так делают официальные эталоны (reference-interfaces / TablePreview). @gravity-ui/table бери ТОЛЬКО для группировки / tree-rows / DnD-колонок / virtualization."
+    },
+    {
+      "want": "Слово «table» в запросе — неоднозначно, в Гравити их минимум три",
+      "use": "Роутить по фиче: grouping/tree/DnD → @gravity-ui/table; плоская → uikit Table",
+      "avoid": "Выбирать наугад одну из трёх",
+      "why": "uikit/Table vs @gravity-ui/table vs @gravity-ui/react-data-table. Без явного routing-контекста выбор случайный — роутингуй по нужной фиче."
+    },
+    {
+      "want": "Форм-контролы: текст / число / выбор / тогл / чекбокс / радио",
+      "use": "@gravity-ui/uikit — TextInput, NumberInput, Select, Switch, Checkbox, RadioGroup",
+      "avoid": "<input>; Input; Dropdown (это меню, не input); Toggle (правильно Switch)",
+      "why": "Канонические имена Гравити. Частые неверные имена: Input/Dropdown/Toggle. У Select value ВСЕГДА массив, даже для single-select.",
+      "ref": "recipe-settings-form"
+    },
+    {
+      "want": "Тосты / уведомления «Сохранено»",
+      "use": "@gravity-ui/uikit — new Toaster() + ToasterProvider toaster={...} + ToasterComponent + useToaster()",
+      "avoid": "<ToasterProvider> без обязательного пропа toaster; alert()",
+      "why": "Toaster — класс, не компонент; ToasterProvider требует обязательный проп toaster, иначе сборка падает. См. pattern-app-shell.",
+      "ref": "pattern-app-shell"
+    },
+    {
+      "want": "Иконки",
+      "use": "@gravity-ui/icons",
+      "avoid": "иконки по памяти из других наборов; самописные SVG; имена наугад",
+      "why": "Сверяй имя иконки с набором @gravity-ui/icons, прежде чем импортировать — не подставляй по памяти."
+    },
+    {
+      "want": "Сложная динамическая форма из JSON-схемы",
+      "use": "@gravity-ui/dynamic-forms",
+      "avoid": "Ручная сборка десятков полей; брать его же для формы из 5-10 полей",
+      "why": "JSON-schema-driven формы. Для базовой формы из 5-10 полей — overkill, бери uikit-контролы."
+    },
+    {
+      "want": "Форма на react-final-form с готовыми высокоуровневыми полями",
+      "use": "@gravity-ui/dialog-fields",
+      "avoid": "собирать поля диалога руками",
+      "why": "Обёртка над react-final-form с field-компонентами. Для JSON-schema — dynamic-forms; для простой формы 5-10 полей — uikit-контролы (recipe-settings-form)."
+    },
+    {
+      "want": "Графики / визуализация данных (линии, бары, пай и т.п.)",
+      "use": "@gravity-ui/charts (гибкий React-рендеринг графиков) или @gravity-ui/chartkit (виз-сьют, интегрированный с дизайн-системой)",
+      "avoid": "рисовать SVG/canvas руками; тянуть recharts/chart.js по памяти",
+      "why": "В Гравити визуализация — отдельные библиотеки, и их несколько: charts (React-графики), chartkit (сьют поверх DS), @gravity-ui/yagr (canvas на uPlot для плотных временных рядов). Выбирай по нагрузке/интеграции, не наугад — это та же развилка, что и «table»."
+    },
+    {
+      "want": "Дашборд из перетаскиваемых виджетов / настраиваемая сетка панелей",
+      "use": "@gravity-ui/dashkit",
+      "avoid": "верстать грид виджетов руками; путать с @gravity-ui/table",
+      "why": "dashkit — grid-компонент для интерактивных дашбордов (drag/resize панелей). Это НЕ таблица (см. @gravity-ui/table) и НЕ сайдбар-shell (см. AsideHeader)."
+    },
+    {
+      "want": "Поля даты/времени, дата-пикеры, диапазоны, относительные даты",
+      "use": "@gravity-ui/date-components (UI-контролы) + @gravity-ui/date-utils (значения: dateTimeParse/dateTime)",
+      "avoid": "<input type=\"date\">; самописный календарь; moment/dayjs для парсинга",
+      "why": "date-components — готовые дата-контролы поверх date-utils. Детали и API — brief recipes/dates.md (апстрим без AI-доков → README/Storybook)."
+    },
+    {
+      "want": "Редактор текста (WYSIWYG / Markdown)",
+      "use": "@gravity-ui/markdown-editor",
+      "avoid": "textarea + своя разметка; сторонние редакторы по памяти",
+      "why": "Совмещает WYSIWYG и Markup режимы в стиле Гравити. Есть upstream AGENTS.md — см. library-docs (route, не угадывай API)."
+    },
+    {
+      "want": "Сложные / составные компоненты, которых нет в @gravity-ui/uikit",
+      "use": "@gravity-ui/components (отдельный пакет «complex React components»)",
+      "avoid": "собирать сложный составной компонент руками, если он уже есть",
+      "why": "Надстройка над uikit с более сложными компонентами. Точный список — Storybook preview.gravity-ui.com/components; апстрим без AI-доков → сверяй имена (library-docs)."
+    },
+    {
+      "want": "Интерфейс AI-чата (сообщения, стриминг, ассистент)",
+      "use": "@gravity-ui/aikit",
+      "avoid": "собирать чат-пузыри/стриминг руками",
+      "why": "React-компоненты для AI-чатов (Atomic Design). Есть upstream llms.txt + CLAUDE.md — см. library-docs (route)."
+    },
+    {
+      "want": "Иллюстрации статусов данных (пусто / ошибка / нет доступа)",
+      "use": "@gravity-ui/illustrations",
+      "avoid": "случайные картинки/эмодзи; свои SVG",
+      "why": "Готовый набор иллюстраций под состояния данных, согласованный с DS."
+    },
+    {
+      "want": "Графовые диаграммы (узлы и связи), schemes",
+      "use": "@gravity-ui/graph",
+      "avoid": "рисовать узлы div'ами; сторонний граф-движок по памяти",
+      "why": "Высокопроизводительный граф-рендерер с детализацией по масштабу."
+    },
+    {
+      "want": "Интерактивный таймлайн / лента событий по времени",
+      "use": "@gravity-ui/timeline",
+      "avoid": "верстать шкалу времени руками",
+      "why": "Canvas-рендеринг интерактивных таймлайнов."
+    },
+    {
+      "want": "Тема / тёмный режим / обвязка приложения (провайдеры, стили)",
+      "use": "pattern-app-shell — ThemeProvider + стили + (опц.) Toaster/Mobile провайдеры",
+      "avoid": "Рендер компонентов Гравити без ThemeProvider и без импорта styles.css",
+      "why": "Без обвязки нет темы и часть компонентов падает в runtime. Обязательный первый слой любой страницы.",
+      "ref": "pattern-app-shell"
+    }
+  ],
+  "seeAlso": [
+    "recipe-dashboard",
+    "recipe-landing",
+    "recipe-settings-form",
+    "pattern-app-shell",
+    "version-index"
+  ]
+}

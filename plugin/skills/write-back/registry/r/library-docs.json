@@ -1,0 +1,66 @@
+{
+  "name": "library-docs",
+  "type": "registry:routing",
+  "title": "AI-docs per library — где брать детальную API/конфиг (route vs brief)",
+  "description": "Когда выбрал библиотеку и нужна точная API/конфиг — здесь сказано, ОТКУДА её брать. Принцип: если у библиотеки есть СВОИ AI-доки (AGENTS.md / .agents/ / memory-bank/ / llms.txt) — открой их (route, не дублируем и не угадываем). Если апстрим молчит — используй наш recipe/brief. Survey 2026-06. registry — роутер + клей + брифы для недокументированного, а не копия API всех библиотек.",
+  "routing": [
+    {
+      "want": "Какие блоки есть в @gravity-ui/page-constructor и их точная конфигурация (header/hero/media/slider/cards, Quote, PriceCard, PriceDetailed…)",
+      "use": "Открой upstream AI-доки: github.com/gravity-ui/page-constructor — AGENTS.md (корень) + memory-bank/usage/. ПОЛНЫЙ каталог блоков = файлы в memory-bank/usage/ (45+ блоков, по файлу на блок: priceCard.md, priceDetailed.md, quote.md, heroBlock.md, headerBlock.md, media.md, …) — пролистай папку, чтобы узнать доступные блоки, затем открой нужный. НЕ угадывай shape sub-блоков и не дублируй каталог у себя.",
+      "why": "Богатые AI-доки апстрима (.agents/ + memory-bank/usage) — каталог блоков там полный и актуальный, держим route, не копию. Частые промахи угадывания: theme только default/light/dark (не «normal»); slider-block требует slidesToShow; PriceCard кладёт фичи в list, PriceDetailed — в details. Иконки фич — не внешние CDN (iconify) — флакают.",
+      "ref": "recipe-landing"
+    },
+    {
+      "want": "Точная API компонентов @gravity-ui/uikit (пропы, варианты)",
+      "use": "Сначала сверь ИМЯ экспорта по нашему `r/library-uikit.json` (офлайн-инвентарь uikit@7 — ловит stale-имена). За детальным API (пропы/варианты) — upstream AGENTS.md: github.com/gravity-ui/uikit. Наш recipe-settings-form / pattern-app-shell — для app-shell-обвязки, view-политик и именования контролов (Switch/Select/TextInput).",
+      "why": "У uikit есть свой AGENTS.md (API), но нет team-glue и офлайн-guard'а имён — их держим мы (library-uikit + recipe/pattern)."
+    },
+    {
+      "want": "Графики: @gravity-ui/charts",
+      "use": "Upstream AGENTS.md + .agents/: github.com/gravity-ui/charts.",
+      "why": "Есть свои AI-доки → роутим."
+    },
+    {
+      "want": "Markdown-редактор: @gravity-ui/markdown-editor",
+      "use": "Upstream AGENTS.md: github.com/gravity-ui/markdown-editor.",
+      "why": "Есть AGENTS.md → роутим."
+    },
+    {
+      "want": "Граф: @gravity-ui/graph",
+      "use": "Upstream llms.txt + CLAUDE.md: github.com/gravity-ui/graph.",
+      "why": "Есть llms.txt/CLAUDE → роутим."
+    },
+    {
+      "want": "Блоговые страницы: @gravity-ui/blog-constructor",
+      "use": "Upstream AGENTS.md: github.com/gravity-ui/blog-constructor (+ наследует page-constructor).",
+      "why": "Есть AGENTS.md → роутим."
+    },
+    {
+      "want": "AI-чат: @gravity-ui/aikit",
+      "use": "Upstream llms.txt + CLAUDE.md: github.com/gravity-ui/aikit.",
+      "why": "Есть llms.txt/CLAUDE → роутим."
+    },
+    {
+      "want": "Project scaffold — tsconfig / vite / eslint / стек целиком",
+      "use": "Официальные шаблоны: github.com/gravity-ui/gravity-ui-vite-example (Vite), -nextjs-example, -remix-example, -cra-example. Бери tsconfig/конфиги оттуда, не сочиняй.",
+      "why": "Закрывает повторяющийся scaffold-промах (TS6310: composite+noEmit). Это known-good официальный scaffold + эталонные приложения — роутим, не пишем свой `pattern-project-scaffold`."
+    },
+    {
+      "want": "Библиотеки БЕЗ upstream AI-доков: navigation, table, components, icons, dynamic-forms, date-components, date-utils, dashkit, chartkit, yagr, illustrations, timeline, data-source",
+      "use": "Открой наш каталог-бриф: navigation → library-navigation, table → library-table, components → library-components, icons → library-icons, dynamic-forms → library-dynamic-forms, даты → recipes/dates.md (бриф). Базовые компоненты uikit → library-uikit. Для тех, у кого брифа ещё нет (dashkit, chartkit, yagr, illustrations, timeline, data-source) — library-routing + README/Storybook апстрима. Сверяй имена экспортов/пропов перед использованием.",
+      "why": "Апстрим для LLM их не документирует → наш слой = основной AI-источник. Здесь registry даёт больше всего ценности; держим каталоги-брифы актуальными (по мере доказательных кейсов добавляем новые library-*)."
+    }
+  ],
+  "seeAlso": [
+    "library-routing",
+    "library-uikit",
+    "library-navigation",
+    "library-table",
+    "library-components",
+    "library-icons",
+    "library-dynamic-forms",
+    "recipe-landing",
+    "recipe-dashboard",
+    "recipe-settings-form"
+  ]
+}

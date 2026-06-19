@@ -1,0 +1,50 @@
+name: Beta feedback
+description: Сообщить о проблеме / промахе / предложении по сборке gravity-build
+title: "[beta] "
+labels: ["beta-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Репозиторий публичный — убери внутренние имена сервисов, URL и доменные данные.
+        Совет: запусти скилл `/gravity-build:feedback` — он соберёт этот отчёт за тебя.
+  - type: textarea
+    id: built
+    attributes:
+      label: Что собирал
+      description: Задача / бриф своими словами; какой скилл использовал.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Что не так
+      description: По пунктам. Для каждого — ожидал vs получил.
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - blocker
+        - major
+        - minor
+        - nit
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Repro
+      description: Минимальные шаги или сниппет + файл. Если не воспроизвёл — так и напиши, не сочиняй механизм.
+  - type: textarea
+    id: env
+    attributes:
+      label: Окружение
+      description: Версия плагина (commit), версии @gravity-ui/* из package.json, node / OS.
+  - type: input
+    id: profile
+    attributes:
+      label: Профиль
+      description: Был ли service-profile.json (какой сервис / характер) или baseline.

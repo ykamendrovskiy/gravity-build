@@ -1,0 +1,132 @@
+{
+  "name": "gravity-build",
+  "tenant": "gravity-ui",
+  "homepage": "https://gravity-ui.com",
+  "description": "Knowledge-registry для сборки прототипов на настоящих компонентах Gravity UI. Items — не код для установки, а knowledge-артефакты: routing / recipe / pattern / version-index. Начинай с library-routing.",
+  "starterLibraries": [
+    "@gravity-ui/uikit",
+    "@gravity-ui/icons",
+    "@gravity-ui/navigation",
+    "@gravity-ui/page-constructor",
+    "@gravity-ui/table"
+  ],
+  "items": [
+    {
+      "name": "library-routing",
+      "type": "registry:routing",
+      "title": "Cross-library routing (когда какую библиотеку Гравити брать)",
+      "path": "r/library-routing.json",
+      "entry": true,
+      "summary": "Главный entry-point. Disambiguation поверх стартового набора: какое намерение → какая библиотека."
+    },
+    {
+      "name": "library-docs",
+      "type": "registry:routing",
+      "title": "AI-docs per library (route vs brief)",
+      "path": "r/library-docs.json",
+      "summary": "Где брать детальную API: upstream AI-доки (route) если есть, иначе наш brief. Открывай, когда нужна точная конфигурация библиотеки."
+    },
+    {
+      "name": "library-uikit",
+      "type": "registry:library",
+      "title": "uikit — инвентарь экспортов (актуальные имена)",
+      "path": "r/library-uikit.json",
+      "doc": "recipes/library-uikit.md",
+      "summary": "Каталог компонентов uikit@7 с назначением + guard от неверных имён (RadioButton→SegmentedRadioGroup, монолитный Tabs, TreeList из корня). Сверяй имя перед импортом."
+    },
+    {
+      "name": "library-navigation",
+      "type": "registry:library",
+      "title": "navigation — каталог (каркас приложения)",
+      "path": "r/library-navigation.json",
+      "doc": "recipes/library-navigation.md",
+      "summary": "Что есть в @gravity-ui/navigation: AsideHeader (каркас с боковым меню), Settings, MobileHeader и др. Нет upstream AI-доков → наш каталог."
+    },
+    {
+      "name": "library-table",
+      "type": "registry:library",
+      "title": "table — каталог (@gravity-ui/table, TanStack)",
+      "path": "r/library-table.json",
+      "doc": "recipes/library-table.md",
+      "summary": "Что есть в @gravity-ui/table: Table + column-хелперы + хуки (выбор/дерево/DnD/настройка колонок). Не путать с uikit Table и блоком page-constructor."
+    },
+    {
+      "name": "library-components",
+      "type": "registry:library",
+      "title": "components — каталог (надстройка над uikit)",
+      "path": "r/library-components.json",
+      "doc": "recipes/library-components.md",
+      "summary": "Что есть в @gravity-ui/components: составные блоки поверх uikit (FormRow, AdaptiveTabs, ConfirmDialog, Gallery…). Базовые контролы — в uikit."
+    },
+    {
+      "name": "library-icons",
+      "type": "registry:library",
+      "title": "icons — набор иконок (@gravity-ui/icons)",
+      "path": "r/library-icons.json",
+      "doc": "recipes/library-icons.md",
+      "summary": "~781 SVG-иконка как React-компоненты; рендер через uikit Icon (data-проп). Как импортировать и как найти реальное имя (showcase), а не выдумать."
+    },
+    {
+      "name": "library-dynamic-forms",
+      "type": "registry:library",
+      "title": "dynamic-forms — формы из JSON-схемы",
+      "path": "r/library-dynamic-forms.json",
+      "doc": "recipes/library-dynamic-forms.md",
+      "summary": "@gravity-ui/dynamic-forms: форма по spec (DynamicField в react-final-form + DynamicView). Ставить bundle (peer final-form). Для простых форм — uikit+FormRow."
+    },
+    {
+      "name": "reference-interfaces",
+      "type": "registry:routing",
+      "title": "Эталонные интерфейсы на Гравити",
+      "path": "r/reference-interfaces.json",
+      "summary": "Route на реальные composite-интерфейсы (почта/дашборд/форма…) в gravity-ui/landing/UISamples. Открывай при сборке целого интерфейса, не одиночного surface."
+    },
+    {
+      "name": "version-index",
+      "type": "registry:version-index",
+      "title": "Version index — версии стартового набора + bundles route-only либ",
+      "path": "r/version-index.json",
+      "summary": "Закреплённые semver-якоря + коэрентные bundles (markdown-editor, dates): пакеты route-only либ ставятся вместе, иначе ломается peer-граф."
+    },
+    {
+      "name": "pattern-app-shell",
+      "type": "registry:pattern",
+      "title": "App-shell (обвязка приложения)",
+      "path": "r/pattern-app-shell.json",
+      "doc": "recipes/app-shell.md",
+      "summary": "ThemeProvider + стили + опц. Toaster/Mobile. Обязательный первый слой любой страницы."
+    },
+    {
+      "name": "pattern-theming",
+      "type": "registry:pattern",
+      "title": "Темизация / брендирование",
+      "path": "r/pattern-theming.json",
+      "doc": "recipes/theming.md",
+      "summary": "Кастомная тема/бренд правильно: импортируй готовую Themer-тему (css после styles.css) или полный brand-набор per-theme — не 2-4 токена. Открывай при бренде/кастомной теме сервиса."
+    },
+    {
+      "name": "recipe-dashboard",
+      "type": "registry:recipe",
+      "title": "Dashboard / админка",
+      "path": "r/recipe-dashboard.json",
+      "doc": "recipes/dashboard.md",
+      "summary": "AsideHeader + @gravity-ui/table (grouping/tree/DnD)."
+    },
+    {
+      "name": "recipe-landing",
+      "type": "registry:recipe",
+      "title": "Landing / маркетинговая страница",
+      "path": "r/recipe-landing.json",
+      "doc": "recipes/landing.md",
+      "summary": "@gravity-ui/page-constructor — config-driven блоки."
+    },
+    {
+      "name": "recipe-settings-form",
+      "type": "registry:recipe",
+      "title": "Settings form / страница настроек",
+      "path": "r/recipe-settings-form.json",
+      "doc": "recipes/settings-form.md",
+      "summary": "uikit-контролы + обязательный Toaster-app-shell."
+    }
+  ]
+}

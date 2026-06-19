@@ -1,0 +1,34 @@
+{
+  "name": "library-icons",
+  "type": "registry:library",
+  "title": "icons — набор иконок (@gravity-ui/icons)",
+  "description": "Как использовать иконки Гравити и как НЕ выдумать имя. @gravity-ui/icons — набор из ~781 SVG-иконки, каждая доступна как React-компонент. Рендерится через uikit Icon. У набора нет upstream AI-доков; имена иконок легко галлюцинируются → проверяй по showcase, не сочиняй. Паттерны импорта и поиск имени — в гайде (поле doc).",
+  "packages": [
+    {
+      "name": "@gravity-ui/icons",
+      "version": "^2.18.0",
+      "dev": true,
+      "note": "версия из version-index"
+    }
+  ],
+  "routing": [
+    {
+      "want": "Иконка в интерфейсе (в кнопке, пункте меню, статусе)",
+      "use": "Компонент-иконка из @gravity-ui/icons, отрисованный через uikit <Icon data={IconName} size={16} />.",
+      "avoid": "Внешние CDN-иконки (iconify и пр.); эмодзи вместо иконок; выдуманное имя иконки.",
+      "why": "Иконки набора — в едином стиле и весе; внешние флакают и выбиваются.",
+      "ref": "library-uikit"
+    }
+  ],
+  "antiPatterns": [
+    "Выдумывать имя иконки по памяти — найди точное имя в metadata.json (github.com/gravity-ui/icons/blob/main/metadata.json: поиск по name/keywords → бери componentName) или по showcase gravity-ui.com/icons; несуществующее имя = ошибка импорта.",
+    "Тащить иконки из iconify / внешних CDN — не в стиле Гравити, могут не грузиться.",
+    "Передавать иконку в uikit Icon как children — иконка идёт в проп data: <Icon data={IconName} />."
+  ],
+  "doc": "recipes/library-icons.md",
+  "seeAlso": [
+    "library-uikit",
+    "library-routing",
+    "version-index"
+  ]
+}

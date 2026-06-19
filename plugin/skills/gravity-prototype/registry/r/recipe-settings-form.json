@@ -1,0 +1,135 @@
+{
+  "name": "recipe-settings-form",
+  "type": "registry:recipe",
+  "title": "Recipe: Settings form / страница настроек",
+  "description": "Форма из 5-10 полей на uikit-контролах (TextInput / Select / Switch / Checkbox) + обязательная app-shell обвязка с Toaster. Канонические имена контролов и видимое подтверждение сохранения.",
+  "triggers": [
+    "настройки",
+    "settings",
+    "страница настроек",
+    "форма профиля",
+    "редактирование профиля",
+    "edit profile",
+    "preferences",
+    "форма"
+  ],
+  "packages": [
+    {
+      "name": "@gravity-ui/uikit",
+      "version": "^7.41.0",
+      "required": true
+    },
+    {
+      "name": "@gravity-ui/icons",
+      "version": "^2.18.0",
+      "required": false,
+      "note": "для иконок в Avatar/Buttons"
+    },
+    {
+      "name": "@gravity-ui/components",
+      "version": "^4.20.2",
+      "required": false,
+      "note": "FormRow (подпись+описание поля) и др. составные; peer uikit ^7.39"
+    },
+    {
+      "name": "react",
+      "version": "^18.3.1",
+      "required": true
+    },
+    {
+      "name": "react-dom",
+      "version": "^18.3.1",
+      "required": true
+    }
+  ],
+  "routing": [
+    {
+      "want": "Текстовое поле",
+      "use": "TextInput",
+      "avoid": "<input>; Input",
+      "why": "каноническое имя; label/error/validationState из коробки"
+    },
+    {
+      "want": "Число",
+      "use": "NumberInput",
+      "avoid": "TextInput type=number",
+      "why": "корректные клавиши/parsing"
+    },
+    {
+      "want": "Выбор одного из списка",
+      "use": "Select с value={[v]} (массив!)",
+      "avoid": "Dropdown; <select>",
+      "why": "Dropdown — меню, Select — input; value у Select всегда массив"
+    },
+    {
+      "want": "Тогл",
+      "use": "Switch",
+      "avoid": "Toggle",
+      "why": "в Гравити имя Switch"
+    },
+    {
+      "want": "Чекбокс / радио",
+      "use": "Checkbox; RadioGroup",
+      "avoid": "<input type=checkbox>; Radio поштучно",
+      "why": "штатные с indeterminate/keyboard-nav"
+    },
+    {
+      "want": "Submit / Cancel",
+      "use": "Button view='action' (Save) + view='normal' (Cancel)",
+      "avoid": "одинаковые view; несколько action-кнопок",
+      "why": "одна action-кнопка на блок — визуальный приоритет"
+    },
+    {
+      "want": "Опасное действие (удалить аккаунт)",
+      "use": "Button view='outlined-danger' + Dialog подтверждения",
+      "avoid": "прямой submit без Dialog",
+      "why": "необратимое — через подтверждение"
+    },
+    {
+      "want": "Валидация поля",
+      "use": "validationState='invalid' + errorMessage='…'",
+      "avoid": "<Text color='danger'> сбоку",
+      "why": "штатный API, корректные screen-reader атрибуты"
+    },
+    {
+      "want": "Подпись + описание поля (страница настроек)",
+      "use": "FormRow (label + FormRow.FieldDescription) из @gravity-ui/components",
+      "avoid": "инлайновый проп label= контрола для поля с описанием",
+      "why": "FormRow даёт сетку подпись↔контрол и слот описания; label= встраивает подпись ВНУТРЬ контрола (компактный инлайн)",
+      "ref": "library-components"
+    },
+    {
+      "want": "Диапазон / процент с наглядностью; 2-4 взаимоисключающих",
+      "use": "Slider; SegmentedRadioGroup",
+      "avoid": "NumberInput для тактильного выбора; Select для 2-3 опций",
+      "why": "контрол под задачу: Slider — визуальный выбор, SegmentedRadioGroup — варианты видны сразу"
+    },
+    {
+      "want": "Уведомление «Сохранено»",
+      "use": "useToaster().add({theme:'success'}) + app-shell с new Toaster()",
+      "avoid": "console.log/спиннер вместо тоста",
+      "why": "нужно видимое user-facing подтверждение, не console.log/спиннер"
+    }
+  ],
+  "antiPatterns": [
+    "Имена не из Гравити: Toggle (→ Switch), Dropdown (→ Select), Input (→ TextInput).",
+    "Select value как строка: value='ru' → TS-ошибка; нужно value={['ru']}.",
+    "<ToasterProvider> без toaster={new Toaster()} — сборка падает.",
+    "Несколько view='action' кнопок на странице — только одна primary.",
+    "Inline style={{display:'flex',gap:16}} вместо <Flex gap={4}> — gap у Flex это шкала 1-8, не пиксели.",
+    "Все контролы растянуты на 100% ширины независимо от контента — ширину задавай по ожидаемому контенту (число/код/процент — узко, ≈120-200px), полосу формы ограничивай maxWidth ≈560-720px.",
+    "Инлайновый проп label= у контрола для поля с описанием — он встраивает подпись ВНУТРЬ контрола; для подписи+описания бери FormRow (@gravity-ui/components).",
+    "Submit без loading/error — хотя бы loading={isSubmitting}."
+  ],
+  "patternRefs": [
+    "pattern-app-shell"
+  ],
+  "doc": "recipes/settings-form.md",
+  "seeAlso": [
+    "library-routing",
+    "pattern-app-shell",
+    "library-components",
+    "library-uikit",
+    "version-index"
+  ]
+}

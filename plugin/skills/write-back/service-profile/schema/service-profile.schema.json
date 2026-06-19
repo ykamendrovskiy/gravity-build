@@ -1,0 +1,295 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gravity-ui.com/ai/service-profile/schema/service-profile.schema.json",
+  "title": "gravity-build — Service Profile",
+  "description": "Контракт per-service-профиля: ручки конвенций конкретного сервиса/команды, которые универсальный registry оставляет открытыми. Слоится ПОВЕРХ универсального registry: registry даёт корректность и идиому (имена компонентов, версии, app-shell-обвязка, «FormRow вместо инлайн-label»), профиль — эстетику/раскладку/плотность/политики/бренд. Профиль НЕ переопределяет корректность; при конфликте побеждает registry, агент это помечает. Любую ручку, которую профиль НЕ задал, агент берёт из универсального дефолта (омиссия = дефолт). Гранулярность: tenant (дизайн-система) → service (этот файл) → app.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "tenant", "service"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Ссылка на этот JSON Schema для редакторской валидации."
+    },
+    "schemaVersion": {
+      "type": "string",
+      "description": "Версия схемы профиля — для миграций при автоматическом write-back-лупе."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^service-[a-z0-9-]+$",
+      "description": "Стабильный машинный id. Конвенция: service-<slug>, напр. service-meridian."
+    },
+    "tenant": {
+      "type": "string",
+      "description": "Дизайн-система (универсальный registry), поверх которой слоится профиль. Для Гравити — gravity-ui. Делает связь профиль↔registry явной (team-agnostic: один движок, много тенантов)."
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "description": "Кто этот сервис. Контекст для модели: домен и аудитория косвенно задают тон (внутренний ops-инструмент ≠ публичный продукт).",
+      "properties": {
+        "title": {"type": "string", "description": "Человекочитаемое имя сервиса."},
+        "domain": {"type": "string", "description": "Предметная область (напр. «управление парком серверов», «биллинг»)."},
+        "audience": {"type": "string", "description": "Кто пользователь (напр. «дежурный инженер NOC», «внешний клиент»)."},
+        "description": {"type": "string", "description": "Одна-две строки: что за сервис и какой у него характер интерфейса."}
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Тема и бренд. Универсальный слой только обязывает подключить ThemeProvider; какая тема по умолчанию и какой бренд — ручка сервиса. Три tier'а: themeConfig (сгенерированная Themer-тема — предпочтительно) > brandTokens (полный набор токенов руками, fallback) > ничего (дефолтная тема Гравити). Как применять — pattern-theming в registry.",
+      "properties": {
+        "base": {
+          "type": "string",
+          "enum": ["light", "dark", "light-hc", "dark-hc"],
+          "description": "Тема по умолчанию для ThemeProvider."
+        },
+        "allowSwitch": {"type": "boolean", "description": "Давать ли в UI переключатель темы."},
+        "themeConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["css"],
+          "description": "Предпочтительный способ бренда: указатель на сгенерированную Themer-тему. Source-of-truth — .theme.json (round-trip в Themer/Figma); .theme.css — производная для импорта в приложение ПОСЛЕ uikit styles.css. Агент импортирует css, отдельные токены руками не подбирает.",
+          "properties": {
+            "json": {"type": "string", "description": "Путь к Themer-экспорту (source-of-truth)."},
+            "css": {"type": "string", "description": "Путь к производному CSS (.g-root_theme_* блоки). Импортировать ПОСЛЕ @gravity-ui/uikit/styles/styles.css."},
+            "scopes": {"type": "array", "items": {"type": "string"}, "description": "Какие темы покрывает (light/dark/light-hc/dark-hc)."},
+            "source": {"type": "string", "description": "Провенанс: чем/из чего сгенерировано (напр. «Themer-экспорт ‘Orange by albe’»)."}
+          }
+        },
+        "brandTokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Fallback без Themer: полный набор brand-токенов ПО ТЕМАМ (light/dark — разные значения; обязательно --g-color-text-brand-contrast с проверкой контраста). Не «2-4 токена на :root». Используется только если нет themeConfig.",
+          "properties": {
+            "light": {"type": "object", "additionalProperties": {"type": "string"}, "description": "Пары «--g-токен → значение» для светлой темы."},
+            "dark": {"type": "object", "additionalProperties": {"type": "string"}, "description": "Пары «--g-токен → значение» для тёмной темы."}
+          }
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "density": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Плотность интерфейса: задаёт размеры контролов (size), шкалу gap/padding и типографику. NB: в Patterns коллег эта ось (compact/normal/spacious) захардкожена как универсальная — в нашей модели это per-service-ручка, потому что плотность зависит от характера сервиса, а не от дизайн-системы.",
+      "properties": {
+        "default": {
+          "type": "string",
+          "enum": ["compact", "normal", "spacious"],
+          "description": "Плотность по умолчанию. compact — плотные ops-инструменты; normal — стандартные страницы; spacious — лендинги/акцентные экраны."
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "contentLayout": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Раскладка контента страницы. Универсальные гайды дают разумный дефолт (форма по центру с max-width); финальную политику задаёт сервис.",
+      "properties": {
+        "width": {
+          "type": "string",
+          "enum": ["centered-fixed", "fluid-capped", "full-width"],
+          "description": "centered-fixed — контент по центру с фиксированной шириной; fluid-capped — тянется, но ограничен max-width; full-width — на всю ширину вьюпорта."
+        },
+        "maxWidth": {"type": "string", "description": "Max-width контентного контейнера (px или токен), если width не full-width. Напр. «1200px»."},
+        "align": {
+          "type": "string",
+          "enum": ["center", "start"],
+          "description": "Горизонтальное выравнивание контентного контейнера."
+        },
+        "adaptive": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Политика адаптивности.",
+          "properties": {
+            "policy": {
+              "type": "string",
+              "enum": ["desktop-only", "desktop-first", "mobile-first"],
+              "description": "Стратегия. desktop-only — рабочее место, мобильную раскладку не поддерживаем; desktop-first / mobile-first — с какой стороны строим адаптив."
+            },
+            "minWidth": {"type": "string", "description": "Минимальная поддерживаемая ширина (напр. «1280px» для desktop-only)."},
+            "breakpoints": {"type": "string", "description": "Прозой: какие брейкпоинты и что на них меняется."}
+          }
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "formPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Конвенции форм — ручки, размеченные как per-service в recipes/settings-form.md. Универсальный гайд даёт дефолт; профиль фиксирует политику сервиса.",
+      "properties": {
+        "fieldWidth": {
+          "type": "string",
+          "enum": ["uniform", "by-content"],
+          "description": "uniform — единая ширина контролов в секции (правые края выровнены); by-content — каждый контрол по своему контенту."
+        },
+        "widthBuckets": {
+          "type": "object",
+          "additionalProperties": {"type": "string"},
+          "description": "Конкретные ширины по типам полей: пары «бакет → ширина», напр. narrow:«160px» (число/код/процент), medium:«320px» (имя/slug), wide:«100%» (описание)."
+        },
+        "formMaxWidth": {"type": "string", "description": "Max-width полосы формы (напр. «640px»)."},
+        "labelPlacement": {
+          "type": "string",
+          "enum": ["form-row-left", "form-row-top", "inline"],
+          "description": "Где подпись поля: FormRow с подписью слева / FormRow с подписью сверху / инлайн label= (только для компактных полей)."
+        },
+        "descriptionDefault": {
+          "type": "string",
+          "enum": ["field-description", "help-mark"],
+          "description": "Дефолт размещения описания поля: под контролом (FormRow.FieldDescription) или в попапе HelpMark у подписи (форма не растягивается вертикально)."
+        },
+        "requiredMarking": {
+          "type": "string",
+          "enum": ["per-field", "form-level"],
+          "description": "Маркировка обязательных полей: звёздочка у каждого / одна заметка «все поля обязательны» на форму."
+        },
+        "footerActions": {
+          "type": "string",
+          "enum": ["right", "left", "bottom-bar"],
+          "description": "Раскладка кнопок футера формы: right — справа (дефолт); left — главное действие у края вьюпорта, alt-действие правее; bottom-bar — нижняя action-панель на всю ширину полосы."
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "navigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Каркас и информационная архитектура сервиса — определяет характер сильнее цвета. Детект и подробности — dimensions.md.",
+      "properties": {
+        "homeScreen": {"type": "boolean", "description": "Есть ли главная/дашборд-лендинг (первый экран после входа)."},
+        "navPattern": {"type": "string", "enum": ["aside-header", "top-tabs", "both"], "description": "Паттерн верхней навигации."},
+        "breadcrumbs": {"type": "string", "enum": ["none", "detail-only", "all"], "description": "Политика хлебных крошек."},
+        "breadcrumbsPlacement": {"type": "string", "enum": ["standalone", "in-action-bar"], "description": "Размещение крошек: отдельной строкой vs внутри верхнего ActionBar."},
+        "pageFooter": {"type": "boolean", "description": "Есть ли футер страницы (ссылки/легал/копирайт)."},
+        "backAffordance": {"type": "string", "description": "Как реализован возврат «назад» (крошки / небольшая ссылка). NB: крупная кнопка «назад» сверху — обычно анти-паттерн."},
+        "note": {"type": "string"}
+      }
+    },
+    "interactionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Поведенческие политики при работе с данными. Подтверждение опасного — универсально (registry); unsaved-гард / save-модель — per-service.",
+      "properties": {
+        "unsavedGuard": {"type": "boolean", "description": "Гард несохранённых изменений при уходе со страницы редактирования (Dialog-подтверждение)."},
+        "saveModel": {"type": "string", "enum": ["explicit", "autosave", "draft"], "description": "Модель сохранения."},
+        "updates": {"type": "string", "enum": ["optimistic", "pessimistic"], "description": "Оптимистичные vs пессимистичные обновления state."},
+        "note": {"type": "string"}
+      }
+    },
+    "feedbackPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Глубина коммуникации с пользователем (ось production-ready): отзывчивость на действия, пустые состояния, загрузка (синхр/асинхр), ошибки (синхр/асинхр/валидация). Компоненты/паттерны — универсальны (registry); ГЛУБИНА — per-service.",
+      "properties": {
+        "depth": {"type": "string", "enum": ["minimal", "standard", "rich"], "description": "minimal — базовый минимум; standard — тосты/скелетоны/пустые/валидация; rich — + индикаторы фоновой активности, async-retry, оптимистичные апдейты."},
+        "note": {"type": "string"}
+      }
+    },
+    "componentStyling": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Оформление управляющих элементов и информативность. «Одна action-кнопка», семантика view, «опасное=danger» — универсальны (registry); стиль контента кнопок и тултипы — per-service.",
+      "properties": {
+        "buttonContent": {"type": "string", "enum": ["text", "text-icon", "icon"], "description": "Контент кнопок по умолчанию: только текст / текст+иконка / только иконка (с тултипом). NB: размер иконки должен соответствовать size контрола — универсальная корректность."},
+        "viewPolicy": {"type": "string", "description": "Политика view: главное (action), второстепенное (normal/outlined), третичное (flat); однородным — одинаковый view."},
+        "tooltips": {"type": "string", "description": "Где/когда тултипы (Tooltip/HelpMark)."},
+        "note": {"type": "string"}
+      }
+    },
+    "approvedComponents": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Разрешённый сабсет компонентов и разрешение открытых развилок registry под политику сервиса. НЕ дублирует универсальную корректность (что и как называется) — только сужает выбор.",
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": ["open", "allowlist", "denylist"],
+          "description": "open — любой компонент Гравити; allowlist — только из allow; denylist — любой кроме deny."
+        },
+        "allow": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Разрешённые пакеты/компоненты (при policy=allowlist)."
+        },
+        "deny": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Запрещённые пакеты/компоненты с причиной в скобках (при policy=denylist)."
+        },
+        "preferred": {
+          "type": "object",
+          "additionalProperties": {"type": "string"},
+          "description": "Разрешение универсальных «it depends»-развилок: пары «намерение → выбранный компонент», напр. «точное число → NumberInput» (сужает универсальное «Slider vs NumberInput по ситуации»)."
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "archetypes": {
+      "type": "array",
+      "description": "Любимые шаблоны страниц сервиса. НЕ заменяют recipe registry — ссылаются на них (ref) и фиксируют, как именно сервис их собирает.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "when"],
+        "properties": {
+          "name": {"type": "string", "description": "Имя архетипа (напр. «Список ресурсов»)."},
+          "when": {"type": "string", "description": "Когда сервис строит этот экран."},
+          "structure": {"type": "string", "description": "Прозой: из чего собран (каркас → секции → компоненты)."},
+          "ref": {"type": "string", "description": "Имя registry-recipe/pattern/library, на который опирается архетип."}
+        }
+      }
+    },
+    "glossary": {
+      "type": "array",
+      "description": "Доменный словарь: как сервис называет сущности в UI (микрокопия).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["term"],
+        "properties": {
+          "term": {"type": "string", "description": "Термин предметной области."},
+          "meaning": {"type": "string", "description": "Что это значит."},
+          "preferredLabel": {"type": "string", "description": "Как называть в интерфейсе."}
+        }
+      }
+    },
+    "referenceScreens": {
+      "type": "array",
+      "description": "Указатели на эталонные экраны/код сервиса. В будущем — источник для авто-синтеза профиля.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "ref"],
+        "properties": {
+          "name": {"type": "string"},
+          "ref": {"type": "string", "description": "Путь/URL к коду или макету эталонного экрана."},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "conventions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Freeform-правила сервиса, ещё не структурированные в поля выше. Escape-hatch для «живого ruleset»: write-back-луп копит сюда правки с прогонов, периодически дистиллируя их в структурные поля. Держать ТОЛЬКО per-service-правила — универсальная корректность живёт в registry, не здесь."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Мета (для человека, не операционное): откуда взяты конвенции и как синтезирован профиль. На сборку не влияет.",
+      "properties": {
+        "synthesizedFrom": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Источники конвенций (код сервиса, макеты, правки с прогонов)."
+        },
+        "lastUpdated": {"type": "string", "description": "Дата последнего обновления (ISO)."},
+        "notes": {"type": "string"}
+      }
+    }
+  }
+}

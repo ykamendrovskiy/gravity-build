@@ -1,0 +1,28 @@
+{
+  "name": "pattern-app-shell",
+  "type": "registry:pattern",
+  "title": "Pattern: App-shell (обвязка приложения)",
+  "description": "Обязательный первый слой любой страницы: ThemeProvider + стили, опционально Toaster и MobileProvider. Без неё нет темы и часть компонентов падает в runtime.",
+  "packages": [
+    {
+      "name": "@gravity-ui/uikit",
+      "version": "^7.38.0",
+      "required": true
+    }
+  ],
+  "antiPatterns": [
+    "Рендерить компоненты Гравити без ThemeProvider / без импорта styles.css.",
+    "<ToasterProvider> без toaster={new Toaster()} — build fail.",
+    "new Toaster() внутри компонента — сброс state при ререндере.",
+    "Забыть <ToasterComponent/> — тосты не видны.",
+    "Подменять видимое подтверждение console.log'ом ради зелёного build."
+  ],
+  "doc": "recipes/app-shell.md",
+  "seeAlso": [
+    "library-routing",
+    "version-index",
+    "recipe-dashboard",
+    "recipe-landing",
+    "recipe-settings-form"
+  ]
+}

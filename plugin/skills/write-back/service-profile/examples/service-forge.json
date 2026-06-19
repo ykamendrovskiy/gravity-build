@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1",
+  "name": "service-forge",
+  "tenant": "gravity-ui",
+  "service": {
+    "title": "Forge",
+    "domain": "Таск-трекер (on-prem)",
+    "audience": "Средние и крупные компании; операторы за 23-дюймовыми FullHD-мониторами (1920×1080)",
+    "description": "On-prem таск-трекер: собран плотно — пользователям надо видеть много всего сразу. По делу, но важно, чтобы выглядело качественно сделанным."
+  },
+  "theme": {
+    "base": "light",
+    "allowSwitch": true,
+    "note": "Светлая база + переключатель light/dark. Заявлен корпоративный бренд, но themeConfig (Themer-тема) ПОКА не задан — TODO: принести тему/назвать цвет; до тех пор омиссия = дефолтный акцент Гравити."
+  },
+  "density": {
+    "default": "compact",
+    "note": "Плотно — оператор видит много данных сразу за 23\" FullHD: size s, плотные отступы, читаемые таблицы."
+  },
+  "contentLayout": {
+    "width": "full-width",
+    "align": "start",
+    "adaptive": {
+      "policy": "desktop-only",
+      "minWidth": "1280px",
+      "breakpoints": "Только десктоп; целевое разрешение 1920×1080 (23\" FullHD). Мобильную и планшетную раскладку не поддерживаем."
+    },
+    "note": "Списки задач и доски занимают всю ширину монитора — НЕ центрируем и НЕ ограничиваем max-width (форма-исключение со своей formMaxWidth)."
+  },
+  "formPolicy": {
+    "fieldWidth": "by-content",
+    "widthBuckets": {
+      "narrow": "160px — число/оценка/дата/код",
+      "medium": "320px — название/исполнитель/проект"
+    },
+    "formMaxWidth": "640px",
+    "labelPlacement": "form-row-left",
+    "descriptionDefault": "help-mark",
+    "note": "Компактные формы под плотный инструмент: подписи слева (FormRow direction=row), описания в HelpMark (экономит вертикаль), ширина по контенту. requiredMarking не задан в интервью → дефолт (per-field)."
+  },
+  "approvedComponents": {
+    "policy": "open",
+    "preferred": {
+      "Таблица задач (объём, группировка по спринту/эпику, дерево подзадач)": "@gravity-ui/table",
+      "Каркас приложения с боковым меню": "AsideHeader (@gravity-ui/navigation)"
+    },
+    "note": "Данных много → @gravity-ui/table по умолчанию для списков задач (группировка/дерево), а не плоский uikit Table."
+  },
+  "archetypes": [
+    {
+      "name": "Список задач",
+      "when": "Основной экран — задачи по проекту/спринту",
+      "structure": "AsideHeader → панель фильтров (TextInput hasClear + Select) → @gravity-ui/table с группировкой по спринту/эпику и tree-подзадачами, действия через withTableActions; full-width.",
+      "ref": "recipe-dashboard"
+    },
+    {
+      "name": "Карточка задачи",
+      "when": "Детали одной задачи",
+      "structure": "AsideHeader → Breadcrumbs → заголовок + Label(статус) + действия (одна action-кнопка) → TabProvider: Обзор (DefinitionList) / Подзадачи (@gravity-ui/table) / История.",
+      "ref": "library-routing"
+    },
+    {
+      "name": "Форма задачи",
+      "when": "Создать или изменить задачу",
+      "structure": "Полоса 640px, FormRow с подписью слева, описания в HelpMark, ширина по контенту, Toaster на «Сохранено».",
+      "ref": "recipe-settings-form"
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Задача",
+      "meaning": "Единица работы",
+      "preferredLabel": "Задача"
+    },
+    {
+      "term": "Спринт",
+      "meaning": "Итерация работы с фиксированным сроком",
+      "preferredLabel": "Спринт"
+    },
+    {
+      "term": "Эпик",
+      "meaning": "Крупная задача, объединяющая несколько",
+      "preferredLabel": "Эпик"
+    },
+    {
+      "term": "Доска",
+      "meaning": "Канбан-представление задач по статусам",
+      "preferredLabel": "Доска"
+    },
+    {
+      "term": "Исполнитель",
+      "meaning": "Кому назначена задача",
+      "preferredLabel": "Исполнитель"
+    }
+  ],
+  "conventions": [
+    "Статусы задач — Label с theme (success/danger/warning/unknown), не цветной Text.",
+    "Качество исполнения важно: единые размеры и отступы в плотной сетке, без рваных колонок и смешения size."
+  ],
+  "provenance": {
+    "synthesizedFrom": [
+      "Интервью (auto-synthesis prototype, 2026-06-09): свободное описание сервиса + 2 уточняющих вопроса (тема, форм-политика)."
+    ],
+    "lastUpdated": "2026-06-09",
+    "notes": "Профиль выведен из интервью: density/contentLayout/approvedComponents/archetypes/glossary — из описания; тему (корпоративный бренд → themeConfig TODO) и форм-политику (компактная) спросили. requiredMarking оставлен на дефолте (в интервью не уточнялся). referenceScreens нет (кода не было)."
+  }
+}

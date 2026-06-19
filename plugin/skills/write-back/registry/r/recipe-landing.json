@@ -1,0 +1,122 @@
+{
+  "name": "recipe-landing",
+  "type": "registry:recipe",
+  "title": "Recipe: Landing / маркетинговая страница",
+  "description": "Лендинг на @gravity-ui/page-constructor — config-driven блоки (Hero / Features / Pricing / FAQ / CTA), а не ручная сборка из uikit Card+Button.",
+  "triggers": [
+    "лендинг",
+    "landing page",
+    "маркетинговая страница",
+    "продуктовая страница",
+    "промо-сайт",
+    "promo",
+    "marketing page"
+  ],
+  "packages": [
+    {
+      "name": "@gravity-ui/page-constructor",
+      "version": "^8.8.0",
+      "required": true
+    },
+    {
+      "name": "@gravity-ui/uikit",
+      "version": "^7.38.0",
+      "required": true
+    },
+    {
+      "name": "react",
+      "version": "^18.3.1",
+      "required": true
+    },
+    {
+      "name": "react-dom",
+      "version": "^18.3.1",
+      "required": true
+    },
+    {
+      "name": "sass",
+      "version": "^1.83.0",
+      "dev": true,
+      "required": true,
+      "note": "page-constructor использует .scss"
+    },
+    {
+      "name": "vite-plugin-node-polyfills",
+      "version": "^0.28.0",
+      "dev": true,
+      "required": true,
+      "note": "PC ESM импортит Node-билтин url; + ~-alias в vite.config (см. recipes/landing.md)"
+    }
+  ],
+  "routing": [
+    {
+      "want": "Страница из блоков",
+      "use": "<PageConstructor content={...}/> внутри <PageConstructorProvider>",
+      "avoid": "uikit Card+Button+Box руками",
+      "why": "config-driven библиотека блоков под лендинги"
+    },
+    {
+      "want": "Hero-секция (фон, заголовок, CTA)",
+      "use": "type: 'header-block' или 'hero-block'",
+      "avoid": "Box + Background + Button",
+      "why": "header-block даёт фон/тёмную тему/раскладки из коробки"
+    },
+    {
+      "want": "Секция «фичи»",
+      "use": "type: 'extended-features-block' / 'promo-features-block'",
+      "avoid": "uikit Card × 4",
+      "why": "уже даёт grid + icon + title + body"
+    },
+    {
+      "want": "Отзывы",
+      "use": "card-layout-block / slider-block с sub-блоком Quote",
+      "avoid": "uikit Card вручную",
+      "why": "Quote — реальный sub-block page-constructor"
+    },
+    {
+      "want": "Тарифы",
+      "use": "card-layout-block с PriceCard / PriceDetailed",
+      "avoid": "uikit Card с цифрами руками",
+      "why": "специальные sub-блоки под тарифы"
+    },
+    {
+      "want": "FAQ",
+      "use": "type: 'questions-block'",
+      "avoid": "Disclosure-аккордеон руками",
+      "why": "FAQ-аккордеон из коробки"
+    },
+    {
+      "want": "Финальный CTA",
+      "use": "type: 'banner-block'",
+      "avoid": "Card + Button руками",
+      "why": "промо-баннер с CTA-кнопкой"
+    },
+    {
+      "want": "Логотипы клиентов",
+      "use": "type: 'companies-block'",
+      "avoid": "сетку image вручную",
+      "why": "готовый grid логотипов"
+    },
+    {
+      "want": "Блока нет в наборе",
+      "use": "свой React-компонент через custom-проп PageConstructor",
+      "avoid": "смешение свободного JSX с блоками",
+      "why": "штатная extension-точка"
+    }
+  ],
+  "antiPatterns": [
+    "Собирать Hero/Features руками из Box+Button, копируя дизайн с gravity-ui.com — бери header-block / extended-features-block.",
+    "Забыть PageConstructorProvider — без него блоки рендерятся в null или кидают runtime-throw про missing context.",
+    "Импорт стилей как .css — у page-constructor .scss (styles/styles.scss), нужен sass.",
+    "Оборачивать каждую секцию в <section> поверх PageConstructor — он сам layout-движок."
+  ],
+  "patternRefs": [
+    "pattern-app-shell"
+  ],
+  "doc": "recipes/landing.md",
+  "seeAlso": [
+    "library-routing",
+    "pattern-app-shell",
+    "version-index"
+  ]
+}

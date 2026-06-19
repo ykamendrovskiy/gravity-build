@@ -1,0 +1,14 @@
+{
+  "name": "gravity-build",
+  "description": "Плагины для сборки на Gravity UI «как принято»: knowledge-registry, профили сервисов и связанные скиллы.",
+  "owner": {
+    "name": "ykamendrovskiy"
+  },
+  "plugins": [
+    {
+      "name": "gravity-build",
+      "source": "./plugin",
+      "description": "Сборка прототипов и приложений «как принято» на настоящих компонентах Gravity UI: knowledge-registry (имена/версии/app-shell/recipes/темизация) + опциональный per-service профиль. Скиллы: сборка, синтез профиля, write-back, feedback."
+    }
+  ]
+}
