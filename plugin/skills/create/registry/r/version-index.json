@@ -2,13 +2,13 @@
   "name": "version-index",
   "type": "registry:version-index",
   "title": "Version index — закреплённые версии стартового набора + bundles route-only либ",
-  "description": "Закреплённые semver-якоря. `packages` — стартовый набор (ставится почти всегда). `bundles` — коэрентные наборы route-only / опциональных либ (markdown-editor, dates): пакеты внутри bundle ставятся ВМЕСТЕ, иначе ломается install-граф (несуществующая версия, peer-конфликт, недостающие peer-deps). Бери эти версии целиком, не выдумывай: иначе версии плавают и поведение зависит от того, что подтянет npm. Якоря сверены по npm registry + GitHub-релизам на 2026-06; обновлять по мере релизов.",
+  "description": "Закреплённые semver-якоря. `packages` — стартовый набор (ставится почти всегда). `bundles` — коэрентные наборы route-only / опциональных либ (markdown-editor, dates): пакеты внутри bundle ставятся ВМЕСТЕ, иначе ломается install-граф (несуществующая версия, peer-конфликт, недостающие peer-deps). Бери эти версии целиком, не выдумывай: иначе версии плавают и поведение зависит от того, что подтянет npm. Якоря сверены по npm registry + GitHub-релизам на 2026-06-22; обновлять по мере релизов.",
   "packages": [
     {
       "name": "@gravity-ui/uikit",
-      "version": "^7.41.0",
+      "version": "^7.42.0",
       "required": true,
-      "note": "Подними не ниже ^7.39.0, если ставишь @gravity-ui/components@4 (его peer — uikit ^7.39.0)."
+      "note": "Подними не ниже ^7.39.0 для @gravity-ui/components@4 (peer uikit ^7.39.0); не ниже ^7.42.0 для @gravity-ui/navigation@6 (peer uikit ^7.42.0). uikit@7.42 и navigation@6 Gravity релизит как сет (оба 2026-06-10)."
     },
     {
       "name": "@gravity-ui/icons",
@@ -18,9 +18,9 @@
     },
     {
       "name": "@gravity-ui/navigation",
-      "version": "^4.0.17",
+      "version": "^6.1.0",
       "required": false,
-      "note": "AsideHeader; ^4.x даёт скругления hover/selected — не откатывать на ^3.x; peer uikit ^7.2"
+      "note": "AsideHeader; ^6.x — эра uikit@7.42 (peer uikit ^7.42.0, двигать в связке с uikit). v6 вернул v4-форму compact/onChangeCompact/renderFooter (v5 их ломал), убрал multipleTooltip (в registry не используется), добавил menuGroups/MenuGroup + menuOverflow='scroll'. Не откатывать на ^3.x (там нет скруглений hover/selected)."
     },
     {
       "name": "@gravity-ui/page-constructor",
@@ -36,9 +36,9 @@
     },
     {
       "name": "@gravity-ui/components",
-      "version": "^4.20.2",
+      "version": "^4.22.0",
       "required": false,
-      "note": "составные компоненты поверх uikit (FormRow и др.); peer uikit ^7.39 → держи uikit ^7.41"
+      "note": "составные компоненты поверх uikit (FormRow и др.); peer uikit ^7.39 → держи uikit ^7.42"
     },
     {
       "name": "react",
@@ -67,13 +67,13 @@
       "packages": [
         {
           "name": "@gravity-ui/markdown-editor",
-          "version": "^15.40.0",
+          "version": "^15.41.0",
           "note": "major 15 = эра uikit@7 (peer uikit ^7.1, peer components ^4.10). НЕ major 13 — он из эры uikit@6."
         },
         {
           "name": "@gravity-ui/components",
-          "version": "^4.20.2",
-          "note": "peer editor@15; сам peer-зависит от uikit ^7.39 → держи uikit ^7.41"
+          "version": "^4.22.0",
+          "note": "peer editor@15; сам peer-зависит от uikit ^7.39 → держи uikit ^7.42"
         },
         {
           "name": "@diplodoc/transform",
@@ -177,7 +177,7 @@
       "packages": [
         {
           "name": "@gravity-ui/dynamic-forms",
-          "version": "^5.15.0",
+          "version": "^5.18.0",
           "note": "peer uikit ^7"
         },
         {
@@ -226,7 +226,7 @@
         },
         {
           "name": "@gravity-ui/i18n",
-          "version": "^1.0.0",
+          "version": "^1.8.0",
           "peer": true
         },
         {

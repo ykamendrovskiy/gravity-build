@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 — beta (2026-06-22)
+
+- Освежены закреплённые версии Gravity-пакетов (сверка с npm на 2026-06-22): **`@gravity-ui/navigation` 4 → 6** (AsideHeader; v6 вернул v4-форму API `compact`/`renderFooter`, добавил `menuGroups`/`menuOverflow`), **`@gravity-ui/uikit` 7.41 → 7.42** (peer navigation@6), `@gravity-ui/components` 4.22, `dynamic-forms` 5.18, `markdown-editor` 15.41. Без изменений: `icons`, `page-constructor`, `table`, `date-*`.
+- Валидация: 3 независимые «наивные» сборки дашборда (AsideHeader + таблица с группировкой и выделением строк) — Tier 0 (`tsc && vite build`) + проверка в браузере чистые на новых версиях; navigation@6 регрессий не дал.
+
 ## 0.1.3 — beta (2026-06-19)
 
 - page-constructor: роутинг конфигов блоков на **канонические шаблоны пакета** (`editor/data/templates/<block>.json` — copy-paste рабочие) + установленные `.d.ts` для форм пропов; usage-доки = сабблоки.
