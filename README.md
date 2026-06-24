@@ -67,7 +67,7 @@ npm run dev
 
 Затем переустанови: `/plugin` → `gravity-build` → reinstall (или повтори `/plugin install gravity-build@gravity-build`).
 
-> Гоча: повторный `/plugin marketplace add …` берёт **закэшированную** копию — для обновления используй `marketplace update`, а не `add`.
+> Важно: повторный `/plugin marketplace add …` берёт **закэшированную** копию — для обновления используй `marketplace update`, а не `add`.
 
 ## Профиль сервиса (опционально)
 
