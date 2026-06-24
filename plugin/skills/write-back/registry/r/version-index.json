@@ -17,6 +17,12 @@
       "note": "когда нужны иконки; peer react — любой"
     },
     {
+      "name": "@gravity-ui/illustrations",
+      "version": "^2.1.1",
+      "required": false,
+      "note": "иллюстрации для пустых/ошибочных состояний — PlaceholderContainer.image (НЕ растянутая иконка); peer uikit ^6||^7, react ^17||^18||^19"
+    },
+    {
       "name": "@gravity-ui/navigation",
       "version": "^6.1.0",
       "required": false,

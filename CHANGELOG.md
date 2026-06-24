@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 — beta (2026-06-24)
+
+- Добавлена библиотека иллюстраций **`@gravity-ui/illustrations`** (`^2.1.1`) в закреплённый набор — для пустых и ошибочных состояний (`PlaceholderContainer`), чтобы не растягивать иконку вместо иллюстрации. Грабли-нота в каталоге uikit: `image` у `PlaceholderContainer` — обязательный проп.
+
 ## 0.1.4 — beta (2026-06-22)
 
 - Освежены закреплённые версии Gravity-пакетов (сверка с npm на 2026-06-22): **`@gravity-ui/navigation` 4 → 6** (AsideHeader; v6 вернул v4-форму API `compact`/`renderFooter`, добавил `menuGroups`/`menuOverflow`), **`@gravity-ui/uikit` 7.41 → 7.42** (peer navigation@6), `@gravity-ui/components` 4.22, `dynamic-forms` 5.18, `markdown-editor` 15.41. Без изменений: `icons`, `page-constructor`, `table`, `date-*`.
