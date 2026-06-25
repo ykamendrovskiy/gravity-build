@@ -14,6 +14,10 @@
 | `<Grid>` | грид-система = `Row` + `Col` (из layout) | компонента `Grid` нет |
 | индикатор шагов «с нуля» | `Stepper` — он есть, не сочиняй | готовый компонент существует |
 | `<Toaster />` как JSX | класс `new Toaster()` + хук `useToaster()` | setup — в `pattern-app-shell` |
+| `Badge` / `Chip` / `Tag` / `Pill` | `Label` (тег / чип / статус-метка) | в uikit нет `Badge`; метка-чип = `Label` |
+| `Heading` / `Title` / `<h1>`-компонент | `Text` с `variant="header-1…6"` / `subheader-*` | отдельного `Heading` нет; заголовок = `Text` с header-вариантом |
+| `Modal` с пропом `title` | `Dialog` (`Dialog.Header` / `Body` / `Footer`) | `Modal` низкоуровневый (без `title`); диалог с шапкой/футером = `Dialog` |
+| `Table.Head` / `Body` / `Row` / `Cell` (композиц. таблица как в HTML/MUI) | uikit `Table` — `data`/`columns`-driven (`<Table data columns/>`), подкомпонентов НЕТ; группировка/дерево/DnD → `@gravity-ui/table` (см. `library-routing`) | частый рефлекс из HTML/других ДС: uikit Table НЕ композиционный |
 
 ## ⚠️ Грабли пропов (не имён — но ломают сборку, TS2322)
 
@@ -23,12 +27,43 @@
 | `Select` | пропа `style` нет — `<Select style={{maxWidth}}/>` не типизируется → TS2322 | ширину задавай пропом `width` (`number \| 'auto' \| 'max'`); для max-width оберни в `<div style={{maxWidth}}>` + `width="max"` |
 | `TextInput` | пропа `width` НЕТ (это `Select`) → `width="max"` на `TextInput` = TS2322 | полноширинный по умолчанию; нужна ширина — оберни в `<div style={{width}}>` / Flex с шириной |
 | `PlaceholderContainer` | проп `image` **required** (не опционально); голая `Icon` растягивается огромной | дай иллюстрацию из `@gravity-ui/illustrations` (в `version-index`) — дефолт-набор Гравити для пустых/ошибочных состояний |
+| `TextInput` / `Select` — слот иконки | пропов `leftContent`/`rightContent` НЕТ → TS2322 | слоты называются `startContent` / `endContent` |
+| `Flex` / `Box` — отступы | нет MUI-стиля `padding`/`margin`-пропов; `gap="md"` (строка) не типизируется | `gap={N}` — **число-шкала 1-8** (`4` ≈ 16px), не строка/пиксели; отступы — хелпер `spacing`/`sp` или `style` |
+| uikit `Table` + HOC-стек | `withTableSorting(withTableSelection(withTableActions(Table)))` теряет пропы внутренних обёрток в типах → `getRowActions`/`onSortChange` не видны (TS2322) | протяни 2-й generic снизу вверх: `withTableActions<E, Sort&Sel>(withTableSelection<E, Sort>(withTableSorting<E>(Table)))` — **НЕ** `as unknown as` и **НЕ** каст базового `Table` как `ComponentType<TableProps<E>>` (схлопывает накопленные пропы — verified stage-2b) |
+| uikit `Table` колонка — сортировка | проп `sortable` на колонке НЕ существует (рефлекс из MUI/antd) → TS2353 | `withTableSorting` читает `column.meta.sort`: `meta: {sort: true}` (или compare-fn `(a,b) => number`), не `sortable` (verified: uikit source) |
+
+## Иллюстрации для `PlaceholderContainer` (`@gravity-ui/illustrations`)
+
+`PlaceholderContainer.image` ждёт **отрендеренный элемент** (`<NotFound/>`), не ссылку на компонент; иллюстрации — **named root-exports**. **НЕ** deep-import `@gravity-ui/illustrations/notFound`, **НЕ** `/error`, **НЕ** выдуманный `<Illustration name=.../>`.
+
+```tsx
+import {NotFound, NoSearchResults, InternalError, AccessDenied} from '@gravity-ui/illustrations';
+<PlaceholderContainer image={<NotFound />} title="Здесь пока пусто" actions={[{text:'Добавить', onClick}]} />
+```
+
+⚠️ **Покраска — обязательна, иначе иллюстрации бесцветные/невидимые** (компилится зелёным, но визуально пусто — `tsc` это НЕ ловит). У `@gravity-ui/illustrations` нет готового CSS; цвета берутся из токенов `--gil-color-*`, которые надо задать. Без sass — CSS-блок в глобальных стилях (после стилей uikit):
+
+```css
+.g-root {
+  --gil-color-object-base: rgb(255,190,92); --gil-color-object-accent-heavy: rgb(211,101,7);
+  --gil-color-object-hightlight: rgb(255,216,157); --gil-color-shadow-over-object: rgb(211,158,80);
+  --gil-color-background-lines: rgb(140,140,140); --gil-color-background-shapes: rgb(242,242,242);
+  --gil-color-object-accent-light: rgb(255,255,255); --gil-color-object-danger: rgb(255,0,61);
+}
+```
+
+(Со sass — `@import '@gravity-ui/illustrations/styles/theme.scss'` + `@include g-illustrations-colors-light/-dark/...` в `.g-root_theme_*`.)
+
+Под UI-Stack-состояния (verified, illustrations v2.1): пусто/первый запуск → `NotFound` / `UnableToDisplay` (или доменная — `Folder` / `Project` / `Database` / `Disk` / `Network` / `Bucket`); нет результатов фильтра → `NoSearchResults`; ошибка загрузки → `InternalError`; нет доступа → `AccessDenied`; успех → `SuccessOperation`.
+Полный набор (21): `AccessDenied` · `Bucket` · `Chart` · `Database` · `Detail` · `Disk` · `Feature` · `Folder` · `History` · `Identity` · `InternalError` · `Network` · `NoSearchResults` · `NotFound` · `Project` · `Queue` · `Snapshot` · `SuccessOperation` · `Template` · `UnableToDisplay` · `VirtualMachine`.
 
 ## Идиомы (как принято — находки прогонов)
 
 - **Выбор строк в таблице ⇒ `ActionsPanel`.** Если у таблицы есть чекбоксы выбора, при непустом выборе показывай `ActionsPanel` с массовыми действиями — не оставляй выбор «мёртвым». **Раскладка:** панель идёт **над футером**, шириной **как таблица** (или уже, если контролов мало; **шире таблицы — никогда**). **NB (баг run-05/aurora):** `ActionsPanel` меряет ширину своего контейнера, чтобы разложить действия (лишние сворачивает в overflow-дропдаун — поэтому у каждого item и `button`, и `dropdown`). Дай ему контейнер с **определённой шириной** (напр. `width: 100%` блока таблицы / фикс max-width). В `position:sticky`/auto-width обёртке **без ширины** действия наезжают друг на друга (как на скриншоте). Минимально: оберни в `<div style={{width:'100%'}}>` (или Flex с шириной).
   - **Прибита к краю, не в скролле.** Панель массовых действий **прилипает к краю области** (`position: sticky`/`fixed`), а НЕ уезжает со скроллом списка — действия над выбором должны быть видны всегда. Раз панель перекрывает край контента, **добавь компенсирующий отступ** скроллируемому списку (напр. `padding-bottom` высоты панели при нижнем размещении), иначе последние строки прячутся под ней. *Где именно прибита — край панели (низ/верх) — задаёт сервис (см. ниже), но «прибита + компенсирующий отступ» верно всегда.*
 - **Размер иконки ∝ размеру контрола.** Иконка в `Button` / `TextInput` / `Label` должна соответствовать `size` контрола (s/m/l → меньшая/средняя/большая иконка), а не быть фиксированной. Не подставляй один размер иконки во все контролы.
+- **Форма (в т.ч. в диалоге) ⇒ `FormRow`.** Поля формы — через `FormRow` (`@gravity-ui/components`), лейбл+контрол консистентно; не инлайн `label=` на каждом инпуте. Раскладка формы — `recipe-settings-form`.
+- **Безопасность данных.** Деструктив (удаление строк / балк) — через подтверждение `Dialog`, не молча. Форма с несохранённым вводом не закрывается по outside-click/Esc без подтверждения. Сабмит — видимый pending/ошибка (не тихий `console.log`).
 
 ## Каталог по назначению (корневые экспорты)
 
@@ -48,7 +83,7 @@
 
 **Данные и коллекции:** `Table` (простая таблица — для группировки/дерева/DnD бери `@gravity-ui/table`, см. `library-routing`), `TableColumnSetup` (настройка колонок), `List` (виртуализированный список с фильтром/выбором), `DefinitionList` (термин→значение), `Card` (контейнер; `type="selection"`/`"action"`), `Label` (тег/чип), `Avatar` / `AvatarStack`, `User` / `UserLabel` (блок/чип пользователя), `FilePreview` (превью файла), `Icon` (рендер SVG: `<Icon data={X} size={16}/>`, иконка из `@gravity-ui/icons` через проп `data`). Дерево с выбором — `unstable_TreeSelect` / `unstable_TreeList` из `@gravity-ui/uikit/unstable`.
 
-**Состояния и фидбэк:** `Alert` (инлайн-баннер), `Toaster`/`useToaster` (тосты — setup в app-shell), `Spin` (круговой спиннер), `Loader` (бар загрузки), `Skeleton` (заглушка), `Progress` (прогресс-бар), `PlaceholderContainer` (пустое состояние: иллюстрация+текст+действие).
+**Состояния и фидбэк:** `Alert` (инлайн-баннер), `Toaster`/`useToaster` (тосты — setup в app-shell), `Spin` (круговой спиннер), `Loader` (бар загрузки), `Skeleton` (заглушка), `Progress` (прогресс-бар), `PlaceholderContainer` (пустое / ошибочное состояние: иллюстрация+текст+действие; `image` — required, иллюстрацию бери из `@gravity-ui/illustrations` — см. `library-routing`).
 
 **Прочее:** `Hotkey` (отображение хоткея), `ClipboardIcon`.
 

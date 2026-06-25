@@ -41,6 +41,18 @@ import {Plus, Gear} from '@gravity-ui/icons';
 
 Если подходящей иконки в `metadata.json` нет — **не подставляй похожее выдуманное имя** (несуществующее имя = ошибка импорта); возьми ближайшую существующую или оставь без иконки.
 
+## Офлайн-сабсет частых имён (быстрая проверка без фетча)
+
+Фетч `metadata.json` недоступен — сверь частое имя здесь (verified против metadata @ icons v2.18). Имени нет в списке → фетч/showcase, **не выдумывай**.
+
+- **Действия:** добавить `Plus` (в круге `CirclePlus`) · удалить **`TrashBin`** (НЕ `Trash`) · редактировать `Pencil` · закрыть/× `Xmark` · ок/чек `Check` · искать `Magnifier` · фильтр `Funnel` · обновить `ArrowRotateLeft` · копировать `Copy` · ещё/меню `Ellipsis` (верт. `EllipsisVertical`) · настройки `Gear` · скачать `ArrowDownToLine` · загрузить `ArrowUpFromLine` · сохранить `FloppyDisk`.
+- **Статусы/фидбэк:** инфо `CircleInfo` · предупреждение `TriangleExclamation` · ошибка `CircleXmark` · успех `CircleCheck` · запрет `Ban`.
+- **Инфраструктура (домен):** сервер `Server` · БД `Database` · облако `Cloud` · диск/хранилище `HardDrive` · дисплей/монитор `Display` · CPU `Cpu` · контейнеры/кубы `Cubes3` · питание `Power`.
+- **Объекты/нав:** папка `Folder` · файл `File` · пользователь `Person` (мн. `Persons`) · календарь `Calendar` · часы `Clock` · дом `House` · замок `Lock` · ключ `Key` · тег `Tag` · ссылка `Link` · показать `Eye` (скрыть `EyeSlash`) · слайдеры `Sliders`.
+- **Шевроны/стрелки:** раскрытие `ArrowChevronDown` / `…Up` / `…Left` / `…Right`; сортировка `ArrowUpArrowDown`.
+
+NB: у многих есть `*Fill`-версия (заливка) — `componentName` оканчивается на `Fill`. Полный каталог (781) — `metadata.json` выше.
+
 ## See also
 
 - `r/library-uikit.json` — компонент `Icon` (как рендерить).
