@@ -26,36 +26,15 @@
 | `NumberInput` | `onUpdate` отдаёт `number \| null` (null при очистке поля). Стейт `number \| undefined` его не примет → TS2322 на `onUpdate={setX}` | держи стейт `number \| null`: `useState<number \| null>(10)` (или оборачивай: `onUpdate={(v) => setX(v ?? undefined)}`) |
 | `Select` | пропа `style` нет — `<Select style={{maxWidth}}/>` не типизируется → TS2322 | ширину задавай пропом `width` (`number \| 'auto' \| 'max'`); для max-width оберни в `<div style={{maxWidth}}>` + `width="max"` |
 | `TextInput` | пропа `width` НЕТ (это `Select`) → `width="max"` на `TextInput` = TS2322 | полноширинный по умолчанию; нужна ширина — оберни в `<div style={{width}}>` / Flex с шириной |
-| `PlaceholderContainer` | проп `image` **required** (не опционально); голая `Icon` растягивается огромной | дай иллюстрацию из `@gravity-ui/illustrations` (в `version-index`) — дефолт-набор Гравити для пустых/ошибочных состояний |
+| `PlaceholderContainer` | проп `image` **required** (не опционально); голая `Icon` растягивается огромной | дай иллюстрацию из `@gravity-ui/illustrations` — имена + **покраска по темам** в `library-illustrations` |
 | `TextInput` / `Select` — слот иконки | пропов `leftContent`/`rightContent` НЕТ → TS2322 | слоты называются `startContent` / `endContent` |
 | `Flex` / `Box` — отступы | нет MUI-стиля `padding`/`margin`-пропов; `gap="md"` (строка) не типизируется | `gap={N}` — **число-шкала 1-8** (`4` ≈ 16px), не строка/пиксели; отступы — хелпер `spacing`/`sp` или `style` |
 | uikit `Table` + HOC-стек | `withTableSorting(withTableSelection(withTableActions(Table)))` теряет пропы внутренних обёрток в типах → `getRowActions`/`onSortChange` не видны (TS2322) | протяни 2-й generic снизу вверх: `withTableActions<E, Sort&Sel>(withTableSelection<E, Sort>(withTableSorting<E>(Table)))` — **НЕ** `as unknown as` и **НЕ** каст базового `Table` как `ComponentType<TableProps<E>>` (схлопывает накопленные пропы — verified stage-2b) |
 | uikit `Table` колонка — сортировка | проп `sortable` на колонке НЕ существует (рефлекс из MUI/antd) → TS2353 | `withTableSorting` читает `column.meta.sort`: `meta: {sort: true}` (или compare-fn `(a,b) => number`), не `sortable` (verified: uikit source) |
 
-## Иллюстрации для `PlaceholderContainer` (`@gravity-ui/illustrations`)
+## Иллюстрации (`@gravity-ui/illustrations`)
 
-`PlaceholderContainer.image` ждёт **отрендеренный элемент** (`<NotFound/>`), не ссылку на компонент; иллюстрации — **named root-exports**. **НЕ** deep-import `@gravity-ui/illustrations/notFound`, **НЕ** `/error`, **НЕ** выдуманный `<Illustration name=.../>`.
-
-```tsx
-import {NotFound, NoSearchResults, InternalError, AccessDenied} from '@gravity-ui/illustrations';
-<PlaceholderContainer image={<NotFound />} title="Здесь пока пусто" actions={[{text:'Добавить', onClick}]} />
-```
-
-⚠️ **Покраска — обязательна, иначе иллюстрации бесцветные/невидимые** (компилится зелёным, но визуально пусто — `tsc` это НЕ ловит). У `@gravity-ui/illustrations` нет готового CSS; цвета берутся из токенов `--gil-color-*`, которые надо задать. Без sass — CSS-блок в глобальных стилях (после стилей uikit):
-
-```css
-.g-root {
-  --gil-color-object-base: rgb(255,190,92); --gil-color-object-accent-heavy: rgb(211,101,7);
-  --gil-color-object-hightlight: rgb(255,216,157); --gil-color-shadow-over-object: rgb(211,158,80);
-  --gil-color-background-lines: rgb(140,140,140); --gil-color-background-shapes: rgb(242,242,242);
-  --gil-color-object-accent-light: rgb(255,255,255); --gil-color-object-danger: rgb(255,0,61);
-}
-```
-
-(Со sass — `@import '@gravity-ui/illustrations/styles/theme.scss'` + `@include g-illustrations-colors-light/-dark/...` в `.g-root_theme_*`.)
-
-Под UI-Stack-состояния (verified, illustrations v2.1): пусто/первый запуск → `NotFound` / `UnableToDisplay` (или доменная — `Folder` / `Project` / `Database` / `Disk` / `Network` / `Bucket`); нет результатов фильтра → `NoSearchResults`; ошибка загрузки → `InternalError`; нет доступа → `AccessDenied`; успех → `SuccessOperation`.
-Полный набор (21): `AccessDenied` · `Bucket` · `Chart` · `Database` · `Detail` · `Disk` · `Feature` · `Folder` · `History` · `Identity` · `InternalError` · `Network` · `NoSearchResults` · `NotFound` · `Project` · `Queue` · `Snapshot` · `SuccessOperation` · `Template` · `UnableToDisplay` · `VirtualMachine`.
+`PlaceholderContainer.image` = иллюстрация под пустое / ошибочное состояние. Имена-экспорты, usage и **обязательная покраска по темам** (`--gil-color-*`, иначе невидимы) — отдельный каталог **`library-illustrations`**.
 
 ## Идиомы (как принято — находки прогонов)
 
