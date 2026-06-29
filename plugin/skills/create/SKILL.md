@@ -23,11 +23,11 @@ description: >-
 
 ## Порядок работы
 
-1. **Открой knowledge-registry и следуй ему.** Прочитай `registry/AGENTS.md` (рядом с этим
-   `SKILL.md`) и работай строго по нему: метаструктура → роутинг библиотек
-   (`registry/r/library-routing.json`) → recipe задачи → app-shell → версии. Имена компонентов и
-   пропы сверяй с registry (особенно `registry/r/library-uikit.json`) **перед** импортом — не
-   подставляй из памяти других дизайн-систем.
+1. **Открой knowledge-registry и следуй ему.** Entry-point — `registry/registry.json` (роутер, рядом с
+   этим `SKILL.md`); прочти его первым и работай строго по полю `workflow`: scaffold → pattern →
+   interface-foundations → recipe → gravity-foundations → библиотеки (routing / версии — в роутере).
+   Имена компонентов и пропы сверяй с гайдами (`registry/guides/library-uikit.md` и др.) **перед**
+   импортом — не подставляй из памяти других дизайн-систем.
 2. **Проверь профиль сервиса.** Поищи в корне целевого проекта `service-profile.json` (или
    `.gravity/service-profile.json`):
    - **Есть** → это per-service слой «как принято у нас» (тема/бренд, плотность, раскладка,
@@ -36,7 +36,7 @@ description: >-
      ручки, **не отменяет** корректность registry, омиссия = дефолт.
    - **Нет** → собирай по универсальным дефолтам (baseline).
 3. **Собери** запрошенное как готовый к запуску React + TypeScript проект; версии пакетов — verbatim
-   из `registry/r/version-index.json`, route-only либы ставь целым bundle.
+   из `registry/registry.json` (`libraries[]` / `bundles[]`), route-only либы ставь целым bundle.
 
 ## Чего не делать
 
@@ -46,7 +46,7 @@ description: >-
 
 ## Структура бандла (читать on-demand)
 
-- `registry/AGENTS.md` — entry-point воркфлоу (**начни здесь**).
-- `registry/registry.json` — индекс всех items.
-- `registry/r/*.json` — роутинг, library-каталоги, recipes, version-index, patterns (queryable).
-- `registry/recipes/*.md` — гайды под типы задач и библиотеки.
+- `registry/registry.json` — **роутер и entry-point** (workflow + libraries / версии + routing + patterns +
+  recipes + foundations + scaffold). **Начни здесь.**
+- `registry/guides/*.md` — вся проза: library-каталоги, recipes, patterns, foundations (факт живёт в одном guide).
+- `registry/AGENTS.md` — тонкий companion: применение профиля сервиса + fallback при заблокированном фетче.

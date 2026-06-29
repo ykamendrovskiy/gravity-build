@@ -24,7 +24,7 @@ description: >-
    дистиллировать: 4 типа пункта + правила) + `service-profile/dimensions.md` (поля профиля) +
    `service-profile/structural-conventions.md` (граница структурно-поведенческих правил) +
    `service-profile/schema/service-profile.schema.json` (валидность дельты). Для классификации
-   **в сторону registry** — `registry/AGENTS.md` + `registry/r/*` (структура универсального слоя).
+   **в сторону registry** — `registry/registry.json` + `registry/guides/*` (структура универсального слоя).
 2. **Вход:** существующий `service-profile.json` (корень целевого проекта), код сборки (только
    чтение), фидбэк (дословные пункты).
 3. **По каждому пункту — классифицируй** по границе (4 типа): **write-back в профиль** (вкус/политика)
