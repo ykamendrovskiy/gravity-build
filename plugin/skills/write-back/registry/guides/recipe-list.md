@@ -43,11 +43,13 @@ const EquipmentTable = withTableActions<Equip, {}>(
 
 ```tsx
 <Flex gap={2} alignItems="center">           {/* gap — число-шкала 1-8, не px/строки */}
-  <TextInput placeholder="Поиск" startContent={<Icon data={Magnifier} size={16}/>} />
+  <TextInput value={q} onUpdate={setQ} placeholder="Поиск" hasClear
+             startContent={<Icon data={Magnifier} size={16}/>} />
   <Select placeholder="Тип" options={...} />
 </Flex>
 ```
 Иконка поиска — в слот `startContent` (НЕ `leftContent`), размер по контролу — см. library-icons.
+**Хорошая практика:** у поля поиска — проп `hasClear` (крестик очистки, когда введён текст; verified uikit@7.42).
 
 ### ActionsPanel на выборе строк
 

@@ -33,7 +33,8 @@ import {Plus, Gear} from '@gravity-ui/icons';
 Как Гравити ждёт иконку **в контроле** (проверено по исходникам uikit@7.42). Применяй широко.
 
 **Правильный слот + ручной размер:**
-- **Отступы/центровка — автоматом**, ЕСЛИ иконка в штатном слоте контрола. Руками padding не подбирай.
+- **Отступы:** в `Button` слот центрирует/отбивает сам. **В инпутах (`startContent`) — НЕ автоматом:** uikit-слот
+  тесный (~1px by design) → лидирующая иконка жмётся к краю, отбей её (см. «Инсет старт-иконки» ниже).
 - **Размер — руками.** Контрол НЕ ресайзит иконку (нет CSS-правила на `svg`); `Icon` без `size` падает на
   viewBox ≈16px → одинаковая иконка во всех размерах = баг. Ставь `<Icon size={N}/>` по шкале контрола.
 
@@ -45,13 +46,13 @@ import {Plus, Gear} from '@gravity-ui/icons';
 | `TextInput` | `startContent` / `endContent` | **НЕ** `leftContent`/`rightContent` |
 | `Label` | проп `icon` | — |
 
-**Размер `<Icon size>` по размеру контрола:**
+**Размер `<Icon size>` по размеру контрола — рекомендованная ручная шкала:**
 
 | size | xs | s | m | l | xl |
 |---|---|---|---|---|---|
-| **Button** (`BUTTON_ICON_SIZE_MAP`) | 12 | 14 | 16 | 16 | 20 |
-| **Label** (`iconSizeMap`, размеры xxs–m) | 12 (xxs/xs) | 14 (s) | 16 (m) | — | — |
-| **TextInput** | — | 14–16 | 16 | 16 | 20 |
+| **Button** | 12 | 14 | 16 | 16 | 20 |
+| **Label** (размеры xxs–m) | 12 (xxs/xs) | 14 (s) | 16 (m) | — | — |
+| **TextInput / инпуты** | — | 14–16 | 16 | 16 | 20 |
 
 ```tsx
 <Button size="l"><Icon data={Plus} size={16}/> Добавить</Button>
@@ -59,8 +60,42 @@ import {Plus, Gear} from '@gravity-ui/icons';
 <Label size="s" icon={<Icon data={Tag} size={14}/>}>тег</Label>
 ```
 
-Источник: uikit@7.42 — `Button/constants.js` `BUTTON_ICON_SIZE_MAP`, `Label/Label.js` `iconSizeMap`,
-слот-обёртки `Button.js`/`AdditionalContent.js`/`Label.js`; отсутствие `svg`-размеров — `Icon.css`.
+⚠️ **Шкала НЕ применяется автоматически — это рекомендация, размер ставишь сам** (проверено по uikit@7.42):
+`BUTTON_ICON_SIZE_MAP` (`Button/constants.ts`) существует с этими значениями, но **нигде не используется**
+(мёртвый экспорт); `Label.iconSizeMap` (`Label/Label.tsx`) рулит только встроенными `copy`/`info`/`close`, не
+пользовательским `icon`; у `Icon` нет CSS-размера svg (`Icon.scss` = `line-height:0`, без `width`/`height`) →
+без `size` иконка падает на viewBox ≈16px. Инпутообразные (`TextInput`/`NumberInput`/`PinInput`/date-*) ведут
+себя как кнопки: слот иконку **не сайзит** (про инсет старт-иконки — ниже).
+Шкала — универсальный дефолт; сервис может переопределить размеры под свою плотность (profile → `dimensions` density).
+
+## Инсет старт-иконки в инпутах (lab-repro 2026-06-29)
+
+uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` by design («spacing relies on parent padding»,
+`TextInput.scss`); отдельного пропа на инсет нет → лидирующая иконка жмётся к краю. **Отбей её обёрткой:**
+
+```tsx
+<TextInput size="m" startContent={
+  <span style={{display: 'inline-flex', alignItems: 'center',
+               paddingInlineStart: 'var(--g-spacing-2)',   // ЛЕВЫЙ инсет по размеру контрола (таблица ниже)
+               paddingInlineEnd: 'var(--g-spacing-1)'}}>    // небольшой зазор до текста
+    <Icon data={Magnifier} size={16}/>
+  </span>
+}/>
+```
+
+**Правило:** инсет зависит от **размера иконки** (а значит — от сервис-профиля) **и размера контрола**; общий
+принцип — **левый инсет чуть больше вертикального** (сверху/снизу) инсета иконки, иначе лидирующая иконка выглядит
+прижатой к краю.
+
+**Левый инсет (`paddingInlineStart`) — дефолтный Гравити-профиль:**
+
+| size | S | M | L | XL |
+|---|---|---|---|---|
+| px | 8 | 8 | 12 | 12 |
+| токен | `spacing-2` | `spacing-2` | `spacing-3` | `spacing-3` |
+
+Значения — **дефолт; сервис тюнит под свою иконочную плотность** (profile → `dimensions`, вслед за размером иконки).
+Зазор до текста (`paddingInlineEnd`) — небольшой (`spacing-1`).
 
 ## Как найти правильное имя (не выдумывать)
 

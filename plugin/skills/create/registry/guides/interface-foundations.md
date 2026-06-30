@@ -58,6 +58,10 @@ error = реальный сбой. **НЕ ставь в продакшен-UI п
 
 - **Submit-pending:** кнопка отправки `disabled` + `Loader`, пока идёт.
 - **Submit-error:** видимое сообщение, форма **не** закрывается.
+- **Валидация полей:** невалидное поле помечай видимо — Гравити: `validationState="invalid"` + `errorMessage` на
+  контроле (`TextInput`/`Select`/`NumberInput`/`PasswordInput`/`date-*` и пр.; `error` — deprecated, бери
+  `errorMessage`; `errorPlacement` `outside`(деф)/`inside`(тултип), **кроме `TextArea` и `PinInput` — только `outside`**).
+  Form-level сводки ошибок в uikit нет — это `@gravity-ui/dynamic-forms`.
 - Никаких «тихих» `console.log` вместо реакции. Optimistic (строка сразу, откат при ошибке) — опц.
 
 ## Что отсюда берёт сервис (profile)

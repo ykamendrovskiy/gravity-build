@@ -10,8 +10,8 @@
 | Страницу из блоков | `<PageConstructor content={...}/>` в `<PageConstructorProvider>` | uikit Card+Button+Box руками |
 | Hero | `header-block` / `hero-block` | сборку из Box+Background+Button |
 | Фичи | `extended-features-block` | uikit Card × N |
-| Отзывы | `slider-block` / `card-layout-block` + sub `Quote` | Card вручную |
-| Тарифы | `card-layout-block` + `PriceCard` / `PriceDetailed` | Card с цифрами руками |
+| Отзывы | `slider-block` (если не влезают) / `card-layout-block` (если влезают) + sub `Quote` | Card вручную |
+| Тарифы | `card-layout-block` + `PriceCard` (выделение плана — `theme`, не `backgroundColor`; детали — `library-page-constructor`) | Card с цифрами руками |
 | FAQ | `questions-block` | accordion из Disclosure |
 | Финальный CTA | `banner-block` | Card + Button |
 | Блока нет в наборе | `custom`-проп PageConstructor | смешение свободного JSX с блоками |

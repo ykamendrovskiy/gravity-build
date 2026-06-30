@@ -41,6 +41,17 @@ Build-скрипт в `package.json`: `"build": "tsc && vite build"`. (Если 
 
 **`src/vite-env.d.ts`** — нужен, если используешь `import.meta.env.*` (напр. dev-gating состояний `import.meta.env.DEV`): одна строка `/// <reference types="vite/client" />`. Без него `import.meta.env` → `tsc` **TS2339** (`Property 'env' does not exist on type 'ImportMeta'`). Официальный `gravity-ui-vite-example` его включает.
 
+**`index.html` в корне проекта** (Vite-конвенция): Vite берёт entry из корневого `index.html`, не из
+`vite.config`. Без него — пустая страница / `Could not resolve entry`. Минимум:
+
+```html
+<!doctype html>
+<html><head><meta charset="UTF-8" /><title>App</title></head>
+<body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+```
+> Это **Vite**-scaffold. Next.js / Remix / CRA — другие точки входа (нет корневого `index.html`) + SSR-обвязка
+> (`'use client'`, гидратация `ThemeProvider`, стили в layout) — здесь не покрыты (scaffold ориентирован на Vite).
+
 ## Минимум: тема + стили
 
 Нужно всегда. Без `ThemeProvider` и импорта `styles.css` компоненты Гравити рендерятся без темы (часть — с ошибками).
