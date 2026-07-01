@@ -48,7 +48,7 @@ export default defineConfig({
 1. **`~`-alias** — иначе `ENOENT '~@gravity-ui/uikit/styles/styles.css'` (postcss не резолвит `~` в PC scss).
 2. **`nodePolyfills`** — иначе `"parse" is not exported by "__vite-browser-external"` (PC импортит Node-билтин `url`).
 
-(DEV: `slider-block` может встать вертикальным столбиком — добавь `import 'swiper/css'` в entry; **dev-only**, build ок.)
+⚠️ **`slider-block` требует `import 'swiper/css'` в entry — НЕ dev-only** (verified 2026): без него слайдер не ограничивает число слайдов — в DEV встаёт вертикальным столбиком, в **BUILD показывает ВСЕ слайды узкими** (текст в side-image-карточках нечитаем). Импорт — после `page-constructor` scss.
 
 ⚠️ **Грид требует `*{box-sizing:border-box}`** в глобальном reset (см. `scaffold-app-shell`). Без него `container-fluid`/колонки считаются в `content-box` (uikit ставит border-box только на `html`) → **горизонтальный оверфлоу на десктопе + карточки 2-в-ряд вместо 3** (`tsc` молчит; ловится только браузером). verified 2026-06-30.
 

@@ -7,7 +7,10 @@
 
 `PlaceholderContainer.image` ждёт **отрендеренный элемент** (`<NotFound/>`), не ссылку на компонент.
 Иллюстрации — **named root-exports**. **НЕ** deep-import (`@gravity-ui/illustrations/notFound`, `/error`),
-**НЕ** выдуманный `<Illustration name=.../>`.
+**НЕ** выдуманный `<Illustration name=.../>`. **НЕ** подменяй иллюстрацию большим `<Icon size={80}>` —
+пустое / ошибка / **успех** все идут через иллюстрацию (не растянутую иконку; success → `SuccessOperation`).
+И **покраска `--gil-color-*` (ниже) не опциональна** — без неё svg рендерится, но **бесцветный/невидимый**
+(частый наивный промах: импортируют иллюстрацию, а шаг покраски пропускают → на экране «пусто»).
 
 ```tsx
 import {NotFound, NoSearchResults, InternalError, AccessDenied} from '@gravity-ui/illustrations';

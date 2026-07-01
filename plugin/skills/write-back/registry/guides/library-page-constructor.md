@@ -43,15 +43,23 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
   (verified browser+source, PC 8.13). Выделяй: `border: true` (рамка, безопасно — тема не меняется) ЛИБО тёмный
   `backgroundColor` **+ парный** `theme:'dark'` (тёмный фон + белый текст, verified) / светлый `backgroundColor` +
   `theme:'default'`. НЕ ставь `theme:'dark'` без тёмного `backgroundColor`.
-- `slider-block` — структура из `templates/slider-block.json` (плоский массив сабблоков); `slidesToShow` канон не задаёт.
+- **Кнопки на ТЁМНОМ блоке** (`theme:'dark'` у `header-block`/секции): блок красит только свой текст, а uikit-кнопка
+  берёт цвет из `g-root_theme_light` приложения (блок НЕ оборачивает содержимое в `g-root_theme_dark`) →
+  `outlined`/`normal` = тёмный текст на тёмном фоне = нечитаемо. Бери **-contrast**-темы:
+  `theme:'outlined-contrast'` / `'flat-contrast'` / `'normal-contrast'` (PC `ButtonTheme` = uikit `ButtonView` —
+  все -contrast доступны); `action` (жёлтая заливка) читаема как есть. verified browser+source.
+- `slider-block` — структура из `templates/slider-block.json` (плоский массив сабблоков). **`slidesToShow` — ЧИСЛО (`2` → 2 на всех брейкпоинтах) ИЛИ объект по брейкпоинтам Гравити (`{sm,md,lg,xl}`); `{desktop,tablet,mobile}` — НЕ те ключи, игнорируются → дефолт 3 узких** (verified source). Требует `import 'swiper/css'` в entry (см. `recipe-landing`) — без него слайды не сжимаются.
 - **`slider-block` vs `card-layout-block`:** слайдер — когда набор **не влезает во вьюпорт целиком** (нужен
   горизонтальный скролл). Фиксированный набор, который влезает (3–6 карточек) → `card-layout-block` (статичная
   сетка, по умолч. 3/2/1). Слайдер сам прячет стрелки/точки при `watchOverflow` (мисьюз не ломает визуал, но
   карусель для нескроллящегося контента = неверный примитив).
-- **Карточки с картинкой СБОКУ от текста** (`quote`, media с боковым изображением) **не ставь 3-в-ряд**: у брейкпоинта
-  колонка текста схлопывается (~90px, нечитаемо; verified browser). Дай `card-layout-block` `colSizes={{all:12, md:6}}`
-  (2-в-ряд) ЛИБО `slider-block` (по 1). Дефолт 3-в-ряд (`colSizes` `md:4`) — только для карточек БЕЗ бокового
-  изображения (`PriceCard`, `BasicCard` с картинкой сверху).
+- **Карточки с БОЛЬШОЙ картинкой СБОКУ от текста** (напр. `quote` с крупным аватаром слева): при 3-в-ряд колонка
+  текста схлопывается (~90–120px, нечитаемо; verified browser). **Скоуп правила — только такие карточки.** Варианты
+  (что уместнее по подаче): (а) **1 или 2 в ряд** — `slider-block` (`slidesToShow: 1`/`2`; про `swiper/css` + формат
+  см. выше) ИЛИ `card-layout-block` `colSizes={{all:12, md:6}}` (2-в-ряд); (б) **перестроить карточку** — картинка
+  **сверху** / компактный аватар в футере / без картинки — тогда **3-в-ряд читаемо**. Запрещена именно связка
+  «большая боковая картинка + 3-в-ряд», а не 3-в-ряд как таковое (карточки без большой боковой картинки — `PriceCard`,
+  `BasicCard` с картинкой сверху — спокойно идут 3-в-ряд).
 - `companies-block` — ОДНА картинка-полоса, не массив логотипов.
 - `quote` — `image` И `logo` обязательны; автор `author:{firstName,secondName,description,avatar}`. Placeholder-SVG для `image`/`logo`: `data:image/svg+xml,`+`encodeURIComponent` (**НЕ `btoa`** — падает на кириллице → пустая страница) **И XML-escape текста** в SVG (`&`→`&amp;`, `<`→`&lt;`) — сырой `&` в названии (напр. «Studio&Co») делает SVG невалидным → битая картинка. Оба бага `tsc`-невидимы, ловятся только браузером.
 - Иконки фич — из `@gravity-ui/icons` по смыслу; НЕ внешние CDN, НЕ кривой self-drawn SVG. Self-host (path).
