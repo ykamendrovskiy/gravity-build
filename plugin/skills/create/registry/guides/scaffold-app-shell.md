@@ -79,10 +79,11 @@ createRoot(document.getElementById('root')!).render(
 
 ## Базовый layout (reset) — чтобы шелл прилегал к краям
 
-Стили uikit **не** обнуляют отступ `body` и не растягивают корень на всю высоту. Без reset браузерный дефолт `body { margin: 8px }` оставляет зазор по краям вьюпорта, а полноэкранные компоненты (`AsideHeader`) из-за этого **не прилегают к границам и не помещаются целиком**. Добавь глобальный reset:
+Стили uikit **не** обнуляют отступ `body`, не растягивают корень на всю высоту и **не задают `box-sizing: border-box` глобально** (uikit ставит его только на `html`, дальше по дереву — браузерный `content-box`). Без reset: (1) `body { margin: 8px }` оставляет зазор, `AsideHeader` не прилегает к краям; (2) `content-box` ломает грид-раскладки, которые ждут border-box — напр. сетка `@gravity-ui/page-constructor`: паддинги колонок прибавляются к ширине → **горизонтальный оверфлоу + карточки сваливаются 2-в-ряд вместо 3** (verified browser). Добавь глобальный reset:
 
 ```css
 /* src/index.css */
+*, *::before, *::after { box-sizing: border-box; }  /* грид-раскладки (page-constructor) ждут border-box */
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -168,7 +169,7 @@ import {MobileProvider} from '@gravity-ui/uikit';
 ## Чего НЕ делать (anti-patterns)
 
 - Рендерить компоненты Гравити без `ThemeProvider` / без импорта `styles.css`.
-- Забыть глобальный reset (`html, body, #root { height: 100%; margin: 0 }`) — браузерный `body margin` оставляет зазор, `AsideHeader` не прилегает к краям вьюпорта и не влезает целиком.
+- Забыть глобальный reset — `*{box-sizing:border-box}` **и** `html, body, #root { height: 100%; margin: 0 }`. Без `border-box` грид page-constructor оверфлоит и сваливает карточки 2-в-ряд; без `margin:0` `AsideHeader` не прилегает к краям вьюпорта.
 - `<ToasterProvider>` без `toaster={new Toaster()}`.
 - Создавать `new Toaster()` внутри компонента (сброс state при ререндере).
 - Глотать `ToasterComponent` — без него тосты не видны.

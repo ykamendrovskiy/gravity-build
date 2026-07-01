@@ -38,6 +38,10 @@
 - **Фикс-размерный элемент (`Avatar` / `Icon` / `Label`) в flex-ряду рядом с растягивающимся текстом** — задай
   ему `flex-shrink: 0` (uikit сам не задаёт), а текстовому соседу `min-width: 0`. Иначе длинный текст сплющивает
   аватар/иконку в эллипс.
+- **Иконка+текст в `Button` — передавай детей МАССИВОМ** `[<Icon data={X} size={16}/>, 'Текст']`, **не Fragment**
+  `<><Icon/> Текст</>`. uikit `prepareChildren` детектит иконку только среди **прямых** детей; `React.Children.toArray`
+  держит Fragment одним узлом → иконка уходит в `g-button__text` (top-aligned, поверх текста). Массив → иконка в
+  `g-button__icon` (центр + gap). (verified uikit@7.42 source+browser; то же для `button.props.children` в `ActionsPanel`.)
 - **Safari + `Dialog` выше вьюпорта — двоение вуали.** Вуаль `Modal` — это alpha-фон самого `.g-modal`, который
   одновременно скролл-контейнер (`overflow:auto`); на скроллируемом модале Safari двоит отрисовку вуали при
   открытии `Popup` (`Select`/`DatePicker`) и репейнтах (моргание на анимации открытия, кнопках `NumberInput`).

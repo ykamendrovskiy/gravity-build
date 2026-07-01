@@ -104,6 +104,12 @@ const table = useTable({
 Идиома + критичная раскладка (sticky / ширина = таблице / компенсирующий отступ + container-width-механика
 `ActionsPanel`) вынесена в под-паттерн **`pattern-actions-panel`** (применим к любой таблице).
 
+**Per-row actions (колонка «⋯») в `@gravity-ui/table`** — хелпер `getActionsColumn` (НЕ `withTableActions` — тот для
+uikit `Table`): `getActionsColumn<TRow>('_actions', {getRowActions: (item, index) => TableActionConfig[]})` — **2
+аргумента** (`columnId`, `options`); `getRowActions` принимает `(item, index)` (НЕ `{row}`); `TableActionConfig` =
+`{text, handler, theme?, icon?}` либо группа `{title, items}`. Добавь `'_actions'` в `columnOrder`, иначе колонка уедет
+в конец. (verified @gravity-ui/table source)
+
 ## Data table — grouping (tree-rows pattern)
 
 В `@gravity-ui/table` группировка делается **через tree-rows**, не через TanStack-grouping. Данные — родительские объекты с массивом `items`:

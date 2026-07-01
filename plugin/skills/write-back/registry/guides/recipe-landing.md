@@ -50,6 +50,8 @@ export default defineConfig({
 
 (DEV: `slider-block` может встать вертикальным столбиком — добавь `import 'swiper/css'` в entry; **dev-only**, build ок.)
 
+⚠️ **Грид требует `*{box-sizing:border-box}`** в глобальном reset (см. `scaffold-app-shell`). Без него `container-fluid`/колонки считаются в `content-box` (uikit ставит border-box только на `html`) → **горизонтальный оверфлоу на десктопе + карточки 2-в-ряд вместо 3** (`tsc` молчит; ловится только браузером). verified 2026-06-30.
+
 ## Чего НЕ делать
 
 Hero руками из Box+Button; своя сетка Card×N вместо `extended-features-block`; `<section>` поверх

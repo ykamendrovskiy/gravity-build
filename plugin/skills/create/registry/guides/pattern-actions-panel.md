@@ -31,9 +31,13 @@
 `item` задаются и `button`, и `dropdown`). Дай ему контейнер с **определённой шириной**:
 
 - в `position:sticky` / auto-width обёртке **без ширины** действия наезжают друг на друга;
-- дай обёртке `width:100%` **И** таблице `width="max"` — иначе таблица по ширине контента, а панель по
-  контейнеру → **рассинхрон ширины** (owner-review: панель шире/уже данных). С `width="max"` обе = контейнеру;
-- иконку в кнопке действия клади в `button.props.children` (как в любой `Button`); отдельного `icon`-слота у item НЕТ.
+- дай обёртке `width:100%` **И** таблице полную ширину — иначе таблица по ширине контента, а панель по
+  контейнеру → **рассинхрон ширины** (owner-review: панель шире/уже данных). Полная ширина зависит от таблицы:
+  uikit `DataTable`/`Table` — проп `width="max"`; **`@gravity-ui/table` `Table` НЕ имеет `width`/`stickyHeader`**
+  (это пропы uikit `DataTable` → TS2322) → ширина через `attributes={{style:{width:'100%'}}}`. Обе = контейнеру;
+- иконку в кнопке действия клади в `button.props.children` **массивом** `[<Icon.../>, 'Текст']`, **не Fragment**
+  `<><Icon/> Текст</>` — uikit ловит иконку только среди прямых детей (`React.Children.toArray` держит Fragment одним
+  узлом → иконка уедет в `g-button__text` и перекроет текст; verified browser+source); отдельного `icon`-слота у item НЕТ.
 
 > **Per-service:** к какому краю прибита (низ / верх) — выбирает сервис; «прибита + компенсирующий отступ +
 > ширина как у таблицы» верно всегда.
@@ -45,12 +49,14 @@ NB: **апстрим панель НЕ позиционирует** (в `Actions
 **Форма `actions` (TS — verified против uikit):**
 
 ```tsx
-import {ActionsPanel} from '@gravity-ui/uikit';
+import {ActionsPanel, Icon} from '@gravity-ui/uikit';
 import type {ActionsPanelProps} from '@gravity-ui/uikit';
+import {TrashBin} from '@gravity-ui/icons';
 
 const actions: ActionsPanelProps['actions'] = [
   { id: 'delete',
-    button:   {props: {children: 'Удалить', view: 'outlined-danger', onClick: onBulkDelete}},
+    // иконка+текст = МАССИВ прямых детей, НЕ Fragment <><Icon/>Удалить</> (иначе иконка перекроет текст):
+    button:   {props: {children: [<Icon key="i" data={TrashBin} size={16} />, 'Удалить'], view: 'outlined-danger', onClick: onBulkDelete}},
     dropdown: {item: {action: onBulkDelete, text: 'Удалить', theme: 'danger'}},
     // collapsed?: true → всегда в overflow-дропдауне
   },

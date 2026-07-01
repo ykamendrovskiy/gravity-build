@@ -32,6 +32,7 @@
 - **`ColumnDef` импорть из главного `@gravity-ui/table`**, не из `@gravity-ui/table/tanstack` — иначе теряется `withNestingStyles`, и nested-колонки дают `TS2353`.
 - **В `cell` нет `info`:** `CellContext` отдаёт значение через `getValue()` → `cell: ({getValue}) => getValue()`.
 - Версия — из `registry.json` (`libraries[]`); промежуточные версии не выдумывать.
+- **`Table` не имеет пропов `width`/`stickyHeader`** (`TableProps` = размеры/выравнивание; это пропы uikit `DataTable` → TS2322 при копировании оттуда). Полная ширина — `attributes={{style:{width:'100%'}}}`; sticky-заголовок — через контейнер/scroll-модель, не проп.
 
 ## Группировка / tree-rows / expanding — следуй официальному паттерну (route, не сочиняй)
 
