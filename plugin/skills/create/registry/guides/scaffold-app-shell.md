@@ -79,7 +79,7 @@ createRoot(document.getElementById('root')!).render(
 
 ## Базовый layout (reset) — чтобы шелл прилегал к краям
 
-Стили uikit **не** обнуляют отступ `body`, не растягивают корень на всю высоту и **не задают `box-sizing: border-box` глобально** (uikit ставит его только на `html`, дальше по дереву — браузерный `content-box`). Без reset: (1) `body { margin: 8px }` оставляет зазор, `AsideHeader` не прилегает к краям; (2) `content-box` ломает грид-раскладки, которые ждут border-box — напр. сетка `@gravity-ui/page-constructor`: паддинги колонок прибавляются к ширине → **горизонтальный оверфлоу + карточки сваливаются 2-в-ряд вместо 3** (verified browser). Добавь глобальный reset:
+Стили uikit **не** обнуляют отступ `body`, не растягивают корень на всю высоту и **не задают `box-sizing: border-box` глобально** (uikit ставит его только на `html`, дальше по дереву — браузерный `content-box`). Без reset: (1) `body { margin: 8px }` оставляет зазор, `AsideHeader` не прилегает к краям; (2) `content-box` ломает грид-раскладки, которые ждут border-box — напр. сетка `@gravity-ui/page-constructor`: паддинги колонок прибавляются к ширине → **горизонтальный оверфлоу + карточки сваливаются 2-в-ряд вместо 3** (verified browser); (3) `<ul>`/`<ol>` наследуют UA `padding-inline-start: 40px` — uikit `Stepper` это `<ol>`, без сброса **уезжает вправо на 40px** (verified). Добавь глобальный reset:
 
 ```css
 /* src/index.css */
@@ -88,6 +88,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
 }
+ul, ol { margin: 0; padding: 0; }  /* uikit Stepper — это <ol>; без сброса наследует UA padding-inline-start:40px и уезжает вправо */
 ```
 
 И подключи его в точке входа **после** стилей uikit:
@@ -169,7 +170,7 @@ import {MobileProvider} from '@gravity-ui/uikit';
 ## Чего НЕ делать (anti-patterns)
 
 - Рендерить компоненты Гравити без `ThemeProvider` / без импорта `styles.css`.
-- Забыть глобальный reset — `*{box-sizing:border-box}` **и** `html, body, #root { height: 100%; margin: 0 }`. Без `border-box` грид page-constructor оверфлоит и сваливает карточки 2-в-ряд; без `margin:0` `AsideHeader` не прилегает к краям вьюпорта.
+- Забыть глобальный reset — `*{box-sizing:border-box}`, `html, body, #root { height:100%; margin:0 }` **и** `ul,ol{margin:0;padding:0}`. Без `border-box` грид page-constructor оверфлоит и сваливает карточки 2-в-ряд; без list-reset `Stepper` (`<ol>`) уезжает вправо на 40px; без `margin:0` `AsideHeader` не прилегает к краям вьюпорта.
 - `<ToasterProvider>` без `toaster={new Toaster()}`.
 - Создавать `new Toaster()` внутри компонента (сброс state при ререндере).
 - Глотать `ToasterComponent` — без него тосты не видны.

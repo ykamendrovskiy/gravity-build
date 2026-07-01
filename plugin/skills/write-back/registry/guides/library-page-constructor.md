@@ -48,8 +48,12 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
   горизонтальный скролл). Фиксированный набор, который влезает (3–6 карточек) → `card-layout-block` (статичная
   сетка, по умолч. 3/2/1). Слайдер сам прячет стрелки/точки при `watchOverflow` (мисьюз не ломает визуал, но
   карусель для нескроллящегося контента = неверный примитив).
+- **Карточки с картинкой СБОКУ от текста** (`quote`, media с боковым изображением) **не ставь 3-в-ряд**: у брейкпоинта
+  колонка текста схлопывается (~90px, нечитаемо; verified browser). Дай `card-layout-block` `colSizes={{all:12, md:6}}`
+  (2-в-ряд) ЛИБО `slider-block` (по 1). Дефолт 3-в-ряд (`colSizes` `md:4`) — только для карточек БЕЗ бокового
+  изображения (`PriceCard`, `BasicCard` с картинкой сверху).
 - `companies-block` — ОДНА картинка-полоса, не массив логотипов.
-- `quote` — `image` И `logo` обязательны; автор `author:{firstName,secondName,description,avatar}`. Placeholder-SVG для `image`/`logo` кодируй `data:image/svg+xml,` + `encodeURIComponent` (**НЕ `btoa`** — кидает `InvalidCharacterError` на кириллице → пустая страница; `tsc` молчит, ловится только браузером).
+- `quote` — `image` И `logo` обязательны; автор `author:{firstName,secondName,description,avatar}`. Placeholder-SVG для `image`/`logo`: `data:image/svg+xml,`+`encodeURIComponent` (**НЕ `btoa`** — падает на кириллице → пустая страница) **И XML-escape текста** в SVG (`&`→`&amp;`, `<`→`&lt;`) — сырой `&` в названии (напр. «Studio&Co») делает SVG невалидным → битая картинка. Оба бага `tsc`-невидимы, ловятся только браузером.
 - Иконки фич — из `@gravity-ui/icons` по смыслу; НЕ внешние CDN, НЕ кривой self-drawn SVG. Self-host (path).
 
 ## See also
