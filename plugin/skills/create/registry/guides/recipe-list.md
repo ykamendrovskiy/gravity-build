@@ -34,7 +34,14 @@ const EquipmentTable = withTableActions<Equip, {}>(
   )
 );
 // getRowActions={(item) => [{text:'Изменить', handler:...}, {text:'Удалить', theme:'danger', handler:...}]}
+// <EquipmentTable data={rows} columns={columns} width="max" ... />
 ```
+
+**Ширина таблицы:** дефолт uikit Table — `width: auto` (сжимается по контенту) → в ограниченной контент-колонке
+кнопка-действие шапки «повисает» правее таблицы (наблюдён разрыв 300px+). **Дефолт рецепта — `width="max"`**:
+таблица заполняет колонку, правые края шапки/фильтров/таблицы сходятся (та же механика, что width-binding
+ActionsPanel — `pattern-actions-panel`). Другие раскладки (колонка, суженная под контент таблицы; действия на
+контейнере) — валидны, но это осознанный выбор сервиса (профиль), не дефолт. Правило уровня вида — `pattern-list`.
 
 Грабли имён/пропов (статусы — `Label`, не `Badge`; заголовок — `Text variant`, не `Heading`; диалог с
 шапкой — `Dialog`, не `Modal title`) — сверь по `library-uikit` перед импортом.

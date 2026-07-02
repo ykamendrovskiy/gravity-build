@@ -101,6 +101,46 @@ import './index.css';
 
 Обязательно для приложений с `AsideHeader` / полноэкранным шеллом (`recipe-dashboard`); для узкой формы по центру — желательно (иначе зазор по краям).
 
+## Сценарии состояний (dev-переключатель + манифест) — чтобы состояния были достижимы
+
+Контракт состояний твоего паттерна (empty / loading / error / …) должен быть **достижим** — разработчику,
+owner-ревью и headless-гейту — но НЕ прод-контролом (дисциплина — `interface-foundations` «Состояния в DEV»).
+Каноническая идиома:
+
+```tsx
+// src/scenarios.ts
+export const SCENARIOS_ON = import.meta.env.DEV || !!import.meta.env.VITE_SCENARIOS;
+export const scenario = SCENARIOS_ON
+  ? (new URLSearchParams(location.search).get('scenario') ?? 'ideal')
+  : 'ideal';
+```
+
+- В обычном `vite build` ветка **tree-shake'ится**; с `VITE_SCENARIOS=1 vite build` — остаётся
+  (verified 2026-07-02, vite 5, маркер-тест 0/1 вхождений). Это снимает конфликт «Tier 1 / гейт гоняются через
+  `vite preview` (прод-билд), где `import.meta.env.DEV` уже false»: **сборка для гейта/ревью —
+  `VITE_SCENARIOS=1 npm run build`**, демо/прод-сборка остаётся чистой.
+- Требует `src/vite-env.d.ts` (см. «Скаффолд проекта» — иначе TS2339).
+
+**Манифест сценариев** — декларация «какие состояния у сборки есть и как их достичь» (self-describing build;
+его читает headless-гейт и обходит все состояния, не только начальный роут):
+
+```jsonc
+// scenarios.manifest.json — в КОРНЕ проекта (рядом с package.json)
+{
+  "version": 1,
+  "param": "scenario",
+  "default": "ideal",
+  "scenarios": ["ideal", "empty", "loading", "error", "filter-empty"]
+}
+```
+
+- id сценариев = контракт состояний паттерна (`pattern-list` / `pattern-dashboard`: empty / loading / error /
+  filter-empty; форма: submit-pending / submit-error; многошаговый флоу: step-2 / done — любое состояние,
+  в которое сборка умеет прыгнуть по `?scenario=<id>`).
+- **Декларируй только реализованное:** каждый id обязан реально переключать UI. Задекларированный, но не
+  реализованный сценарий хуже отсутствия манифеста — гейт пойдёт по нему судить.
+- Чисто статическая страница без асинхронных данных (лендинг) — манифест не нужен.
+
 ## Тосты (Toaster) — когда есть «Сохранено» / уведомления
 
 Частая ошибка — **`ToasterProvider` без обязательного пропа `toaster`** (без него сборка падает). Полный setup:
@@ -175,6 +215,7 @@ import {MobileProvider} from '@gravity-ui/uikit';
 - Создавать `new Toaster()` внутри компонента (сброс state при ререндере).
 - Глотать `ToasterComponent` — без него тосты не видны.
 - Подменять видимое подтверждение `console.log`'ом ради зелёного build.
+- Сценарий-переключатель без гейтинга (`import.meta.env.DEV || VITE_SCENARIOS`) — прод-UI не место контролу состояний; и `scenarios.manifest.json` с id, которые ничего не переключают.
 - Сочинять `tsconfig.json` руками с `references` на composite-проект, у которого `noEmit` → `TS6310`, as-emitted сборка падает (бери scaffold из официального `gravity-ui-vite-example` или держи один tsconfig — см. «Скаффолд проекта» выше).
 
 ## See also

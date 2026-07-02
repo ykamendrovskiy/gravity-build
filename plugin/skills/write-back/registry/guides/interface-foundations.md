@@ -37,6 +37,9 @@ error = реальный сбой. **НЕ ставь в продакшен-UI п
    ```
    Смотришь: `npm run dev` (+ `?scenario=empty`). Дёшево, видно сразу, в проде нет.
    **NB:** `import.meta.env` требует `vite/client`-типы — добавь `src/vite-env.d.ts` c `/// <reference types="vite/client" />`, иначе `tsc` → **TS2339** (см. `scaffold-app-shell`).
+   **Канонический сниппет + декларация сценариев** (`scenarios.manifest.json` — его читает headless-гейт и обходит
+   состояния) — `scaffold-app-shell` «Сценарии состояний». Там же нюанс: `vite preview` отдаёт прод-билд, DEV-ветка
+   вырезана — для гейта/ревью собирай `VITE_SCENARIOS=1 npm run build`.
 2. **MSW (mock service worker) — когда нужна реалистичность.** Компонент делает **настоящий** `fetch`;
    MSW-сценарии отдают success / empty / 500 / задержку. Состояния возникают из реального data-flow (как в
    проде) — переключаешь мок, не код. Честнее всего, но это service-worker-инфра.

@@ -21,6 +21,9 @@
 - **Partial / Error:** как в `interface-foundations` (page-level load-fail = full-area + retry; block / фон — компактно).
 - **Ideal:** таблица с данными.
 
+Сценарии этого контракта сделай достижимыми и **задекларируй** — dev-переключатель + `scenarios.manifest.json`
+(id: `ideal` / `empty` / `loading` / `error`) → `scaffold-app-shell` «Сценарии состояний».
+
 ## Ручки сервиса (profile)
 
 Набор разделов, плотность таблицы, группировка по умолчанию, `headerDecoration` сайдбара. Омиссия = дефолт.

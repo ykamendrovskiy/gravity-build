@@ -12,7 +12,7 @@
     "5. Открой recipe паттерна (pattern.recipe → recipes[].guide): Гравити-сборка (компоненты, код).",
     "6. Применяй gravity-foundations по мере (color/typography/spacing/radius/theming) — открывай их guide. Иконки в контролах (слот+размер) — в guides/library-icons.md.",
     "7. Библиотеки бери из libraries[] (intent → library через routing[]); версию — из libraries[].version / bundles[] ПО ИМЕНИ, не выдумывай. Route-only либа из routing[] без записи в libraries[] → ставь по её upstream.",
-    "8. Не сочиняй имена компонентов/пропов/иконок — сверяй с guide библиотеки перед импортом.",
+    "8. Не сочиняй имена компонентов/пропов/иконок — сверяй с guide библиотеки перед импортом. Нужного пропа/компонента в guide НЕТ → читай типы установленного пакета / README@tag сам: guides/reference-props.md.",
     "9. Многопакетную либу (markdown-editor / dates / dynamic-forms / table+DnD) ставь ВСЕМ bundles[].packages — иначе ломается peer-граф."
   ],
 
@@ -237,7 +237,12 @@
     { "want": "Собрать целый composite-интерфейс (list-detail / dashboard-grid / форма-страница / мониторинг)",
       "use": "Сперва изучи эталон команды Гравити (route, не копируй) → reference-interfaces",
       "avoid": "копировать preview-компоненты вербатим (mock-обвязка, без app-shell)",
-      "guide": "guides/reference-interfaces.md" }
+      "guide": "guides/reference-interfaces.md" },
+    { "want": "Точный проп / полная форма типа / компонент, которого нет в guide библиотеки",
+      "use": "reference-props — типы установленного пакета (package.json→types, co-located .d.ts) + README компонента @ тег пина",
+      "avoid": "подставлять API по памяти; читать main вместо тега пина; искать per-component README внутри npm-пакета",
+      "why": "Guides кодифицируют курированное, не полный API. Типы пакета = истина tsc, работают офлайн; README@tag = семантика (deprecated, примеры).",
+      "guide": "guides/reference-props.md" }
   ],
 
   "gravity-foundations": [
@@ -273,7 +278,7 @@
       "summary": "Страница-список асинхронных данных: заголовок + фильтры + таблица + добавление + контракт состояний.",
       "uses-foundations": ["interface-foundations"],
       "recipe": "list",
-      "exposesKnobs": ["density", "filtersPlacement", "emptyCopy", "retryPolicy"],
+      "exposesKnobs": ["density", "filtersPlacement", "emptyCopy", "retryPolicy", "pageWidth"],
       "guide": "guides/pattern-list.md" },
     { "name": "landing", "type": "pattern",
       "title": "Маркетинговая страница",
