@@ -22,7 +22,7 @@
 | `header-block` | Заголовок секции: title + description + CTA |
 | `hero-block` | Full-bleed hero с фоном |
 | `extended-features-block` / `promo-features-block` | Фичи: иконка + title + текст |
-| `card-layout-block` | Сетка карточек (Quote / PriceCard / …) |
+| `card-layout-block` | Сетка карточек (BasicCard / PriceCard / …) |
 | `slider-block` | Слайдер card-контента |
 | `companies-block` | Полоса логотипов (ОДНА картинка `images:{desktop,mobile}`, не массив) |
 | `questions-block` | FAQ-аккордеон |
@@ -60,6 +60,15 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
   **сверху** / компактный аватар в футере / без картинки — тогда **3-в-ряд читаемо**. Запрещена именно связка
   «большая боковая картинка + 3-в-ряд», а не 3-в-ряд как таковое (карточки без большой боковой картинки — `PriceCard`,
   `BasicCard` с картинкой сверху — спокойно идут 3-в-ряд).
+- **Отзывы/цитаты с подписью — дефолт `basic-card`, НЕ `quote`** (verified fanout-01, browser): `quote` везёт
+  обязательную БОЛЬШУЮ боковую `image` + `logo` → даже 2-в-ряд текст тесен, колонка подписи рвётся в
+  слово-на-строку, а большая картинка дублирует аватар подписи. Канон отзыва: `basic-card` — `title` = имя,
+  `text` = цитата, **`additionalInfo` = роль/компания** (штатный muted-слот), **аватар — `icon`-слотом**
+  (`icon: {src, alt}`, мелкий над заголовком) — картинка возвращается в правильном МАСШТАБЕ, не боковой
+  простынёй. `quote` оставляй для случая с настоящим фото-контентом. **NB:** `text` в runtime-конфиге (без
+  YFM-трансформ-этапа) рендерится литерально — markdown (`_курсив_`, `\n\n`-абзацы) НЕ работает; подпись — в
+  `additionalInfo`, не markdown'ом в text. **NB-2:** тип требует `url` (карточка-ссылка), но `PageContent`
+  пермиссивен — без `url` карточка валидно рендерится не-ссылкой (для отзыва так и нужно).
 - `companies-block` — ОДНА картинка-полоса, не массив логотипов.
 - `quote` — `image` И `logo` обязательны; автор `author:{firstName,secondName,description,avatar}`. Placeholder-SVG для `image`/`logo`: `data:image/svg+xml,`+`encodeURIComponent` (**НЕ `btoa`** — падает на кириллице → пустая страница) **И XML-escape текста** в SVG (`&`→`&amp;`, `<`→`&lt;`) — сырой `&` в названии (напр. «Studio&Co») делает SVG невалидным → битая картинка. Оба бага `tsc`-невидимы, ловятся только браузером.
 - Иконки фич — из `@gravity-ui/icons` по смыслу; НЕ внешние CDN, НЕ кривой self-drawn SVG. Self-host (path).

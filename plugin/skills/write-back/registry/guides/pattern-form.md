@@ -40,6 +40,10 @@
 Интеракционные состояния (submit-pending / submit-error) тоже пресеть сценарием и задекларируй в
 `scenarios.manifest.json` → `scaffold-app-shell` «Сценарии состояний» (для многошаговых флоу — и `step-2` / `done`).
 
+**Экран результата флоу (done/success)** — это `PlaceholderContainer` с иллюстрацией (`SuccessOperation`,
+вертикально: `direction="column" align="center"`), НЕ самодельный центр из большого `Icon` — механика и
+покраска `--gil-color` → `library-illustrations`.
+
 ## Ручки сервиса (profile)
 
 Точные числа ширины, политика «единая ширина vs по контенту», дефолт размещения описаний (под контролом vs

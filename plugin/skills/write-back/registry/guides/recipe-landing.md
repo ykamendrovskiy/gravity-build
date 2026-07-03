@@ -10,8 +10,8 @@
 | Страницу из блоков | `<PageConstructor content={...}/>` в `<PageConstructorProvider>` | uikit Card+Button+Box руками |
 | Hero | `header-block` / `hero-block` | сборку из Box+Background+Button |
 | Фичи | `extended-features-block` | uikit Card × N |
-| Отзывы | `slider-block` (если не влезают) / `card-layout-block` (если влезают) + sub `Quote` | Card вручную |
-| Тарифы | `card-layout-block` + `PriceCard` (выделение плана — `theme`, не `backgroundColor`; детали — `library-page-constructor`) | Card с цифрами руками |
+| Отзывы | `card-layout-block` + sub **`basic-card`** (`title`=имя, `text`=цитата, `additionalInfo`=роль; не влезают → `slider-block`) | `quote` с большой боковой картинкой (тесен даже 2-в-ряд — см. `library-page-constructor`); Card вручную |
+| Тарифы | `card-layout-block` + `PriceCard` (выделение плана — **парный** `theme`+`backgroundColor` ЛИБО `border`; точная механика — `library-page-constructor`) | Card с цифрами руками; `theme:'dark'` без тёмного фона (невидимый текст) |
 | FAQ | `questions-block` | accordion из Disclosure |
 | Финальный CTA | `banner-block` | Card + Button |
 | Блока нет в наборе | `custom`-проп PageConstructor | смешение свободного JSX с блоками |
@@ -28,7 +28,7 @@ import '@gravity-ui/page-constructor/styles/styles.scss';
 ```tsx
 // src/App.tsx
 import {PageConstructor, PageConstructorProvider} from '@gravity-ui/page-constructor';
-const content = { blocks: [ /* header-block, extended-features-block, slider-block(Quote),
+const content = { blocks: [ /* header-block, extended-features-block, card-layout-block(basic-card отзывы),
                               card-layout-block(PriceCard), questions-block, banner-block */ ] };
 export function App(){ return <PageConstructorProvider><PageConstructor content={content}/></PageConstructorProvider>; }
 ```
