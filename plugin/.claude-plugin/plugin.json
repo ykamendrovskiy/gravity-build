@@ -1,6 +1,6 @@
 {
   "name": "gravity-build",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Сборка прототипов и приложений «как принято» на настоящих компонентах Gravity UI: универсальный knowledge-registry (имена/версии/app-shell/recipes/темизация) + опциональный per-service профиль (тема/плотность/раскладка/форм-политика). Без выдуманных пропов и «похожих» компонентов.",
   "author": {
     "name": "ykamendrovskiy",
