@@ -114,9 +114,19 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 
 Фетч `metadata.json` недоступен — сверь частое имя здесь (verified против metadata @ icons v2.18). Имени нет в списке → фетч/showcase, **не выдумывай**.
 
+**Нулевой шаг — свой установленный пакет (офлайн, точно ТВОЯ версия):** пакет плоский, имя компонента = имя
+файла: `ls node_modules/@gravity-ui/icons | grep -i <тема>` (напр. `grep -i layout` → `LayoutList`,
+`LayoutCells`, `LayoutSideContent`…). Это надёжнее любого списка: набор растёт от версии к версии (напр.
+`ListUl` есть в 2.20, в ранних 2.x отсутствовал) — сверяй с тем, что установлено У ТЕБЯ, а не с чужим перечнем.
+
 - **Действия:** добавить `Plus` (в круге `CirclePlus`) · удалить **`TrashBin`** (НЕ `Trash`) · редактировать `Pencil` · закрыть/× `Xmark` · ок/чек `Check` · искать `Magnifier` · фильтр `Funnel` · обновить `ArrowRotateLeft` · копировать `Copy` · ещё/меню `Ellipsis` (верт. `EllipsisVertical`) · настройки `Gear` · скачать `ArrowDownToLine` · загрузить `ArrowUpFromLine` · сохранить `FloppyDisk`.
 - **Статусы/фидбэк:** инфо `CircleInfo` · предупреждение `TriangleExclamation` · ошибка `CircleXmark` · успех `CircleCheck` · запрет `Ban`.
 - **Инфраструктура (домен):** сервер `Server` · БД `Database` · облако `Cloud` · диск/хранилище `HardDrive` · дисплей/монитор `Display` · CPU `Cpu` · контейнеры/кубы `Cubes3` · питание `Power`.
+- **Раскладка / переключатели вида / сайдбар (verified @2.20, write-back Storage CD):** решётка-меню 9 точек
+  `Dots9` (`Squares4` НЕ существует) · вид-список `LayoutList` · вид-плитка `LayoutCells` (крупная
+  `LayoutCellsLarge`) · колонки `LayoutColumns` · боковая панель `LayoutSideContent` / `…Left` / `…Right`
+  (`…Enabled` НЕ существует) · вкладки `LayoutTabs` · циклы/релизы `Arrows3RotateLeft` · модуль/плагин `Puzzle`
+  (`Tasklet` НЕ существует) · выход `ArrowRightFromSquare` · drag-ручка `Grip` / `GripHorizontal`.
 - **Объекты/нав:** папка `Folder` · файл `File` · пользователь `Person` (мн. `Persons`) · календарь `Calendar` · часы `Clock` · дом `House` · замок `Lock` · ключ `Key` · тег `Tag` · ссылка `Link` · показать `Eye` (скрыть `EyeSlash`) · слайдеры `Sliders`.
 - **Шевроны/стрелки:** раскрытие `ArrowChevronDown` / `…Up` / `…Left` / `…Right`; сортировка `ArrowUpArrowDown`.
 

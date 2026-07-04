@@ -49,6 +49,14 @@
   теряет отметки при возврате назад (пройденные шаги перестают быть `< step`). Навигация кликом по шагу — только с
   `onUpdate` + `id` на `Stepper.Item`; без них степпер = индикатор (клик мёртв). Кликабельность — дизайн/профиль;
   корректная отметка выполненности — всегда из state.
+- **`SegmentedRadioGroup` icon-only опции: `<Icon>` — ПРЯМЫМ значением, без обёрток** (`content={<Icon …/>}`
+  или прямой child): центрирующий модификатор `_icon` вешается автодетектом `isIcon(content || children)` —
+  `<span>`-обёртка вокруг иконки ломает детект → иконка «плавает» по baseline (verified source uikit 7.43).
+- **`SegmentedRadioGroup width="max"` + icon-only:** даже с `_icon`-модификатором иконка смещена — на
+  `.option-text` всегда горизонтальный `margin` (m: `0 13px`; s:10/l:18/xl:25), а `_icon`-правило без
+  `justify-content`/`width`. Публичного API нет → CSS-заплатка на свой класс:
+  `.g-segmented-radio-group__option-text_icon { margin: 0; width: 100% }` (хак внутренних классов — пометь
+  комментарием; upstream-кандидат).
 - **Кнопка без текста (только иконка) — оборачивай в `ActionTooltip`** с полным названием действия:
   `<ActionTooltip title="Отозвать ключ"><Button…><Icon…/></Button></ActionTooltip>` (у `ActionTooltip` есть
   `description` и `hotkey` — для сложных действий). Кнопке с текстом тултип не обязателен — добавляй по
