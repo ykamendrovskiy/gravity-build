@@ -17,20 +17,20 @@
   ],
 
   "basePins": [
-    { "package": "react", "version": "^18.3.1", "note": "держим 18: @gravity-ui/components@4 объявляет peer react только ^16/17/18 (не 19) — общий знаменатель набора" },
+    { "package": "react", "version": "^18.3.1", "note": "держим 18 как выверенную базу всех прогонов; peer-блока больше НЕТ (components 4.22 разрешает ^19) — миграция на 19 = отдельный валидационный заход (бонус: уйдёт fetchPriority-варнинг page-constructor)" },
     { "package": "react-dom", "version": "^18.3.1" },
     { "package": "sass", "version": "^1.83.0", "dev": true, "note": "только для .scss-импортов page-constructor" }
   ],
 
   "libraries": [
-    { "name": "uikit", "package": "@gravity-ui/uikit", "version": "^7.42.0",
+    { "name": "uikit", "package": "@gravity-ui/uikit", "version": "^7.43.0",
       "docs": { "guide": "guides/library-uikit.md", "upstream": "https://github.com/gravity-ui/uikit/blob/main/AGENTS.md" },
       "summary": "Базовые контролы + guard имён (RadioButton→SegmentedRadioGroup, монолитный Tabs, TreeList из корня, Heading→Text, Badge→Label). Сверяй имя перед импортом; детальный API — upstream AGENTS.md." },
     { "name": "components", "package": "@gravity-ui/components", "version": "^4.22.0",
       "peer": ["@gravity-ui/uikit@^7.42.0"],
       "docs": { "guide": "guides/library-components.md" },
       "summary": "Составные блоки над uikit: FormRow (лейбл+контрол для форм), ConfirmDialog, AdaptiveTabs, Gallery. Базовые контролы — в uikit." },
-    { "name": "navigation", "package": "@gravity-ui/navigation", "version": "^6.1.0",
+    { "name": "navigation", "package": "@gravity-ui/navigation", "version": "^6.1.2",
       "peer": ["@gravity-ui/uikit@^7.42.0"],
       "docs": { "guide": "guides/library-navigation.md" },
       "summary": "Каркас приложения: AsideHeader (боковое меню; compact/renderFooter/menuGroups). v6 = эра uikit@7.42 (двигать в связке). Для одиночной страницы не обязателен." },
@@ -39,18 +39,18 @@
       "docs": { "guide": "guides/library-table.md" },
       "bundle": "table",
       "summary": "Таблицы на TanStack (useTable, Table, selectionColumn, tree-rows) для grouping/tree/DnD/virtualization. Плоскую таблицу проще на uikit Table. Для DnD ставь bundle." },
-    { "name": "icons", "package": "@gravity-ui/icons", "version": "^2.18.0",
+    { "name": "icons", "package": "@gravity-ui/icons", "version": "^2.20.0",
       "docs": { "guide": "guides/library-icons.md" },
       "summary": "~781 SVG-иконка как React-компоненты; рендер через uikit Icon (data=). Имя ищи в guide (офлайн-сабсет + metadata.json), не выдумывай; размер/слот в контроле — там же." },
     { "name": "illustrations", "package": "@gravity-ui/illustrations", "version": "^2.1.1",
       "peer": ["@gravity-ui/uikit@^7.42.0"],
       "docs": { "guide": "guides/library-illustrations.md" },
       "summary": "Иллюстрации для пустых/ошибочных состояний (PlaceholderContainer.image, НЕ растянутая иконка). Нужна покраска по темам/бренду через --gil-color-*." },
-    { "name": "page-constructor", "package": "@gravity-ui/page-constructor", "version": "^8.13.0",
+    { "name": "page-constructor", "package": "@gravity-ui/page-constructor", "version": "^8.13.2",
       "peer": ["@gravity-ui/uikit@^7.1.1", "sass", "vite-plugin-node-polyfills"],
       "docs": { "upstream": "https://github.com/gravity-ui/page-constructor/blob/main/AGENTS.md", "guide": "guides/library-page-constructor.md" },
       "summary": "Config-driven лендинг-блоки (PageConstructorProvider). Конфиги блоков — из editor/data/templates/*.json установленного пакета + .d.ts, не угадывай. Нужны Vite-фиксы (~-alias + node-polyfills) + SCSS." },
-    { "name": "dynamic-forms", "package": "@gravity-ui/dynamic-forms", "version": "^5.18.0",
+    { "name": "dynamic-forms", "package": "@gravity-ui/dynamic-forms", "version": "^5.19.1",
       "peer": ["@gravity-ui/uikit@^7.42.0"],
       "docs": { "guide": "guides/library-dynamic-forms.md" },
       "bundle": "dynamic-forms",
@@ -60,11 +60,11 @@
       "docs": { "guide": "guides/library-dates.md" },
       "bundle": "dates",
       "summary": "UI-контролы дат/времени (пикеры, диапазоны). Ставь в паре с date-utils (value-слой). НЕ <input type=date> / moment / самописный календарь." },
-    { "name": "date-utils", "package": "@gravity-ui/date-utils", "version": "^2.7.0",
+    { "name": "date-utils", "package": "@gravity-ui/date-utils", "version": "^2.7.1",
       "docs": { "guide": "guides/library-dates.md" },
       "bundle": "dates",
       "summary": "Value-слой дат (dateTimeParse/dateTime; парсинг/формат/таймзоны) под date-components. Пикеры принимают/отдают значения в этом формате." },
-    { "name": "markdown-editor", "package": "@gravity-ui/markdown-editor", "version": "^15.41.0",
+    { "name": "markdown-editor", "package": "@gravity-ui/markdown-editor", "version": "^15.42.0",
       "peer": ["@gravity-ui/uikit@^7.42.0", "@gravity-ui/components@^4.22.0"],
       "docs": { "upstream": "https://github.com/gravity-ui/markdown-editor/blob/main/AGENTS.md" },
       "bundle": "markdown-editor",
@@ -78,7 +78,7 @@
     { "name": "markdown-editor", "title": "Markdown-редактор",
       "when": "Сроутился на @gravity-ui/markdown-editor. Ставь ВЕСЬ набор: editor тянет components + ~12 peer-deps, которые npm сам НЕ поставит.",
       "packages": [
-        { "package": "@gravity-ui/markdown-editor", "version": "^15.41.0" },
+        { "package": "@gravity-ui/markdown-editor", "version": "^15.42.0" },
         { "package": "@gravity-ui/components", "version": "^4.22.0" },
         { "package": "@diplodoc/transform", "version": "^4.43.0", "peer": true },
         { "package": "@diplodoc/cut-extension", "version": "^1.0.0", "peer": true },
@@ -102,7 +102,7 @@
       "when": "Сроутился на дату/время (recipe с дата-полем). Две либы в паре: UI-контрол + value-слой.",
       "packages": [
         { "package": "@gravity-ui/date-components", "version": "^3.4.2" },
-        { "package": "@gravity-ui/date-utils", "version": "^2.7.0" }
+        { "package": "@gravity-ui/date-utils", "version": "^2.7.1" }
       ],
       "antiPatterns": [
         "Выдумывать date-components@^3.6.0 и выше — нет такой версии (latest 3.4.2).",
@@ -111,7 +111,7 @@
     { "name": "dynamic-forms", "title": "Формы из JSON-схемы",
       "when": "Сроутился на @gravity-ui/dynamic-forms. Ставь набором: react-final-form-стек npm сам не подтянет.",
       "packages": [
-        { "package": "@gravity-ui/dynamic-forms", "version": "^5.18.0" },
+        { "package": "@gravity-ui/dynamic-forms", "version": "^5.19.1" },
         { "package": "final-form", "version": "^4.20.2", "peer": true },
         { "package": "react-final-form", "version": "^6.5.3", "peer": true },
         { "package": "react-is", "version": "^18.3.1", "peer": true }

@@ -139,6 +139,15 @@ export const scenario = SCENARIOS_ON
   в которое сборка умеет прыгнуть по `?scenario=<id>`).
 - **Декларируй только реализованное:** каждый id обязан реально переключать UI. Задекларированный, но не
   реализованный сценарий хуже отсутствия манифеста — гейт пойдёт по нему судить.
+- **Интеракционные сценарии (submit-pending / submit-error / done) обязаны ПРЕСЕТИТЬ состояние на загрузке**,
+  а не только менять поведение API после клика (иначе DOM = ideal → noop). Идиома `FILLED_PRESET`
+  (verified fanout-02): валидно заполненный стейт формы + инициализатор статуса по сценарию:
+  ```tsx
+  const preset = SCENARIOS_ON ? scenario : 'ideal';
+  const [form, setForm] = useState(preset === 'ideal' ? EMPTY_FORM : FILLED_PRESET);
+  const [status, setStatus] = useState<Status>(
+    preset === 'submit-pending' ? 'pending' : preset === 'submit-error' ? 'error' : 'idle');
+  ```
 - Чисто статическая страница без асинхронных данных (лендинг) — манифест не нужен.
 
 ## Тосты (Toaster) — когда есть «Сохранено» / уведомления

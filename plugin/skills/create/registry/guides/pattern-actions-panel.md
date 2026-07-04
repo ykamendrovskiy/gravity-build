@@ -33,8 +33,9 @@
 - в `position:sticky` / auto-width обёртке **без ширины** действия наезжают друг на друга;
 - дай обёртке `width:100%` **И** таблице полную ширину — иначе таблица по ширине контента, а панель по
   контейнеру → **рассинхрон ширины** (owner-review: панель шире/уже данных). Полная ширина зависит от таблицы:
-  uikit `DataTable`/`Table` — проп `width="max"`; **`@gravity-ui/table` `Table` НЕ имеет `width`/`stickyHeader`**
-  (это пропы uikit `DataTable` → TS2322) → ширина через `attributes={{style:{width:'100%'}}}`. Обе = контейнеру;
+  uikit `DataTable`/`Table` — проп `width="max"`; **`@gravity-ui/table` `Table` НЕ имеет `width`** (это проп
+  uikit `DataTable` → TS2322; а `stickyHeader` у него ЕСТЬ — ранняя формулировка «нет обоих» неверна, verified
+  .d.ts fanout-02) → ширина через `attributes={{style:{width:'100%'}}}`. Обе = контейнеру;
 - иконку в кнопке действия клади в `button.props.children` **массивом** `[<Icon.../>, 'Текст']`, **не Fragment**
   `<><Icon/> Текст</>` — uikit ловит иконку только среди прямых детей (`React.Children.toArray` держит Fragment одним
   узлом → иконка уедет в `g-button__text` и перекроет текст; verified browser+source); отдельного `icon`-слота у item НЕТ.

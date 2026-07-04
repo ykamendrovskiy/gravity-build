@@ -32,7 +32,9 @@
 - **`ColumnDef` импорть из главного `@gravity-ui/table`**, не из `@gravity-ui/table/tanstack` — иначе теряется `withNestingStyles`, и nested-колонки дают `TS2353`.
 - **В `cell` нет `info`:** `CellContext` отдаёт значение через `getValue()` → `cell: ({getValue}) => getValue()`.
 - Версия — из `registry.json` (`libraries[]`); промежуточные версии не выдумывать.
-- **`Table` не имеет пропов `width`/`stickyHeader`** (`TableProps` = размеры/выравнивание; это пропы uikit `DataTable` → TS2322 при копировании оттуда). Полная ширина — `attributes={{style:{width:'100%'}}}`; sticky-заголовок — через контейнер/scroll-модель, не проп.
+- **`Table` не имеет пропа `width`** (это uikit `DataTable` → TS2322 при копировании). Полная ширина —
+  `attributes={{style:{width:'100%'}}}`. А вот **`stickyHeader` — ЕСТЬ** (`BaseTable.d.ts`, boolean; ранняя
+  формулировка «нет обоих» была неверна — поймано наивным сборщиком fanout-02, verified .d.ts @1.15.3).
 
 ## Группировка / tree-rows / expanding — следуй официальному паттерну (route, не сочиняй)
 
@@ -44,6 +46,22 @@
 - **`enableExpanding: true`** + `const [expanded, setExpanded] = React.useState<ExpandedState>({})`.
 - **Тип-импорты** (`Row`, `ExpandedState`) — `import type {...} from '@gravity-ui/table/tanstack'` (но `ColumnDef` — из главного пакета, см. ловушку выше).
 - Агрегацию по группе в `cell` считай по типизированному `row.original` (через guard), не предполагай `items` у всех строк.
+
+**Групповые строки — три verified-факта (fanout-02, owner-review):**
+
+- **Два режима рендера группы:** full-width `<h2>`-полоса `BaseGroupHeader` — рендерится ТОЛЬКО при переданном
+  `getIsGroupHeaderRow`; без него группа = обычные per-column ячейки. **`getGroupTitle` потребляется только
+  первым режимом** — в per-cell режиме это мёртвый проп (тайтл собираешь сам в ячейке). Per-cell режим нужен,
+  когда группе нужны свой чекбокс/колонки. **Канон тайтла группы (per-cell):** полноценный текст-акцент
+  (`Text variant="subheader-1"` со статус-именем) + вторичный счётчик с плюрализацией; статусный `Label` — как
+  дополнение, НЕ как замена тайтла (голый Label = «скупо», owner-вердикт).
+- **Выбор с группами: НЕ исключай группы из `enableRowSelection`** (`selectionColumn` дизейблит чекбокс по
+  `getCanSelect()`): каскад и indeterminate уже штатные (`mutateRowIsSelected` рекурсивно в `subRows`,
+  `getIsSomeSelected` → tri-state) + `useRowSelectionFixedHandler`. Скоуп балк-действий на листья — фильтром
+  выбранных id по своему справочнику листьев, не запретом выбора группы.
+- **Геометрия вложенности — переменная `--_--depth-indicator-width`** (дефолт 16px; рулит И инсетом контента,
+  И полосой-индикатором). Детям тесно у индикатора / сетка разъезжается с родителем → скоуп-оверрайд одной
+  переменной (`.my-table .gt-styled-table__row { --_--depth-indicator-width: 28px }`), НЕ per-cell паддинги.
 
 ## Ширины колонок и скролл-модель (verified fanout-01, loop-b)
 

@@ -40,7 +40,8 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
 - **Выделение плана:** флага `popular`/`highlighted` у pricing-сабблоков НЕТ. У `PriceCard` `theme`
   (`'default'|'light'|'dark'`) красит **только текст** (в `PriceCard.css` нет `background` на `_theme_`); поверхность —
   отдельный проп `backgroundColor`. Значит `theme:'dark'` **в одиночку = белый текст на прозрачном → невидимо**
-  (verified browser+source, PC 8.13). Выделяй: `border: true` (рамка, безопасно — тема не меняется) ЛИБО тёмный
+  (verified browser+source, PC 8.13). Выделяй: `border: 'line'` (рамка, безопасно; тип `CardBorder` =
+  `'shadow'|'line'|'none'` — НЕ boolean, `border: true` не примется типом; verified .d.ts fanout-02) ЛИБО тёмный
   `backgroundColor` **+ парный** `theme:'dark'` (тёмный фон + белый текст, verified) / светлый `backgroundColor` +
   `theme:'default'`. НЕ ставь `theme:'dark'` без тёмного `backgroundColor`.
 - **Кнопки на ТЁМНОМ блоке** (`theme:'dark'` у `header-block`/секции): блок красит только свой текст, а uikit-кнопка

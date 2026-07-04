@@ -64,6 +64,25 @@
 - **`Stepper.Item` `id` и `value` — СТРОКАМИ, оба.** Тип `id` схлопывается до `string` (пересечение с Button
   `id?: string` → на числе TS2322), а подсветка текущего шага — строгое `id === value`: числовой `value` при
   строковом `id` **молча** гасит подсветку (tsc может пройти). verified .d.ts + repro, fanout-01 uikit 7.43.
+- **`Stepper` на узких экранах — оборачивай в `overflowX:auto`.** Это непереносящийся горизонтальный
+  флекс-`<ol>` (без `flex-wrap`; пропов orientation/wrap/scroll НЕТ — verified .d.ts): 3 текстовых шага =
+  интринзик ~450px → на ≤375 бьёт за вьюпорт и тянет весь документ. Канон: `<div style={{overflowX:'auto',
+  minWidth:0}}><Stepper…/></div>` — на широких no-op, на узких скроллит степпер, не страницу (verified
+  фиксером fanout-02, re-gate 0 overflow).
+- **Кликабельность шагов `Stepper` — по ПОСЕЩЁННЫМ (visited-набор в state)**, не «только назад от текущего»:
+  вернувшись с шага 2 на шаг 1, пользователь должен уметь кликнуть вперёд на уже посещённый шаг 2
+  (owner-review fanout-02). Рифма с «completion из state»: и отметки, и кликабельность — производные от
+  visited/completed-набора, не от сравнения индексов. Механика: `Stepper.Item disabled={!visited[id]}` —
+  disabled-Item рендерит disabled-кнопку (не эмитит `onUpdate` + даёт визуальный аффорданс; verified fanout-02).
+- **uikit `Table` — всегда давай `getRowId` со стабильным id** (`getRowId="id"` / функция): без него строки
+  кеятся индексом (`String(index)` → React `key`; verified Table.js 7.43) → при фильтрации/сортировке React
+  переиспользует `<tr>` со сменой содержимого — бледный 1px-разделитель (`--g-color-line-generic`) даёт
+  paint-глюк «пропала линия между строками», при этом computed-стили чистые (ловится только глазом; verified
+  repro fanout-02: фильтр→сброс).
+- **`Checkbox` ВНУТРИ кликабельного `Card type="selection"` — не делай:** событие двоится (toggle срабатывает
+  дважды) и карточка получает `role="radio"` (ломается семантика мультивыбора). Строка-с-чекбоксом =
+  **полноширинный `Checkbox` с `content`** (лейбл-строка целиком кликабельна; `.g-control-label__text` уже
+  `flex-grow:1`) — verified builder'ом fanout-02.
 - **Safari + `Dialog` выше вьюпорта — двоение вуали.** Вуаль `Modal` — это alpha-фон самого `.g-modal`, который
   одновременно скролл-контейнер (`overflow:auto`); на скроллируемом модале Safari двоит отрисовку вуали при
   открытии `Popup` (`Select`/`DatePicker`) и репейнтах (моргание на анимации открытия, кнопках `NumberInput`).

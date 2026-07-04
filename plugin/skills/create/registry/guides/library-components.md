@@ -75,6 +75,21 @@ import {ConfirmDialog} from '@gravity-ui/components';
 `onClickButtonCancel` / `propsButtonApply` / `propsButtonCancel`). **Шапка — `title`, НЕ `caption`** (частый
 промах). Низкоуровневая альтернатива с кастомным контентом — `Dialog` (uikit: Header / Body / Footer).
 
+## FormRow — выравнивание подписи с ВЫСОКИМ контролом (verified fanout-02)
+
+Дефолт `FormRow` рассчитан на однострочный контрол: `.gc-form-row__left` держит `min-height: 28px`, подпись
+центрируется (`align-self: center`). С **высоким** контролом (вертикальная `RadioGroup`, список опций,
+multi-строчный блок) подпись опускается ниже первой строки контрола (замер: +6px уже на 3 радио-опциях).
+Пропа выравнивания у `FormRowProps` НЕТ — только `className`:
+
+```css
+.form-row-align-top .gc-form-row__left { min-height: 0; }
+.form-row-align-top .gc-form-row__field-name { align-self: flex-start; }
+```
+
+Вешай класс на строки с высокими контролами; однострочные (TextInput/Select) оставляй на дефолтном
+центрировании — там оно корректно.
+
 ## See also
 
 - `library-uikit.md` — базовые компоненты (ищи там сначала).
