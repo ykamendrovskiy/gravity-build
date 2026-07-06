@@ -7,6 +7,10 @@ interface-foundations → recipe → gravity-foundations → libraries. Марш
 `guides/`. Не подставляй имена / пропы / версии по памяти других дизайн-систем — сверяй с guide библиотеки
 (особенно «Ловушки» / «Грабли пропов» в `guides/library-uikit.md`) **перед** импортом.
 
+**Вход — Figma-макет** (ссылка/fileKey/node-id)? Перед всем остальным — `guides/figma-mapping.md`
+(source-intake: протокол чтения канала, карта имён кита, политика фиделити «макет = что строить,
+registry = как»); выход переноса включает конфликт-отчёт.
+
 **Если прямой фетч upstream заблокирован** (WebFetch / gh недоступны) — **первый офлайн-путь: типы уже
 установленного пакета** (`package.json → types`, co-located `.d.ts` — маршрут в `guides/reference-props.md`);
 дальше — **WebSearch** по README / AGENTS библиотеки. Только если и это не вышло — собери из проверенных

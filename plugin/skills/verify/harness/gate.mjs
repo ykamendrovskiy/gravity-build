@@ -39,7 +39,10 @@ export function gateDom() {
   out.contrast.sort(function(a,b){return Math.abs(a.Lc)-Math.abs(b.Lc);}); out.contrast=out.contrast.slice(0,20);
 
   // broken images (bad src / btoa blank / XML-escape)
-  var imgs=document.querySelectorAll('img'); for(var j=0;j<imgs.length;j++){ if(imgs[j].complete&&imgs[j].naturalWidth===0) out.brokenImages.push({src:(imgs[j].getAttribute('src')||'').slice(0,50)}); }
+  // ProseMirror-separator: служебный srcless-img prosemirror-view (курсор/линии contenteditable, создаётся
+  // библиотекой — prosemirror-view/dist/index.js «dom.className="ProseMirror-separator"»); не контент —
+  // FP-класс markdown-editor-сборок (S3 figma-naive), спец-кейс как pc-storage|background у emptySlot.
+  var imgs=document.querySelectorAll('img'); for(var j=0;j<imgs.length;j++){ if(/(^|\s)ProseMirror-separator(\s|$)/.test(imgs[j].className||'')) continue; if(imgs[j].complete&&imgs[j].naturalWidth===0) out.brokenImages.push({src:(imgs[j].getAttribute('src')||'').slice(0,50)}); }
 
   // icon+text Button with icon leaked into text slot (Fragment)
   var btns=document.querySelectorAll('.g-button'); for(var k=0;k<btns.length;k++){ var b=btns[k]; if(b.querySelector('svg')&&b.textContent.trim()&&!b.querySelector('[class*="g-button__icon"]')) out.buttonIconLeak.push({text:b.textContent.trim().slice(0,25)}); }

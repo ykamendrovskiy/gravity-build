@@ -5,6 +5,7 @@
   "description": "Роутер-знаниебаза для сборки прототипов на настоящих компонентах Gravity UI. ЭТОТ файл — единственный entry-point: маршрутизирует намерение по типам (gravity-foundations / interface-foundations / library / pattern / recipe / scaffold) и указывает, какой guide в guides/ открыть. Версии пакетов живут ТОЛЬКО здесь (basePins / libraries[].version / bundles[]) — не выдумывай и не дублируй их в guides.",
 
   "workflow": [
+    "0. Вход — Figma-макет (ссылка / fileKey / node-id)? Сначала открой guides/figma-mapping.md: режим канала + протокол чтения (metadata → скрин-эталон → секции → токены → ассеты) + карта имён кита + политика фиделити. Макет = ЧТО строить (контент/раскладка/тема verbatim), registry = КАК (имена/идиомы/версии); выход переноса включает конфликт-отчёт. Дальше — обычный workflow.",
     "1. Всегда первым — scaffold (app-shell): открой guides/scaffold-app-shell.md (ThemeProvider + стили + опц. Toaster). Базовые пины (react/react-dom/sass) — из basePins[].",
     "2. Определи намерение из брифа: сматчи patterns[].triggers → возьми паттерн (вид интерфейса). Неоднозначный выбор библиотеки (три «table», графики) — разреши по routing[].",
     "3. Открой guide паттерна: он задаёт контракт состояний + композицию и ССЫЛАЕТСЯ на interface-foundations.",
@@ -66,9 +67,9 @@
       "summary": "Value-слой дат (dateTimeParse/dateTime; парсинг/формат/таймзоны) под date-components. Пикеры принимают/отдают значения в этом формате." },
     { "name": "markdown-editor", "package": "@gravity-ui/markdown-editor", "version": "^15.42.0",
       "peer": ["@gravity-ui/uikit@^7.42.0", "@gravity-ui/components@^4.22.0"],
-      "docs": { "upstream": "https://github.com/gravity-ui/markdown-editor/blob/main/AGENTS.md" },
+      "docs": { "guide": "guides/library-markdown-editor.md", "upstream": "https://github.com/gravity-ui/markdown-editor/blob/main/AGENTS.md" },
       "bundle": "markdown-editor",
-      "summary": "Редактор WYSIWYG+Markup в стиле Гравити. major 15 = эра uikit@7. Ставь ВЕСЬ bundle (~12 @diplodoc/* peer-deps). Детальный API — upstream AGENTS.md." },
+      "summary": "Редактор WYSIWYG+Markup в стиле Гравити. major 15 = эра uikit@7. Ставь ВЕСЬ bundle (~12 @diplodoc/* peer-deps). Обвязка вкрутки + грабли (ToasterProvider! stickyToolbar!) — guide; детальный API — upstream AGENTS.md." },
     { "name": "react-data-table", "package": "@gravity-ui/react-data-table",
       "status": "legacy", "use": "table",
       "summary": "Legacy-таблица (не на TanStack). НЕ брать для нового кода — роутить на table (grouping/tree/DnD) или uikit Table (плоская)." }
@@ -238,6 +239,11 @@
       "use": "Сперва изучи эталон команды Гравити (route, не копируй) → reference-interfaces",
       "avoid": "копировать preview-компоненты вербатим (mock-обвязка, без app-shell)",
       "guide": "guides/reference-interfaces.md" },
+    { "want": "Собрать прототип по Figma-макету (ссылка на файл/фрейм, node-id)",
+      "use": "figma-mapping (source-intake): протокол чтения канала по секциям + карта имён кита → код + инференс вариант-пропов + политика фиделити «макет=что, registry=как»",
+      "avoid": "клонировать raw-разметку инстансов дивами; переносить со скриншота на глаз; угадывать незамапленные/детачнутые компоненты; молча «улучшать» контент макета",
+      "why": "Канал отдаёт Gravity-имена и --g-*-токены — перенос идёт компонентами, не вёрсткой; конфликты макета с идиомами кода — классами в отчёт, не silent-fix.",
+      "guide": "guides/figma-mapping.md" },
     { "want": "Точный проп / полная форма типа / компонент, которого нет в guide библиотеки",
       "use": "reference-props — типы установленного пакета (package.json→types, co-located .d.ts) + README компонента @ тег пина",
       "avoid": "подставлять API по памяти; читать main вместо тега пина; искать per-component README внутри npm-пакета",

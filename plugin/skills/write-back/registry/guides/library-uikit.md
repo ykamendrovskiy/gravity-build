@@ -11,6 +11,7 @@
 | `RadioButton` | `SegmentedRadioGroup` (сегментированный single-choice) или `Radio` + `RadioGroup` (обычные радио) | `RadioButton` в экспортах нет — устаревшее имя |
 | `<Tabs items={[...]} />` (монолит) | `TabProvider` + `TabList` + `Tab` + `TabPanel` (композиция) | старый API, в uikit@7 разнесён на композицию |
 | `TreeSelect` / `TreeList` из корня | `unstable_TreeSelect` / `unstable_TreeList` из `@gravity-ui/uikit/unstable` | в корневом экспорте их нет — только под `./unstable` |
+| `ListItemView` из корня / самодельная строка сайдбара | `unstable_ListItemView` из `@gravity-ui/uikit/unstable` (`import {unstable_ListItemView as ListItemView}`) | готовая строка списка/меню (`content={{title, startSlot}}` + `selected` + `height`) — но только под `./unstable`; рендер-грабли selected — см. «Грабли вёрстки» |
 | `<Grid>` | грид-система = `Row` + `Col` (из layout) | компонента `Grid` нет |
 | индикатор шагов «с нуля» | `Stepper` — он есть, не сочиняй | готовый компонент существует |
 | `<Toaster />` как JSX | класс `new Toaster()` + хук `useToaster()` | setup — в `scaffold-app-shell` |
@@ -38,6 +39,11 @@
 - **Фикс-размерный элемент (`Avatar` / `Icon` / `Label`) в flex-ряду рядом с растягивающимся текстом** — задай
   ему `flex-shrink: 0` (uikit сам не задаёт), а текстовому соседу `min-width: 0`. Иначе длинный текст сплющивает
   аватар/иконку в эллипс.
+- **`unstable_ListItemView` как пункт сайдбара/меню** — дефолт `selectionViewType="multiple"`: `selected`
+  рисует **чекмарк**, а не заливку. Для папок/навигации — `selectionViewType="single"` (заливка выбранного без
+  галки). Плотность строки — проп `height={N}` (значение = ручка профиля). Divider-типа у него нет —
+  разделитель списка = `<li role="separator">` с фоном `--g-color-line-generic` (verified браузером,
+  figma-спайк S1).
 - **Иконка+текст в `Button` — передавай детей МАССИВОМ** `[<Icon data={X} size={16}/>, 'Текст']`, **не Fragment**
   `<><Icon/> Текст</>`. uikit `prepareChildren` детектит иконку только среди **прямых** детей; `React.Children.toArray`
   держит Fragment одним узлом → иконка уходит в `g-button__text` (top-aligned, поверх текста). Массив → иконка в
@@ -81,8 +87,17 @@
   repro fanout-02: фильтр→сброс).
 - **`Checkbox` ВНУТРИ кликабельного `Card type="selection"` — не делай:** событие двоится (toggle срабатывает
   дважды) и карточка получает `role="radio"` (ломается семантика мультивыбора). Строка-с-чекбоксом =
-  **полноширинный `Checkbox` с `content`** (лейбл-строка целиком кликабельна; `.g-control-label__text` уже
-  `flex-grow:1`) — verified builder'ом fanout-02.
+  **полноширинный `Checkbox` с `content`** (лейбл-строка целиком кликабельна) — verified builder'ом fanout-02.
+  **Но длинный текст в `content` сам НЕ ужимается и НЕ режется** (s3-figma-naive): у `.g-control-label__text`
+  есть flex-grow, но нет `min-width:0` (флексовый `min-width:auto` → спан красится ЗА контейнер и наезжает
+  на соседей строки — Label-чип); `Text ellipsis` внутри него тоже мёртв — `g-text_ellipsis` на inline-боксе
+  inert (overflow не применяется к inline). Канон: `:global(.g-control-label__text) { flex: 1 1 auto;
+  min-width: 0; }` + перенос строк (или блочная обёртка, если нужен ellipsis). Ловится только painted-rect
+  (`Range.getBoundingClientRect`), element-rect коллизию не видит — класс R9 «мерь результат».
+- **`DefinitionList`: точечные лидеры — дефолт БЕЗ пропа-выключателя** (types 7.43: у item только
+  `copyText`/`note`). Дизайн без точек (частое решение макетов) → CSS-оверрайд
+  `.g-definition-list__dots { border-block-end: none; }` с пометкой; правило «макет>дефолт компонента» —
+  `figma-mapping` «политика фиделити» (verified s3-figma-naive).
 - **Safari + `Dialog` выше вьюпорта — двоение вуали.** Вуаль `Modal` — это alpha-фон самого `.g-modal`, который
   одновременно скролл-контейнер (`overflow:auto`); на скроллируемом модале Safari двоит отрисовку вуали при
   открытии `Popup` (`Select`/`DatePicker`) и репейнтах (моргание на анимации открытия, кнопках `NumberInput`).
