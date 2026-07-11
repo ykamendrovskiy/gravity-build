@@ -75,6 +75,13 @@ import {ConfirmDialog} from '@gravity-ui/components';
 `onClickButtonCancel` / `propsButtonApply` / `propsButtonCancel`). **Шапка — `title`, НЕ `caption`** (частый
 промах). Низкоуровневая альтернатива с кастомным контентом — `Dialog` (uikit: Header / Body / Footer).
 
+## FormRow — грабли
+
+**`validationState` / `errorMessage` — на КОНТРОЛЕ (`TextInput`/`Select`…), НЕ на `FormRow`:** `FormRowProps`
+их не принимает → `TS2322` (ловушка слабых тиров — тянутся повесить ошибку на строку-обёртку). FormRow —
+только раскладка «подпись ↔ контрол»; валидация живёт на контроле (штатный API + корректные
+screen-reader-атрибуты). Применение в форме — `recipe-settings-form`.
+
 ## FormRow — выравнивание подписи с ВЫСОКИМ контролом (verified fanout-02)
 
 Дефолт `FormRow` рассчитан на однострочный контрол: `.gc-form-row__left` держит `min-height: 28px`, подпись

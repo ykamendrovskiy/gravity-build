@@ -76,25 +76,10 @@ return <Table table={table} stickyHeader />;
 
 ## Data table — selection + grouping
 
-**Обязательно** используй `useRowSelectionFixedHandler` — без него чекбокс родительской строки не отслеживает выделение детей ([TanStack #4878](https://github.com/TanStack/table/issues/4878)).
-
-```tsx
-import {useRowSelectionFixedHandler} from '@gravity-ui/table';
-
-const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-
-const onRowSelectionChange = useRowSelectionFixedHandler({
-  rowSelection, setRowSelection, tableData: data, getSubRows, getRowId,
-});
-
-const table = useTable({
-  columns, data, getRowId, getSubRows,
-  state: {rowSelection},
-  onRowSelectionChange,
-  enableRowSelection: true,
-  enableMultiRowSelection: true,        // ⚠️ без него внутри группы чекбоксы ведут себя как радио
-});
-```
+Обвязка выбора — канонический блок в **`library-table` «Выбор строк — обязательная обвязка»**
+(`useRowSelectionFixedHandler` + `enableMultiRowSelection`; при группах обязателен — каскад родитель↔дети).
+Дашборд-специфика: выбор включён и для групп, и для листьев (каскад/indeterminate штатные — см.
+`library-table` «Групповые строки»); балк-действия скоупь на листья фильтром выбранных id.
 
 ## Data table — что делать с выбором → `ActionsPanel`
 
@@ -104,11 +89,8 @@ const table = useTable({
 Идиома + критичная раскладка (sticky / ширина = таблице / компенсирующий отступ + container-width-механика
 `ActionsPanel`) вынесена в под-паттерн **`pattern-actions-panel`** (применим к любой таблице).
 
-**Per-row actions (колонка «⋯») в `@gravity-ui/table`** — хелпер `getActionsColumn` (НЕ `withTableActions` — тот для
-uikit `Table`): `getActionsColumn<TRow>('_actions', {getRowActions: (item, index) => TableActionConfig[]})` — **2
-аргумента** (`columnId`, `options`); `getRowActions` принимает `(item, index)` (НЕ `{row}`); `TableActionConfig` =
-`{text, handler, theme?, icon?}` либо группа `{title, items}`. Добавь `'_actions'` в `columnOrder`, иначе колонка уедет
-в конец. (verified @gravity-ui/table source)
+**Per-row actions (колонка «⋯»)** — хелпер `getActionsColumn`, сигнатура и грабли (`'_actions'` в
+`columnOrder`; НЕ `withTableActions` — тот для uikit `Table`) — **`library-table` «Per-row actions»**.
 
 ## Data table — grouping (tree-rows pattern)
 
@@ -175,8 +157,7 @@ const columns: ColumnDef<Supply>[] = [
 ];
 
 const {state, callbacks} = useTableSettings({
-  // ⚠️ initialOrdering должен содержать ВСЕ id (включая '_select' и '_settings') в нужном порядке.
-  // Если оставить только leaf-колонки — TanStack положит selection/settings в конец, чекбоксы уедут вправо.
+  // ⚠️ ВСЕ id, включая '_select'/'_settings' — грабли в library-table «Настройка колонок»
   initialOrdering: ['_select', 'number', 'supplier', 'qty', 'status', '_settings'],
   initialVisibility: {},
 });
@@ -234,34 +215,9 @@ const draggedColRef = useRef<string | null>(null);
 
 ## TanStack-pitfalls
 
-Если пишешь обвязку руками (не через `useTable`) или используешь `useReactTable` напрямую — три типичные ловушки приводят к фризу страницы:
-
-```tsx
-const grouping = groupByWarehouse ? ['warehouse'] : [];   // ❌ новая ссылка каждый рендер
-
-const table = useReactTable({
-  state: {rowSelection, columnOrder, grouping, expanded: true},   // ❌ литерал + unstable
-  enableRowSelection: (row) => !row.getIsGrouped(),                // ❌ новая fn-ref каждый рендер
-  ...
-});
-
-useEffect(() => {                                  // ❌ table в deps + setState внутри
-  onSelectionChange(table.getSelectedRowModel().flatRows.length);
-}, [rowSelection, table, onSelectionChange]);
-```
-
-**Почему ломается:** `table` — новая ссылка каждый рендер. `useEffect` зависит от `table` → срабатывает каждый рендер → setState → новая `table` ref → effect → … После любого user-interaction браузер замораживается за несколько секунд (в dev-StrictMode эффекты удваиваются).
-
-```tsx
-const grouping = useMemo<GroupingState>(() => groupByWarehouse ? ['warehouse'] : [], [groupByWarehouse]);
-const enableRowSelectionFn = useCallback((row: Row<Supply>) => !row.getIsGrouped(), []);
-
-useEffect(() => {                                  // зависим от примитивов, не от table
-  onSelectionChange?.(Object.keys(rowSelection).length);
-}, [rowSelection, onSelectionChange]);
-```
-
-Или проще — используй штатные хуки `@gravity-ui/table` (`useTable`, `useRowSelectionFixedHandler`, `useTableSettings`): они мемоизируют за тебя.
+Пишешь обвязку руками / зовёшь `useReactTable` напрямую → **сперва `library-table` «TanStack-pitfalls»**:
+три unstable-ref-ловушки замораживают страницу после первого взаимодействия. В рецепте канон — штатные хуки
+пакета (`useTable` / `useRowSelectionFixedHandler` / `useTableSettings`), они мемоизируют за тебя.
 
 ## See also
 

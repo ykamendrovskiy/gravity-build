@@ -33,7 +33,7 @@
 > **Что делает форму хорошей** (FormRow vs инлайн `label=`, выравнивание ширины, размещение описаний,
 > валидация, data-safety) — агностичный спек **`pattern-form`**. Здесь — неочевидные Гравити-куски.
 
-- **Подпись + описание → `FormRow`** (`@gravity-ui/components`), не инлайновый `label=` контрола. **`validationState` / `errorMessage` — на КОНТРОЛЕ (`TextInput`/`Select`), НЕ на `FormRow`** (он их не принимает → `TS2322` — ловушка слабых тиров):
+- **Подпись + описание → `FormRow`** (`@gravity-ui/components`), не инлайновый `label=` контрола. **`validationState` / `errorMessage` — на КОНТРОЛЕ, НЕ на `FormRow`** (канон граблей — `library-components` «FormRow — грабли»):
 
   ```tsx
   import {FormRow} from '@gravity-ui/components';

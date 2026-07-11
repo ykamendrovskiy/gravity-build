@@ -36,6 +36,67 @@
   `attributes={{style:{width:'100%'}}}`. А вот **`stickyHeader` — ЕСТЬ** (`BaseTable.d.ts`, boolean; ранняя
   формулировка «нет обоих» была неверна — поймано наивным сборщиком fanout-02, verified .d.ts @1.15.3).
 
+## Выбор строк — обязательная обвязка (useRowSelectionFixedHandler)
+
+Любой selection на `@gravity-ui/table` веди через штатный хук (мемоизация за тебя); при группах/дереве он
+**обязателен** — без него чекбокс родительской строки не отслеживает выделение детей
+([TanStack #4878](https://github.com/TanStack/table/issues/4878)):
+
+```tsx
+import {useRowSelectionFixedHandler} from '@gravity-ui/table';
+
+const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+const onRowSelectionChange = useRowSelectionFixedHandler({
+  rowSelection, setRowSelection, tableData: data, getSubRows, getRowId,
+});
+
+const table = useTable({
+  columns, data, getRowId, getSubRows,
+  state: {rowSelection},
+  onRowSelectionChange,
+  enableRowSelection: true,
+  enableMultiRowSelection: true,   // ⚠️ без него внутри группы чекбоксы ведут себя как радио
+});
+```
+
+Выбор непустой → покажи массовые действия (раскладка/механика — `pattern-actions-panel`).
+
+## Per-row actions (колонка «⋯») — getActionsColumn
+
+Хелпер `getActionsColumn` (НЕ `withTableActions` — тот для uikit `Table`):
+`getActionsColumn<TRow>('_actions', {getRowActions: (item, index) => TableActionConfig[]})` — **2 аргумента**
+(`columnId`, `options`); `getRowActions` принимает `(item, index)` (НЕ `{row}`); `TableActionConfig` =
+`{text, handler, theme?, icon?}` либо группа `{title, items}`. Добавь `'_actions'` в `columnOrder`, иначе
+колонка уедет в конец. (verified @gravity-ui/table source)
+
+## Настройка колонок (useTableSettings) — initialOrdering со ВСЕМИ id
+
+`useTableSettings({initialOrdering})`: массив должен содержать **ВСЕ** id колонок — включая служебные
+`'_select'` (selectionColumn) и `'_settings'` (getSettingsColumn) — в нужном порядке. Только leaf-колонки →
+TanStack положит selection/settings в конец, чекбоксы уедут вправо. Альтернатива: не передавать
+`initialOrdering` вовсе (порядок из определения `columns`).
+
+## TanStack-pitfalls — фриз страницы от unstable refs
+
+Пишешь обвязку руками (не `useTable`) или зовёшь `useReactTable` напрямую — три ловушки ведут к фризу:
+
+```tsx
+const grouping = groupByWarehouse ? ['warehouse'] : [];   // ❌ новая ссылка каждый рендер
+const table = useReactTable({
+  state: {rowSelection, columnOrder, grouping, expanded: true},   // ❌ литерал + unstable
+  enableRowSelection: (row) => !row.getIsGrouped(),               // ❌ новая fn-ref каждый рендер
+});
+useEffect(() => {                                  // ❌ table в deps + setState внутри
+  onSelectionChange(table.getSelectedRowModel().flatRows.length);
+}, [rowSelection, table, onSelectionChange]);
+```
+
+**Почему:** `table` — новая ссылка каждый рендер → effect каждый рендер → setState → новая `table` → … —
+браузер замерзает за секунды после первого взаимодействия (в dev-StrictMode эффекты удвоены). Фикс: `useMemo`
+для state-массивов, `useCallback` для fn-пропов, effects зависят от **примитивов** (`rowSelection`), не от
+`table`. Или проще — штатные хуки пакета (`useTable`, `useRowSelectionFixedHandler`, `useTableSettings`):
+они мемоизируют за тебя.
+
 ## Группировка / tree-rows / expanding — следуй официальному паттерну (route, не сочиняй)
 
 Группировку строк **не хэндролль** — в @gravity-ui/table есть канонический пример (README + Storybook: <https://gravity-ui.com/libraries/table>). Хэндролл без типов даёт `Property 'items' does not exist on type` (сборка) либо пустые / «не число» группы (рантайм). Канонический каркас:
@@ -80,6 +141,11 @@
 table.gt-table { table-layout: fixed; }
 th.gt-table__header-cell[class*="_id_<колонка-поглотитель>"] { width: auto !important; }
 ```
+
+⚠️ `[class*="_id_"]` — **ступень-3 хак** по лестнице `gravity-foundations-theming` «Кастомизация поверх
+компонента» (публичного API колонки-поглотителя у пакета нет): держи селектор максимально узким (конкретный
+`th` + конкретный column-id), пометь комментом «хак внутренних классов, привязан к версии» и внеси в отчёт
+сборки как upstream-кандидат.
 
 С auto-layout (дефолт) браузер тянет **ВСЕ** колонки пропорционально — чекбокс/«⋯» тоже (32→44, 44→60 на
 1600), а `maxSize` из columnDef **не влияет на рендер** (клампит только `getSize()`). С `fixed`: px-ширины

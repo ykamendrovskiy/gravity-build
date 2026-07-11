@@ -39,14 +39,14 @@ renderFooter={(data) => <FooterItem …/>}   ← низ
   SVG-файла/data-URI проще **`logo.iconSrc: string`** (+ `iconSize`) — кастомный логотип без создания
   React-компонента.
 
-**Брендинг поверх AsideHeader — переменными, не хаком классов.** Кастомизация — через публичные CSS-переменные
-`--gn-aside-header-*` (`background-color`, `item-current-background-color`, `item-background-color-hover`,
-`item-icon-color`, `item-expanded-radius`…) + токены темы. **НЕ переопределяй внутренние `gn-*`-классы широкими
-`[class*='gn-…']`-селекторами с ручными паддингами/отрицательными margin:** такие оверрайды пишутся под одну
-конкретную структуру и ломаются при её изменении (реальный кейс: aside был норм, добавили subheader/footer-секции —
-поехала ширина кнопок: компенсация `margin-left:-8px` на `icon-place` была заскоуплена по ID только на
-menu-items-бар, новые composite-бары секций остались нескомпенсированными). Корпоративный брендинг-слой —
-дом в **service-profile (theme)**, не в компонентных селекторах.
+**Брендинг поверх AsideHeader — переменными, не хаком классов** (инстанс лестницы «масштаб токена = масштаб
+изменения» — `gravity-foundations-theming` «Кастомизация поверх компонента»). Ступень 2 лестницы здесь — публичные
+CSS-переменные `--gn-aside-header-*` (`background-color`, `item-current-background-color`,
+`item-background-color-hover`, `item-icon-color`, `item-expanded-radius`…) + токены темы. **Worked-кейс ступени 4
+(«никогда»):** `[class*='gn-…']`-оверрайды с ручными паддингами/отрицательными margin были написаны под одну
+структуру — добавили subheader/footer-секции → появился второй composite-бар, компенсация `margin-left:-8px` на
+`icon-place` (заскоупленная по ID на menu-items-бар) его не покрыла → поехала ширина кнопок. Корпоративный
+брендинг-слой — дом в **service-profile (theme)**, не в компонентных селекторах.
 
 ## Заметки
 
