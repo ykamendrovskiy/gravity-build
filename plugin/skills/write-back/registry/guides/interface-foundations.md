@@ -66,6 +66,8 @@ error = реальный сбой. **НЕ ставь в продакшен-UI п
   `errorMessage`; `errorPlacement` `outside`(деф)/`inside`(тултип), **кроме `TextArea` и `PinInput` — только `outside`**).
   Form-level сводки ошибок в uikit нет — это `@gravity-ui/dynamic-forms`.
 - Никаких «тихих» `console.log` вместо реакции. Optimistic (строка сразу, откат при ошибке) — опц.
+- **Icon-only контрол обязан иметь текстовый аффорданс** — tooltip с полным названием действия (иконка
+  сама по себе не сообщает, что произойдёт). Гравити-деталь (`ActionTooltip` + слоты) — `library-uikit`.
 
 ## 4. Визуальная согласованность композита
 
@@ -79,3 +81,10 @@ error = реальный сбой. **НЕ ставь в продакшен-UI п
 
 Тон копирайта пустого, page vs block, skeleton vs вуаль, авто vs ручной retry — выбирает профиль (если передан).
 Омиссия = разумный дефолт. Сами правила (все 5 состояний; деструктив→confirm; видимый feedback) — обязательны.
+
+## See also
+
+Потребители контракта: `pattern-list` / `pattern-dashboard` / `pattern-form` (§1 — контракт состояний,
+§2-3 — data-safety и feedback в формах) · `library-components` (`ConfirmDialog` — деструктив/несохранённое) ·
+`library-illustrations` (образы Empty/Error для `PlaceholderContainer`) · сценарии состояний и манифест —
+`scaffold-app-shell` («Сценарии состояний»).

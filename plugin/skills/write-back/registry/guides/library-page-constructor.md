@@ -1,4 +1,4 @@
-# library-page-constructor — каталог @gravity-ui/page-constructor
+# Каталог: @gravity-ui/page-constructor — блоки маркетинговых страниц
 
 > Тип: `library`. Config-driven блоки под лендинги. **docs-режим: route в upstream** — у пакета свои AI-доки;
 > точные формы пропов бери оттуда / из установленного пакета, **НЕ угадывай** (тип `PageContent` пермиссивный,
@@ -41,7 +41,7 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
   (`'default'|'light'|'dark'`) красит **только текст** (в `PriceCard.css` нет `background` на `_theme_`); поверхность —
   отдельный проп `backgroundColor`. Значит `theme:'dark'` **в одиночку = белый текст на прозрачном → невидимо**
   (verified browser+source, PC 8.13). Выделяй: `border: 'line'` (рамка, безопасно; тип `CardBorder` =
-  `'shadow'|'line'|'none'` — НЕ boolean, `border: true` не примется типом; verified .d.ts fanout-02) ЛИБО тёмный
+  `'shadow'|'line'|'none'` — НЕ boolean, `border: true` не примется типом; verified .d.ts) ЛИБО тёмный
   `backgroundColor` **+ парный** `theme:'dark'` (тёмный фон + белый текст, verified) / светлый `backgroundColor` +
   `theme:'default'`. НЕ ставь `theme:'dark'` без тёмного `backgroundColor`.
 - **Кнопки на ТЁМНОМ блоке** (`theme:'dark'` у `header-block`/секции): блок красит только свой текст, а uikit-кнопка
@@ -61,7 +61,7 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
   **сверху** / компактный аватар в футере / без картинки — тогда **3-в-ряд читаемо**. Запрещена именно связка
   «большая боковая картинка + 3-в-ряд», а не 3-в-ряд как таковое (карточки без большой боковой картинки — `PriceCard`,
   `BasicCard` с картинкой сверху — спокойно идут 3-в-ряд).
-- **Отзывы/цитаты с подписью — дефолт `basic-card`, НЕ `quote`** (verified fanout-01, browser): `quote` везёт
+- **Отзывы/цитаты с подписью — дефолт `basic-card`, НЕ `quote`** (verified браузером): `quote` везёт
   обязательную БОЛЬШУЮ боковую `image` + `logo` → даже 2-в-ряд текст тесен, колонка подписи рвётся в
   слово-на-строку, а большая картинка дублирует аватар подписи. Канон отзыва: `basic-card` — `title` = имя,
   `text` = цитата, **`additionalInfo` = роль/компания** (штатный muted-слот), **аватар — `icon`-слотом**

@@ -1,4 +1,4 @@
-# Brief: Даты и время (date-components + date-utils)
+# Каталог: Даты и время (date-components + date-utils)
 
 Две библиотеки в паре. У апстрима нет AI-доков → точный API бери из README / Storybook, имена экспортов сверяй перед использованием.
 

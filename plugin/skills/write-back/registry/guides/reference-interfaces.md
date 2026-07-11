@@ -29,8 +29,9 @@
   стабильность, прежде чем брать в продакшен.
 - Навигация неоднородна по контексту: dashboard → `AsideHeader` (navigation); mail → uikit/unstable `TreeList`
   (дерево папок). Обе валидны — выбирай по характеру (app-shell vs дерево), не считай одну единственно верной.
-- `FormPreview` использует `FormRow` (`@gravity-ui/components`); `recipe-settings-form` — `Flex` + uikit-контролы.
-  Обе идиомы валидны (form-page-style vs action-style) — известный tradeoff, не противоречие.
+- И `FormPreview`, и `recipe-settings-form` ведут ПОЛЯ через `FormRow` (`@gravity-ui/components`) — идиома
+  поля едина (`pattern-form`). Разница между ними — композиция страницы (превью-панель рядом с формой vs
+  секции формы, сгруппированные `Flex`), не идиома поля.
 
 ## See also
 

@@ -38,9 +38,6 @@
   },
   "formPolicy": {
     "fieldWidth": "uniform",
-    "widthBuckets": {
-      "default": "100% в пределах полосы формы — поля единой ширины"
-    },
     "formMaxWidth": "560px",
     "labelPlacement": "form-row-top",
     "descriptionDefault": "field-description",
@@ -116,7 +113,7 @@
     "synthesizedFrom": [
       "Вручную (PoC-пример). В проде — синтез из кода/макетов сервиса + write-back правок с прогонов."
     ],
-    "lastUpdated": "2026-06-09",
-    "notes": "Фиктивный публичный продукт. Значения — противоположный Meridian конец пространства (light/spacious/centered/uniform/FieldDescription/Slider/page-constructor), чтобы слоение было наблюдаемо."
+    "lastUpdated": "2026-07-11",
+    "notes": "Фиктивный публичный продукт. Значения — противоположный Meridian конец пространства (light/spacious/centered/uniform/FieldDescription/Slider/page-constructor), чтобы слоение было наблюдаемо. 2026-07-11: убран нештатный widthBuckets.default — при fieldWidth=uniform единую ширину уже задаёт formMaxWidth (паттерн sprout: омиссия)."
   }
 }

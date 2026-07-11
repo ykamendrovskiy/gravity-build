@@ -49,9 +49,12 @@ export function App() {
 
 Обвязка приложения (ThemeProvider, стили, опц. Toaster) — отдельный обязательный слой: `scaffold-app-shell.md`.
 
-> Иконки — из `@gravity-ui/icons`. Сверяй, что экспорт существует, прежде чем импортировать (имена — PascalCase от svg: `house` → `House`, `chart-column` → `ChartColumn`).
+> Иконки — из `@gravity-ui/icons`; правило имён и офлайн-сабсет — канон `library-icons`. Сверяй, что экспорт существует, прежде чем импортировать.
 
-## Data table — базовая обвязка
+## Data table (`@gravity-ui/table`) — обвязка для группировки / выбора (секции ниже)
+
+> **Плоская таблица без группировки/дерева/DnD — это uikit `Table`** (канон сборки — `recipe-list`;
+> строка решения в `registry.json` routing). `@gravity-ui/table` в этом рецепте — ровно за grouping/tree/DnD.
 
 ```tsx
 import {Table, useTable, selectionColumn} from '@gravity-ui/table';
@@ -72,7 +75,7 @@ return <Table table={table} stickyHeader />;
 
 `useTable` — обёртка над `useReactTable` с корректной мемоизацией state. `<Table>` — рендер, `selectionColumn` — готовая колонка чекбоксов с id `'_select'`.
 
-**Не бери:** `@gravity-ui/uikit` `Table` + `withTableActions` (простая таблица — нет grouping/DnD/tree); `@gravity-ui/react-data-table` (legacy); `@tanstack/react-table` напрямую (`@gravity-ui/table` — и есть обёртка над ним, плюс хелперы и стилизация; голый TanStack легко приводит к stability-багам, см. TanStack-pitfalls).
+**Не бери для ЭТОГО рецепта:** `@gravity-ui/uikit` `Table` + HOC (у него нет grouping/DnD/tree; для плоской таблицы он и есть канон — `recipe-list`); `@gravity-ui/react-data-table` (legacy); `@tanstack/react-table` напрямую (`@gravity-ui/table` — и есть обёртка над ним, плюс хелперы и стилизация; голый TanStack легко приводит к stability-багам, см. TanStack-pitfalls).
 
 ## Data table — selection + grouping
 

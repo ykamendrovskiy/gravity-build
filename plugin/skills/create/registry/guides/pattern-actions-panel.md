@@ -26,19 +26,21 @@
 `ActionsPanel` (`@gravity-ui/uikit`) — готовая панель массовых действий. Рендери её при непустом выборе
 (`selectedRowsCount > 0` / `Object.keys(rowSelection).length`).
 
-**Критичная механика раскладки (источник багов прогонов — run-05/aurora):** `ActionsPanel` **меряет ширину
+**Критичная механика раскладки (verified в браузере):** `ActionsPanel` **меряет ширину
 своего контейнера**, чтобы разложить действия (лишние сворачивает в overflow-дропдаун — поэтому у каждого
 `item` задаются и `button`, и `dropdown`). Дай ему контейнер с **определённой шириной**:
 
 - в `position:sticky` / auto-width обёртке **без ширины** действия наезжают друг на друга;
 - дай обёртке `width:100%` **И** таблице полную ширину — иначе таблица по ширине контента, а панель по
-  контейнеру → **рассинхрон ширины** (owner-review: панель шире/уже данных). Полная ширина зависит от таблицы:
-  uikit `DataTable`/`Table` — проп `width="max"`; **`@gravity-ui/table` `Table` НЕ имеет `width`** (это проп
-  uikit `DataTable` → TS2322; а `stickyHeader` у него ЕСТЬ — ранняя формулировка «нет обоих» неверна, verified
-  .d.ts fanout-02) → ширина через `attributes={{style:{width:'100%'}}}`. Обе = контейнеру;
+  контейнеру → **рассинхрон ширины** (наблюдалось: панель шире/уже данных). Как дать таблице полную ширину —
+  зависит от библиотеки таблицы; канон ширин/скролла — `library-table` («Ширины колонок и скролл-модель»).
+  Кратко: uikit `Table` — проп `width="max"` (компонента `DataTable` в uikit НЕ существует);
+  **`@gravity-ui/table` `Table` НЕ имеет `width`** (TS2322 при копировании uikit-пропа; а `stickyHeader`
+  у него ЕСТЬ — ранняя формулировка «нет обоих» неверна, verified .d.ts) → ширина через
+  `attributes={{style:{width:'100%'}}}`. Обе = контейнеру;
 - иконку в кнопке действия клади в `button.props.children` **массивом** `[<Icon.../>, 'Текст']`, **не Fragment**
-  `<><Icon/> Текст</>` — uikit ловит иконку только среди прямых детей (`React.Children.toArray` держит Fragment одним
-  узлом → иконка уедет в `g-button__text` и перекроет текст; verified browser+source); отдельного `icon`-слота у item НЕТ.
+  `<><Icon/> Текст</>` — механизм и полное правило: `library-uikit` («Иконка+текст в Button»);
+  отдельного `icon`-слота у item НЕТ.
 
 > **Per-service:** к какому краю прибита (низ / верх) — выбирает сервис; «прибита + компенсирующий отступ +
 > ширина как у таблицы» верно всегда.
@@ -73,7 +75,11 @@ const actions: ActionsPanelProps['actions'] = [
   **sticky к низу вьюпорта, последним элементом в потоке**. Чисто, без машинерии (verified browser):
 
 ```tsx
-<DataTable width="max" data={rows} columns={columns} selectedIds={selected}
+// uikit Table + HOC — канон сборки в recipe-list («DataTable» в uikit НЕ существует);
+// 2-й generic внешнего HOC = накопленные пропы внутреннего (library-uikit «Грабли пропов»):
+const ListTable = withTableActions<Item, WithTableSelectionProps<Item>>(withTableSelection<Item, {}>(Table));
+
+<ListTable width="max" data={rows} columns={columns} selectedIds={selected}
            onSelectionChange={setSelected} getRowId={(r) => r.id}
            getRowActions={(r) => [{text:'Изменить', handler:() => onEdit(r)},
                                   {text:'Удалить', theme:'danger', handler:() => onDelete(r)}]}
@@ -93,7 +99,7 @@ const actions: ActionsPanelProps['actions'] = [
   вся страница). Панель — sticky к низу **скролл-области**; тут добавляются клиренс + реальная высота от app-shell
   (см. «bounded» в граблях). Апгрейд под scroll-модель конкретной сборки.
 
-## Грабли прилипания (выверено браузером, owner-review 2026-06-29)
+## Грабли прилипания (выверено браузером)
 
 Каждый пункт = реальный баг, пойманный в браузере:
 
@@ -117,7 +123,7 @@ useEffect(() => { const el = ref.current; if (!el) return;
 
 <div ref={ref} style={{flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative'}}>  {/* высота от app-shell flex, НЕ magic maxHeight */}
   <div style={{paddingBottom: selected.length && scrolls ? PANEL_H : 0}}>   {/* клиренс ТОЛЬКО при скролле */}
-    <DataTable width="max" /* …те же пропы… */ />
+    <ListTable width="max" /* …те же пропы… */ />
   </div>
   {selected.length > 0 && (
     <div style={{position: 'sticky', bottom: 0, zIndex: 3}}>                 {/* z≥3 (выше sticky-колонки z:2); БЕЗ bg-полосы */}

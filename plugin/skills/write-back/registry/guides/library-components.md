@@ -47,7 +47,7 @@
 
 - Базовые контролы (Button, TextInput, Select, Switch…) — **в uikit**, не здесь.
 - `@gravity-ui/components` — peer `@gravity-ui/markdown-editor`: если ставишь редактор, components уже в его bundle (`registry.json` → `bundles[]`).
-- Версия требует uikit ^7.39+; точный пин uikit — в `registry.json` (`libraries[]`).
+- Peer-требование по uikit закрывается пинами роутера — версии только в `registry.json` (`libraries[]`).
 - Точные пропы и поведение каждого компонента — в его `README.md` (в папке компонента) и Storybook.
 
 ## ConfirmDialog — подтверждение деструктива / несохранённого (data-safety)
@@ -82,7 +82,7 @@ import {ConfirmDialog} from '@gravity-ui/components';
 только раскладка «подпись ↔ контрол»; валидация живёт на контроле (штатный API + корректные
 screen-reader-атрибуты). Применение в форме — `recipe-settings-form`.
 
-## FormRow — выравнивание подписи с ВЫСОКИМ контролом (verified fanout-02)
+## FormRow — выравнивание подписи с ВЫСОКИМ контролом (verified браузером)
 
 Дефолт `FormRow` рассчитан на однострочный контрол: `.gc-form-row__left` держит `min-height: 28px`, подпись
 центрируется (`align-self: center`). С **высоким** контролом (вертикальная `RadioGroup`, список опций,

@@ -8,7 +8,8 @@
 
 ## Скейл вариантов (токены `--g-text-*`)
 
-- Заголовки: `header-1…N`, `subheader-1…N`, `display-1…N`.
+- Заголовки: **только `header-1` / `header-2`** — `header-3…6` НЕ существуют (verified source@7.44 —
+  `TEXT_VARIANTS`); подзаголовки `subheader-1…3`; крупнее заголовков — `display-1…4`.
 - Тело: `body-1` / `body-2` / `body-3` (+ `body-short`).
 - Мелкое: `caption-1` / `caption-2`.
 

@@ -4,6 +4,18 @@
 
 Имена соответствуют **uikit@7** (точная версия — в `registry.json` → `libraries[]`). Всё импортируется из корня `@gravity-ui/uikit`, **кроме** явно помеченного `/unstable`. На другом мажоре сверяйся заново.
 
+## Как читать этот файл
+
+Определение — контракт, образ — мнемоника: разошлись — верь определению. Несущие термины:
+
+- **Ловушка** — неверное/устаревшее ИМЯ: компонент, за которым тянешься, в uikit называется иначе.
+- **Грабли** — имя верное, но проп/употребление ломает сборку (TS-ошибка) или рендер.
+- **канон** — закреплённый в registry способ; отступление = осознанный выбор сервиса, не дефолт.
+- **verified** — факт сверен с исходником пакета на пине роутера и/или живым браузером, не по памяти.
+- **painted-rect / element-rect** — реально закрашенный прямоугольник текста (`Range.getBoundingClientRect()`)
+  vs бокс элемента; расходятся, когда inline-текст красится за контейнер — мерь painted.
+- **ручка (профиля)** — параметр, который универсальный слой оставляет выбору сервиса (`service-profile.json`).
+
 ## ⚠️ Ловушки (частые неверные имена — проверь сначала здесь)
 
 | Тянешься за… | В uikit@7 на самом деле | Почему промах |
@@ -16,7 +28,7 @@
 | индикатор шагов «с нуля» | `Stepper` — он есть, не сочиняй | готовый компонент существует |
 | `<Toaster />` как JSX | класс `new Toaster()` + хук `useToaster()` | setup — в `scaffold-app-shell` |
 | `Badge` / `Chip` / `Tag` / `Pill` | `Label` (тег / чип / статус-метка) | в uikit нет `Badge`; метка-чип = `Label` |
-| `Heading` / `Title` / `<h1>`-компонент | `Text` с `variant` — заголовок только `header-1`/`header-2`; крупнее `display-1…4`; подзаголовок `subheader-1…3` | отдельного `Heading` нет; `header-3…6` НЕ существуют (verified source@7.44 — `TEXT_VARIANTS`) |
+| `Heading` / `Title` / `<h1>`-компонент | `Text` с `variant` из шкалы типографики (шкала — канон `gravity-foundations-typography`) | отдельного `Heading` нет; `header-3…6` НЕ существуют (verified source@7.44 — `TEXT_VARIANTS`) |
 | `Modal` с пропом `title` | `Dialog` (`Dialog.Header` / `Body` / `Footer`) | `Modal` низкоуровневый (без `title`); диалог с шапкой/футером = `Dialog` |
 | `Table.Head` / `Body` / `Row` / `Cell` (композиц. таблица как в HTML/MUI) | uikit `Table` — `data`/`columns`-driven (`<Table data columns/>`), подкомпонентов НЕТ; группировка/дерево/DnD → `@gravity-ui/table` (см. `registry.json`) | частый рефлекс из HTML/других ДС: uikit Table НЕ композиционный |
 
@@ -31,7 +43,7 @@
 | `PlaceholderContainer` | проп `image` **required** (не опционально); голая `Icon` растягивается огромной | дай иллюстрацию из `@gravity-ui/illustrations` — имена + **покраска по темам** в `library-illustrations` |
 | `TextInput` — слот иконки | пропов `leftContent`/`rightContent` НЕТ → TS2322 | слоты `startContent` / `endContent` (полный слот-каталог — `library-icons`) |
 | `Select` — иконка в контроле | у `Select` слота иконки НЕТ вообще (`start/endContent` тоже не существуют → TS2322 excess-prop; verified source@7.44) | кастомный триггер через `renderControl` |
-| `Flex` / `Box` — отступы | нет MUI-стиля `padding`/`margin`-пропов; `gap="md"` (строка) не типизируется | `gap={N}` — **число-шкала 1-8** (`4` ≈ 16px), не строка/пиксели; отступы — хелпер `spacing`/`sp` или `style` |
+| `Flex` / `Box` — отступы | нет MUI-стиля `padding`/`margin`-пропов; `gap="md"` не типизируется | `gap={N}` — число из шкалы токенов (шкала и px — канон `gravity-foundations-spacing`); отступы — хелпер `spacing`/`sp` или `style` |
 | uikit `Table` + HOC-стек | `withTableSorting(withTableSelection(withTableActions(Table)))` теряет пропы внутренних обёрток в типах → `getRowActions`/`onSortChange` не видны (TS2322) | у каждого HOC сигнатура `withX<I extends TableDataItem, E extends {} = {}>` — **`I` = тип строки (1-й), `E` = накопленные пропы (2-й)**. Протяни оба снизу вверх: `withTableActions<Data, WithTableSortingProps & WithTableSelectionProps<Data>>(withTableSelection<Data, WithTableSortingProps>(withTableSorting<Data>(Table)))`. **НЕ** `as unknown as` и **НЕ** каст базового `Table` к `ComponentType<TableProps<Data>>` (схлопывает накопленные пропы). NB: `WithTableSortingProps` — не дженерик; `WithTableSelectionProps<I>`/`WithTableActionsProps<I>` — дженерики (verified uikit@7.42 source) |
 | uikit `Table` колонка — сортировка | проп `sortable` на колонке НЕ существует (рефлекс из MUI/antd) → TS2353 | `withTableSorting` читает `column.meta.sort`: `meta: {sort: true}` (или compare-fn `(a,b) => number`), не `sortable` (verified: uikit source) |
 | uikit `Table` колонка — выравнивание | `align: 'left'`/`'right'` — физические значения **deprecated** (console-warning `[Table] Physical values (left, right) … deprecated`) | логические `align: 'start'`/`'end'` (`'center'` без изменений); числовую колонку правь `align: 'end'` (verified browser: варнинг уходит, колонка остаётся правой) |
@@ -48,7 +60,7 @@
   (и левый бейдж/`Divider`) держатся — всем НЕ-крошкам `flex-shrink:0`. Это контракт flex-ряда
   (`gravity-foundations-layout`): гибкий здесь — крошки, свёртка = их способ сжаться на реальном overflow. **Не усаживай `<ol>` ровно по контенту** (`Flex`-крошки без `flex:1`) — иначе ложная
   свёртка при свободном месте (баг замера uikit 7.42/7.43: контейнер в margin-box, крошки в border-box,
-  `margin:-2px` → −4px; → `lab/runs/2026-07-07-writeback-breadcrumbs-collapse/upstream-todo.md`). Ловушки:
+  `margin:-2px` → −4px; репорт запаркован в upstream-todo проекта). Ловушки:
   `maxItems` — не выключатель ложной свёртки (его дело — форс-компакт до N); сосед-спейсер `flex:1` не лечит;
   элементы — `<Breadcrumbs.Item>`-дети, НЕ `items`-проп (легаси v5 → в 7.x игнорируется, пустой рендер; verified source).
   **Профиль-ручка (default → override):** дефолт — уступают крошки; сервис может иначе (правые контролы
@@ -56,8 +68,7 @@
 - **`unstable_ListItemView` как пункт сайдбара/меню** — дефолт `selectionViewType="multiple"`: `selected`
   рисует **чекмарк**, а не заливку. Для папок/навигации — `selectionViewType="single"` (заливка выбранного без
   галки). Плотность строки — проп `height={N}` (значение = ручка профиля). Divider-типа у него нет —
-  разделитель списка = `<li role="separator">` с фоном `--g-color-line-generic` (verified браузером,
-  figma-спайк S1).
+  разделитель списка = `<li role="separator">` с фоном `--g-color-line-generic` (verified браузером).
 - **Иконка+текст в `Button` — передавай детей МАССИВОМ** `[<Icon data={X} size={16}/>, 'Текст']`, **не Fragment**
   `<><Icon/> Текст</>`. uikit `prepareChildren` детектит иконку только среди **прямых** детей; `React.Children.toArray`
   держит Fragment одним узлом → иконка уходит в `g-button__text` (top-aligned, поверх текста). Массив → иконка в
@@ -82,39 +93,37 @@
   сложности действия (когда подпись короче смысла). Практика universal; formulировки — вкус сервиса (profile).
 - **`Stepper.Item` `id` и `value` — СТРОКАМИ, оба.** Тип `id` схлопывается до `string` (пересечение с Button
   `id?: string` → на числе TS2322), а подсветка текущего шага — строгое `id === value`: числовой `value` при
-  строковом `id` **молча** гасит подсветку (tsc может пройти). verified .d.ts + repro, fanout-01 uikit 7.43.
+  строковом `id` **молча** гасит подсветку (tsc может пройти). verified .d.ts + repro @ uikit 7.43.
 - **`Stepper` на узких экранах — оборачивай в `overflowX:auto`.** Это непереносящийся горизонтальный
   флекс-`<ol>` (без `flex-wrap`; пропов orientation/wrap/scroll НЕТ — verified .d.ts): 3 текстовых шага =
   интринзик ~450px → на ≤375 бьёт за вьюпорт и тянет весь документ. Канон «скролл внутри виджета»
   (`gravity-foundations-layout`): `<div style={{overflowX:'auto', minWidth:0}}><Stepper…/></div>` — на широких
-  no-op, на узких скроллит степпер, не страницу (verified фиксером fanout-02, re-gate 0 overflow).
+  no-op, на узких скроллит степпер, не страницу (verified браузером: 0 overflow).
 
 - **Кликабельность шагов `Stepper` — по ПОСЕЩЁННЫМ (visited-набор в state)**, не «только назад от текущего»:
-  вернувшись с шага 2 на шаг 1, пользователь должен уметь кликнуть вперёд на уже посещённый шаг 2
-  (owner-review fanout-02). Рифма с «completion из state»: и отметки, и кликабельность — производные от
+  вернувшись с шага 2 на шаг 1, пользователь должен уметь кликнуть вперёд на уже посещённый шаг 2. Рифма с «completion из state»: и отметки, и кликабельность — производные от
   visited/completed-набора, не от сравнения индексов. Механика: `Stepper.Item disabled={!visited[id]}` —
-  disabled-Item рендерит disabled-кнопку (не эмитит `onUpdate` + даёт визуальный аффорданс; verified fanout-02).
+  disabled-Item рендерит disabled-кнопку (не эмитит `onUpdate` + даёт визуальный аффорданс; verified).
 - **uikit `Table` — всегда давай `getRowId` со стабильным id** (`getRowId="id"` / функция): без него строки
   кеятся индексом (`String(index)` → React `key`; verified Table.js 7.43) → при фильтрации/сортировке React
   переиспользует `<tr>` со сменой содержимого — бледный 1px-разделитель (`--g-color-line-generic`) даёт
-  paint-глюк «пропала линия между строками», при этом computed-стили чистые (ловится только глазом; verified
-  repro fanout-02: фильтр→сброс).
+  paint-глюк «пропала линия между строками», при этом computed-стили чистые (ловится только глазом; verified repro: фильтр→сброс).
 - **`Checkbox` ВНУТРИ кликабельного `Card type="selection"` — не делай:** событие двоится (toggle срабатывает
   дважды) и карточка получает `role="radio"` (ломается семантика мультивыбора). Строка-с-чекбоксом =
-  **полноширинный `Checkbox` с `content`** (лейбл-строка целиком кликабельна) — verified builder'ом fanout-02.
-  **Но длинный текст в `content` сам НЕ ужимается и НЕ режется** (s3-figma-naive): у `.g-control-label__text`
+  **полноширинный `Checkbox` с `content`** (лейбл-строка целиком кликабельна) — verified браузером.
+  **Но длинный текст в `content` сам НЕ ужимается и НЕ режется** (verified браузером): у `.g-control-label__text`
   есть flex-grow, но нет `min-width:0` (флексовый `min-width:auto` → спан красится ЗА контейнер и наезжает
   на соседей строки — Label-чип); `Text ellipsis` внутри него тоже мёртв — `g-text_ellipsis` на inline-боксе
   inert (overflow не применяется к inline). Канон: `:global(.g-control-label__text) { flex: 1 1 auto;
   min-width: 0; }` + перенос строк (или блочная обёртка, если нужен ellipsis) — тот же контракт flex-ряда
   (`gravity-foundations-layout`), недоданный внутренним классом uikit. Ловится только painted-rect
-  (`Range.getBoundingClientRect`), element-rect коллизию не видит — класс R9 «мерь результат».
+  (`Range.getBoundingClientRect`), element-rect коллизию не видит — мерь закрашенный результат, не бокс элемента.
 
 - **`DefinitionList`: точечные лидеры — дефолт БЕЗ пропа-выключателя** (types 7.43: у item только
   `copyText`/`note`). Дизайн без точек (частое решение макетов) → узкий CSS-оверрайд
   `.g-definition-list__dots { border-block-end: none; }` с пометкой — ступень-3 лестницы
   `gravity-foundations-theming` «Кастомизация поверх компонента»; правило «макет>дефолт компонента» —
-  `figma-mapping` «политика фиделити» (verified s3-figma-naive).
+  `figma-mapping` «политика фиделити» (verified браузером).
 
 - **Safari + `Dialog` выше вьюпорта — двоение вуали.** Вуаль `Modal` — это alpha-фон самого `.g-modal`, который
   одновременно скролл-контейнер (`overflow:auto`); на скроллируемом модале Safari двоит отрисовку вуали при

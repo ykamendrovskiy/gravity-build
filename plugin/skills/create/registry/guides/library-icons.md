@@ -97,7 +97,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 Значения — **дефолт; сервис тюнит под свою иконочную плотность** (profile → `dimensions`, вслед за размером иконки).
 Зазор до текста (`paddingInlineEnd`) — небольшой (`spacing-1`).
 
-**Цвет иконки в инпуте — мэтч с СОСЕДНЕЙ надписью или на шаг ЛЕГЧЕ, тяжелее нельзя** (owner-правило, fanout-02):
+**Цвет иконки в инпуте — мэтч с СОСЕДНЕЙ надписью или на шаг ЛЕГЧЕ, тяжелее нельзя** (закреплено решением владельца):
 иконки плотнее текста по форме → при том же цвете выглядят контрастнее. Точка отсчёта — фактический цвет
 надписи рядом: **плейсхолдер uikit = `--g-color-text-hint`** (verified TextInput.css) → иконка поиска = `hint`
 (мэтч; `secondary` уже ТЕМНЕЕ плейсхолдера — нельзя); рядом со значением/лейблом (`secondary`) — `secondary`
@@ -110,7 +110,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 Имя иконки легко сгаллюцинировать. Точный машиночитаемый каталог — **`metadata.json`** в репозитории:
 
 - **Файл:** <https://github.com/gravity-ui/icons/blob/main/metadata.json> (raw: `raw.githubusercontent.com/gravity-ui/icons/main/metadata.json`).
-- Это массив всех 781 иконки; у каждой: `name` (kebab), `style` (`regular` / `fill`), `componentName` (**это и есть имя импорта**, PascalCase), `keywords` (поисковые слова по смыслу — заполнены у ~43%).
+- Это массив всех иконок (799 @ v2.20); у каждой: `name` (kebab), `style` (`regular` / `fill`), `componentName` (**это и есть имя импорта**, PascalCase), `keywords` (поисковые слова по смыслу — заполнены у ~43%).
 - **Как пользоваться:** зафетчи файл и найди иконку по `name`/`keywords` под нужный смысл → импортируй её `componentName`. Пример: ищешь «календарь» → `Calendar`; «удалить» → `CircleXmark` / `CircleMinus`.
 - Многие иконки имеют пару `regular` + `fill` (заливка) — `componentName` у fill-версии оканчивается на `Fill` (напр. `AlarmFill`).
 
@@ -120,7 +120,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 
 ## Офлайн-сабсет частых имён (быстрая проверка без фетча)
 
-Фетч `metadata.json` недоступен — сверь частое имя здесь (verified против metadata @ icons v2.18). Имени нет в списке → фетч/showcase, **не выдумывай**.
+Фетч `metadata.json` недоступен — сверь частое имя здесь (verified против metadata @ icons v2.20 — весь сабсет, включая «НЕ существует»-гарды). Имени нет в списке → фетч/showcase, **не выдумывай**.
 
 **Нулевой шаг — свой установленный пакет (офлайн, точно ТВОЯ версия):** пакет плоский, имя компонента = имя
 файла: `ls node_modules/@gravity-ui/icons | grep -i <тема>` (напр. `grep -i layout` → `LayoutList`,
@@ -138,7 +138,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 - **Объекты/нав:** папка `Folder` · файл `File` · пользователь `Person` (мн. `Persons`) · календарь `Calendar` · часы `Clock` · дом `House` · замок `Lock` · ключ `Key` · тег `Tag` · ссылка `Link` · показать `Eye` (скрыть `EyeSlash`) · слайдеры `Sliders`.
 - **Шевроны/стрелки:** раскрытие `ArrowChevronDown` / `…Up` / `…Left` / `…Right`; сортировка `ArrowUpArrowDown`.
 
-NB: у многих есть `*Fill`-версия (заливка) — `componentName` оканчивается на `Fill`. Полный каталог (781) — `metadata.json` выше.
+NB: у многих есть `*Fill`-версия (заливка) — `componentName` оканчивается на `Fill`. Полный каталог (799 @ v2.20) — `metadata.json` выше.
 
 ## See also
 

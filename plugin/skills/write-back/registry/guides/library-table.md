@@ -27,14 +27,24 @@
 
 **Хуки:** `useTable` (конфигурация, обёртка над TanStack `useReactTable`), `useTableSettings`, `useRowVirtualizer` / `useWindowRowVirtualizer` (виртуализация), `useDraggableRowDepth`.
 
+## Как читать этот файл
+
+- **HOC-обвязка** — обёртки `withTable*(Table)`, добавляющие выбор/действия/сортировку; их пропы появляются
+  только при верной протяжке дженериков (см. «Грабли»).
+- **колонка-поглотитель** — единственная колонка с `width:auto` при `table-layout:fixed`: забирает всю
+  свободную ширину, остальные держат свои px.
+- **скролл-модель** — где живёт горизонтальный скролл: overflowX-обёртка вокруг ТАБЛИЦЫ, не страницы.
+- **verified** — сверено с исходником/типами пакета на пине роутера и/или живым браузером.
+
 ## Ловушки
 
 - **`ColumnDef` импорть из главного `@gravity-ui/table`**, не из `@gravity-ui/table/tanstack` — иначе теряется `withNestingStyles`, и nested-колонки дают `TS2353`.
 - **В `cell` нет `info`:** `CellContext` отдаёт значение через `getValue()` → `cell: ({getValue}) => getValue()`.
 - Версия — из `registry.json` (`libraries[]`); промежуточные версии не выдумывать.
-- **`Table` не имеет пропа `width`** (это uikit `DataTable` → TS2322 при копировании). Полная ширина —
+- **`Table` не имеет пропа `width`** — это проп uikit `Table` (`width="max"`; компонента `DataTable` в uikit
+  НЕ существует) → TS2322 при копировании. Полная ширина здесь —
   `attributes={{style:{width:'100%'}}}`. А вот **`stickyHeader` — ЕСТЬ** (`BaseTable.d.ts`, boolean; ранняя
-  формулировка «нет обоих» была неверна — поймано наивным сборщиком fanout-02, verified .d.ts @1.15.3).
+  формулировка «нет обоих» была неверна, verified .d.ts @1.15.3).
 
 ## Выбор строк — обязательная обвязка (useRowSelectionFixedHandler)
 
@@ -108,7 +118,7 @@ useEffect(() => {                                  // ❌ table в deps + setSta
 - **Тип-импорты** (`Row`, `ExpandedState`) — `import type {...} from '@gravity-ui/table/tanstack'` (но `ColumnDef` — из главного пакета, см. ловушку выше).
 - Агрегацию по группе в `cell` считай по типизированному `row.original` (через guard), не предполагай `items` у всех строк.
 
-**Групповые строки — три verified-факта (fanout-02, owner-review):**
+**Групповые строки — три verified-факта:**
 
 - **Два режима рендера группы:** full-width `<h2>`-полоса `BaseGroupHeader` — рендерится ТОЛЬКО при переданном
   `getIsGroupHeaderRow`; без него группа = обычные per-column ячейки. **`getGroupTitle` потребляется только
@@ -124,7 +134,7 @@ useEffect(() => {                                  // ❌ table в deps + setSta
   И полосой-индикатором). Детям тесно у индикатора / сетка разъезжается с родителем → скоуп-оверрайд одной
   переменной (`.my-table .gt-styled-table__row { --_--depth-indicator-width: 28px }`), НЕ per-cell паддинги.
 
-## Ширины колонок и скролл-модель (verified fanout-01, loop-b)
+## Ширины колонок и скролл-модель (verified браузером)
 
 **Политика ширин — 3 класса колонок** (universal-правило; конкретные px — вкус/профиль):
 
@@ -135,7 +145,7 @@ useEffect(() => {                                  // ❌ table в deps + setSta
 3. **Никогда не растут** — служебные: `selectionColumn` (чекбоксы), actions «⋯», drag-handle. Хелперы
    пакета уже фиксируют их узкими — не переопределяй.
 
-**Механика — `table-layout: fixed` + `width:auto` у поглотителя** (verified 1600, fanout-01):
+**Механика — `table-layout: fixed` + `width:auto` у поглотителя** (verified на 900/1600):
 
 ```css
 table.gt-table { table-layout: fixed; }

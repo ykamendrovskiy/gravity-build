@@ -1,4 +1,4 @@
-# recipe-list — Гравити-сборка страницы-списка
+# Recipe: Гравити-сборка страницы-списка
 
 > Тип: `recipe`. Реализует `pattern-list` на Gravity UI. Версии — из `registry.json` `libraries[]` по имени
 > (uikit / table / icons / illustrations). Сначала — `scaffold-app-shell`. Состояния и data-safety — по
@@ -27,12 +27,13 @@ const columns = [
   {id: 'type', name: 'Тип'},
   {id: 'status', name: 'Статус', template: (r) => <Label theme={r.status==='ok'?'success':'danger'}>{r.statusText}</Label>},
 ];
-// HOC-стек: протягивай 2-й generic E снизу вверх (НЕ as unknown as, НЕ каст базового Table):
-const EquipmentTable = withTableActions<Equip, {}>(
-  withTableSelection<Equip, {}>(
+// HOC-стек: протягивай 2-й generic E (НАКОПЛЕННЫЕ пропы внутренних обёрток) снизу вверх —
+// НЕ {} у внешних, НЕ as unknown as, НЕ каст базового Table (полный разбор — library-uikit «Грабли пропов»):
+const EquipmentTable = withTableActions<Equip, WithTableSortingProps & WithTableSelectionProps<Equip>>(
+  withTableSelection<Equip, WithTableSortingProps>(
     withTableSorting<Equip>(Table)
   )
-);
+); // типы WithTable*Props — из '@gravity-ui/uikit'
 // getRowActions={(item) => [{text:'Изменить', handler:...}, {text:'Удалить', theme:'danger', handler:...}]}
 // <EquipmentTable data={rows} columns={columns} width="max" ... />
 ```
@@ -42,6 +43,11 @@ const EquipmentTable = withTableActions<Equip, {}>(
 таблица заполняет колонку, правые края шапки/фильтров/таблицы сходятся (та же механика, что width-binding
 ActionsPanel — `pattern-actions-panel`). Другие раскладки (колонка, суженная под контент таблицы; действия на
 контейнере) — валидны, но это осознанный выбор сервиса (профиль), не дефолт. Правило уровня вида — `pattern-list`.
+
+**Узкие вьюпорты:** `width="max"` не спасает от интринзик-ширины контента — оборачивай таблицу в
+`<div style={{overflowX:'auto', minWidth:0}}>` (канон «скролл внутри виджета» — `gravity-foundations-layout`;
+verified гейтом: без обёртки таблица бьёт за 375 на ~100px и тянет страницу; на широких обёртка — no-op).
+Обёртка — вокруг ТАБЛИЦЫ, не вокруг ActionsPanel (`library-table` «скролл-модель»).
 
 Грабли имён/пропов (статусы — `Label`, не `Badge`; заголовок — `Text variant`, не `Heading`; диалог с
 шапкой — `Dialog`, не `Modal title`) — сверь по `library-uikit` перед импортом.

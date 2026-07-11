@@ -66,29 +66,9 @@
 
 ## App-shell (обязательная обвязка)
 
-Самый частый промах — `ToasterProvider` без обязательного пропа `toaster`. Полный setup — в `scaffold-app-shell.md`. Кратко:
-
-```tsx
-// src/main.tsx
-import {createRoot} from 'react-dom/client';
-import {ThemeProvider, Toaster, ToasterProvider, ToasterComponent} from '@gravity-ui/uikit';
-
-import '@gravity-ui/uikit/styles/fonts.css';
-import '@gravity-ui/uikit/styles/styles.css';
-
-import {App} from './App';
-
-const toaster = new Toaster();   // ⚠️ экземпляр на верхнем уровне модуля
-
-createRoot(document.getElementById('root')!).render(
-  <ThemeProvider theme="light">
-    <ToasterProvider toaster={toaster}>      {/* ⚠️ обязательный проп toaster */}
-      <App />
-      <ToasterComponent />                   {/* ⚠️ контейнер тостов */}
-    </ToasterProvider>
-  </ThemeProvider>,
-);
-```
+Полный setup (ThemeProvider + fonts/styles + Toaster-экземпляр на верхнем уровне модуля +
+`ToasterProvider toaster={…}` — обязательный проп + `<ToasterComponent/>`) — **канон `scaffold-app-shell`**,
+сюда не копируется. Самый частый промах — `ToasterProvider` без обязательного пропа `toaster`.
 
 В компоненте: `const {add} = useToaster(); add({name: 'ws-saved', title: 'Сохранено', theme: 'success', autoHiding: 3000})`.
 

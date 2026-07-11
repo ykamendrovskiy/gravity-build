@@ -29,9 +29,6 @@
   },
   "formPolicy": {
     "fieldWidth": "uniform",
-    "widthBuckets": {
-      "default": "100% в пределах полосы формы — поля единой ширины"
-    },
     "formMaxWidth": "560px",
     "labelPlacement": "form-row-top",
     "descriptionDefault": "field-description",
@@ -95,7 +92,7 @@
     "synthesizedFrom": [
       "Интервью (auto-synthesis prototype, 2026-06-09): свободное описание сервиса + 1 уточняющий вопрос (тема)."
     ],
-    "lastUpdated": "2026-06-09",
-    "notes": "Профиль выведен из интервью: density/contentLayout/formPolicy/approvedComponents/archetypes/glossary — из описания; тему спросили (light + switch, бренда нет). referenceScreens нет (кода не было)."
+    "lastUpdated": "2026-07-11",
+    "notes": "Профиль выведен из интервью: density/contentLayout/formPolicy/approvedComponents/archetypes/glossary — из описания; тему спросили (light + switch, бренда нет). referenceScreens нет (кода не было). 2026-07-11: убран нештатный widthBuckets.default — при fieldWidth=uniform единую ширину уже задаёт formMaxWidth (паттерн sprout: омиссия)."
   }
 }

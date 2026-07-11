@@ -1,4 +1,4 @@
-# recipe-landing — Гравити-сборка лендинга (page-constructor)
+# Recipe: Гравити-сборка лендинга (page-constructor)
 
 > Тип: `recipe`. Реализует `pattern-landing` на `@gravity-ui/page-constructor`. Каталог блоков + где брать
 > конфиги — `library-page-constructor`. Сначала — `scaffold-app-shell` (Theme + стили). Версии — из `libraries[]`.
@@ -50,7 +50,7 @@ export default defineConfig({
 
 ⚠️ **`slider-block` требует `import 'swiper/css'` в entry — НЕ dev-only** (verified 2026): без него слайдер не ограничивает число слайдов — в DEV встаёт вертикальным столбиком, в **BUILD показывает ВСЕ слайды узкими** (текст в side-image-карточках нечитаем). Импорт — после `page-constructor` scss.
 
-⚠️ **Грид требует `*{box-sizing:border-box}`** в глобальном reset (см. `scaffold-app-shell`). Без него `container-fluid`/колонки считаются в `content-box` (uikit ставит border-box только на `html`) → **горизонтальный оверфлоу на десктопе + карточки 2-в-ряд вместо 3** (`tsc` молчит; ловится только браузером). verified 2026-06-30.
+⚠️ **Грид требует `*{box-sizing:border-box}` в глобальном reset** — причинная цепочка и канон reset'а: `scaffold-app-shell`. Симптом без него на лендинге: **горизонтальный оверфлоу на десктопе + карточки 2-в-ряд вместо 3** (`tsc` молчит; ловится только браузером; verified).
 
 ## Чего НЕ делать
 
