@@ -18,13 +18,17 @@ export function gateDom() {
     var base=[255,255,255];
     function comp(c){ if(c&&c[3]>0) base=[c[0]*c[3]+base[0]*(1-c[3]), c[1]*c[3]+base[1]*(1-c[3]), c[2]*c[3]+base[2]*(1-c[3])]; }
     // per layer, back-to-front: fold in ::before fill (uikit buttons paint their surface there) then the element's own bg
-    for(var i=layers.length-1;i>=0;i--){ var L=layers[i]; comp(parse(getComputedStyle(L,'::before').backgroundColor)); comp(parse(getComputedStyle(L).backgroundColor)); }
+    for(var i=layers.length-1;i>=0;i--){ var L=layers[i]; if(L.closest&&L.closest('[data-proto-panel]')) continue; comp(parse(getComputedStyle(L,'::before').backgroundColor)); comp(parse(getComputedStyle(L).backgroundColor)); }
     return base;
   }
   function lin(v){ return Math.pow(v/255.0,2.4); }
   function sRGBtoY(c){ return 0.2126729*lin(c[0])+0.7151522*lin(c[1])+0.0721750*lin(c[2]); }
   function APCA(txt,bg){ var blkThrs=0.022,blkClmp=1.414,deltaYmin=0.0005,loClip=0.1,normBG=0.56,normTXT=0.57,revTXT=0.62,revBG=0.65,scaleBoW=1.14,scaleWoB=1.14,loBoWoffset=0.027,loWoBoffset=0.027; var ty=sRGBtoY(txt),by=sRGBtoY(bg); ty=ty>blkThrs?ty:ty+Math.pow(blkThrs-ty,blkClmp); by=by>blkThrs?by:by+Math.pow(blkThrs-by,blkClmp); if(Math.abs(by-ty)<deltaYmin) return 0.0; var out; if(by>ty){ var s1=(Math.pow(by,normBG)-Math.pow(ty,normTXT))*scaleBoW; out=s1<loClip?0.0:s1-loBoWoffset; } else { var s2=(Math.pow(by,revBG)-Math.pow(ty,revTXT))*scaleWoB; out=s2>-loClip?0.0:s2+loWoBoffset; } return out*100.0; }
   function visible(el){ var r=el.getBoundingClientRect(); if(r.width<1||r.height<1) return false; var s=getComputedStyle(el); return s.display!=='none'&&s.visibility!=='hidden'&&parseFloat(s.opacity)>0.05; }
+  // прото-панель (scaffold «Сценарии состояний», S4): dev-инструмент поверх приложения, НЕ поверхность
+  // продукта — контракт data-proto-panel: поддерево исключается из всех линий аудита (иначе её
+  // Select/Switch пэйрятся с контролами приложения, а карточка-подложка искажает effBg под ней).
+  function inProto(el){ try{ return !!(el&&el.closest&&el.closest('[data-proto-panel]')); }catch(e){ return false; } }
   function directText(el){ for(var i=0;i<el.childNodes.length;i++){ var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim().length>0) return n.textContent.trim(); } return null; }
   function sel(el){ var s=el.tagName.toLowerCase(); if(el.className&&typeof el.className==='string'){ var c=el.className.split(/\s+/).filter(function(x){return x&&(x.indexOf('g-')===0||x.indexOf('pc-')===0);}).slice(0,2).join('.'); if(c) s+='.'+c; } return s; }
 
@@ -32,7 +36,7 @@ export function gateDom() {
 
   // contrast (APCA) + literal [object Object] in one pass over text nodes
   var els=document.querySelectorAll('body *');
-  for(var i=0;i<els.length;i++){ var el=els[i]; var t=directText(el); if(!t||!visible(el)) continue;
+  for(var i=0;i<els.length;i++){ var el=els[i]; if(inProto(el)) continue; var t=directText(el); if(!t||!visible(el)) continue;
     var col=parse(getComputedStyle(el).color); if(col){ var lc=APCA([col[0],col[1],col[2]],effBg(el)); out.contrastChecked++; if(Math.abs(lc)<30) out.contrast.push({sel:sel(el),text:t.slice(0,30),Lc:Math.round(lc*10)/10,severity:Math.abs(lc)<15?'invisible':'poor'}); }
     if(t.indexOf('[object Object]')>=0) out.objectObject.push({sel:sel(el),text:t.slice(0,30)});
   }
@@ -42,13 +46,13 @@ export function gateDom() {
   // ProseMirror-separator: служебный srcless-img prosemirror-view (курсор/линии contenteditable, создаётся
   // библиотекой — prosemirror-view/dist/index.js «dom.className="ProseMirror-separator"»); не контент —
   // FP-класс markdown-editor-сборок (S3 figma-naive), спец-кейс как pc-storage|background у emptySlot.
-  var imgs=document.querySelectorAll('img'); for(var j=0;j<imgs.length;j++){ if(/(^|\s)ProseMirror-separator(\s|$)/.test(imgs[j].className||'')) continue; if(imgs[j].complete&&imgs[j].naturalWidth===0) out.brokenImages.push({src:(imgs[j].getAttribute('src')||'').slice(0,50)}); }
+  var imgs=document.querySelectorAll('img'); for(var j=0;j<imgs.length;j++){ if(inProto(imgs[j])) continue; if(/(^|\s)ProseMirror-separator(\s|$)/.test(imgs[j].className||'')) continue; if(imgs[j].complete&&imgs[j].naturalWidth===0) out.brokenImages.push({src:(imgs[j].getAttribute('src')||'').slice(0,50)}); }
 
   // icon+text Button with icon leaked into text slot (Fragment)
-  var btns=document.querySelectorAll('.g-button'); for(var k=0;k<btns.length;k++){ var b=btns[k]; if(b.querySelector('svg')&&b.textContent.trim()&&!b.querySelector('[class*="g-button__icon"]')) out.buttonIconLeak.push({text:b.textContent.trim().slice(0,25)}); }
+  var btns=document.querySelectorAll('.g-button'); for(var k=0;k<btns.length;k++){ var b=btns[k]; if(inProto(b)) continue; if(b.querySelector('svg')&&b.textContent.trim()&&!b.querySelector('[class*="g-button__icon"]')) out.buttonIconLeak.push({text:b.textContent.trim().slice(0,25)}); }
 
   // control-row size mismatch (button vs input/select in one row)
-  var ctrls=[]; ['.g-button','.g-text-input','.g-select','.g-text-area'].forEach(function(s){ document.querySelectorAll(s).forEach(function(e){ if(!visible(e)) return;
+  var ctrls=[]; ['.g-button','.g-text-input','.g-select','.g-text-area'].forEach(function(s){ document.querySelectorAll(s).forEach(function(e){ if(inProto(e)||!visible(e)) return;
     // кнопка ВНУТРИ контрола (стрелки NumberInput, clear, календарь-триггер) — служебный виджет, не участник «ряда»:
     // пэйрилась и со СВОИМ инпутом, и с СОСЕДНИМ (от/до) — FP-класс fanout-01 ESC-1
     if(s==='.g-button'&&e.parentElement&&e.parentElement.closest('.g-text-input,.g-select,.g-text-area')) return;
@@ -60,13 +64,14 @@ export function gateDom() {
     if(sameRow(A,B)&&adj(A,B)&&Math.abs(A.h-B.h)>4){ var key=Math.round(Math.min(A.top,B.top))+A.kind+B.kind; if(seen[key]) continue; seen[key]=1; out.controlRowMismatch.push({a:A.kind+'('+A.h+')',b:B.kind+'('+B.h+')',delta:Math.abs(A.h-B.h)}); } }
 
   // illustration-scale svg with no visible fill/stroke (invisible illustration)
-  document.querySelectorAll('svg').forEach(function(svg){ var r=svg.getBoundingClientRect(); if(r.width<40||r.height<40) return; var ps=svg.querySelectorAll('path,rect,circle,ellipse,polygon'); if(!ps.length) return; var vis=false; for(var p=0;p<ps.length;p++){ var fc=parse(getComputedStyle(ps[p]).fill),sc=parse(getComputedStyle(ps[p]).stroke); if((fc&&fc[3]>0.05&&!(fc[0]===255&&fc[1]===255&&fc[2]===255))||(sc&&sc[3]>0.05)){ vis=true; break; } } if(!vis) out.zeroFillSvg.push({size:Math.round(r.width)+'x'+Math.round(r.height)}); });
+  document.querySelectorAll('svg').forEach(function(svg){ if(inProto(svg)) return; var r=svg.getBoundingClientRect(); if(r.width<40||r.height<40) return; var ps=svg.querySelectorAll('path,rect,circle,ellipse,polygon'); if(!ps.length) return; var vis=false; for(var p=0;p<ps.length;p++){ var fc=parse(getComputedStyle(ps[p]).fill),sc=parse(getComputedStyle(ps[p]).stroke); if((fc&&fc[3]>0.05&&!(fc[0]===255&&fc[1]===255&&fc[2]===255))||(sc&&sc[3]>0.05)){ vis=true; break; } } if(!vis) out.zeroFillSvg.push({size:Math.round(r.width)+'x'+Math.round(r.height)}); });
 
   // reserved-but-empty named slot: an element NAMED for content (image/logo/avatar/media/cover/picture/thumb),
   // sized like a real slot, that paints NOTHING (no working img, no svg, no text, no background-image).
   // The reserved box is the tell that content was expected but is missing.
   var NAMED=/image|logo|avatar|media|cover|picture|thumb/i, matched=[];
   document.querySelectorAll('[class]').forEach(function(el){
+    if(inProto(el)) return;
     if(typeof el.className!=='string'||!NAMED.test(el.className)) return;
     if(/storage|background/i.test(el.className)) return; // page-constructor's optional positioned bg layer — empty by design, not a content slot
     if(el.tagName==='IMG'&&el.naturalWidth>0) return; // a LOADED img is content, not an empty slot (class merely names it); broken imgs are the brokenImages lane's job
@@ -84,7 +89,7 @@ export function gateDom() {
   // R16: uikit Table left at width:auto inside a bounded column → inner table shrinks under its wrapper
   // (header action then dangles far right of the table). Registry default for list pages = width="max".
   document.querySelectorAll('table.g-table__table_width_auto').forEach(function(t){
-    if(!visible(t)) return; var wrapEl=t.closest('.g-table'); if(!wrapEl) return;
+    if(inProto(t)||!visible(t)) return; var wrapEl=t.closest('.g-table'); if(!wrapEl) return;
     var tw=t.getBoundingClientRect().width, ww=wrapEl.getBoundingClientRect().width;
     if(ww-tw>100) out.tableUnderfill.push({tablePx:Math.round(tw), wrapPx:Math.round(ww), gapPx:Math.round(ww-tw)});
   });

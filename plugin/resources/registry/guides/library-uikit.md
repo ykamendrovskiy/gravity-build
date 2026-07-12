@@ -23,6 +23,7 @@
 | `RadioButton` | `SegmentedRadioGroup` (сегментированный single-choice) или `Radio` + `RadioGroup` (обычные радио) | `RadioButton` в экспортах нет — устаревшее имя |
 | `<Tabs items={[...]} />` (монолит) | `TabProvider` + `TabList` + `Tab` + `TabPanel` (композиция) | старый API, в uikit@7 разнесён на композицию |
 | `TreeSelect` / `TreeList` из корня | `unstable_TreeSelect` / `unstable_TreeList` из `@gravity-ui/uikit/unstable` | в корневом экспорте их нет — только под `./unstable` |
+| `FileDropZone` «нет такого» / самодельная дроп-зона | `unstable_FileDropZone` из `@gravity-ui/uikit/unstable` (`title` / `description` / `buttonText` / `icon` / `accept` / `onUpdate(accepted, rejected)`) | живёт в **`components/lab/`** — листинг верхнего `components/` его НЕ покажет (класс промаха: два наивных агента подряд); смотри и `lab/`, и `unstable.d.ts` (verified uikit@7.44: применён живой сборкой) |
 | `ListItemView` из корня / самодельная строка сайдбара | `unstable_ListItemView` из `@gravity-ui/uikit/unstable` (`import {unstable_ListItemView as ListItemView}`) | готовая строка списка/меню (`content={{title, startSlot}}` + `selected` + `height`) — но только под `./unstable`; рендер-грабли selected — см. «Грабли вёрстки» |
 | `<Grid>` | грид-система = `Row` + `Col` (из layout) | компонента `Grid` нет |
 | индикатор шагов «с нуля» | `Stepper` — он есть, не сочиняй | готовый компонент существует |
@@ -100,6 +101,17 @@
   (`gravity-foundations-layout`): `<div style={{overflowX:'auto', minWidth:0}}><Stepper…/></div>` — на широких
   no-op, на узких скроллит степпер, не страницу (verified браузером: 0 overflow).
 
+- **Controlled-`DropdownMenu` (`open`+`onOpenToggle`) — в колбэк приходит и ФУНКЦИЯ-апдейтер.** Типы
+  обещают `(open: boolean) => void`, но switcher-клик идёт через внутренний toggle
+  (`setPopupShown(updater)`), а в controlled-режиме этот сеттер = твой `onOpenToggle` — прилетает
+  `SetStateAction<boolean>` (verified рантаймом + source `usePopupVisibility` @ uikit 7.44). `tsc` молчит,
+  а «значение»-функция в `setState` тихо превращается в toggle. Разворачивай в хендлере:
+  `const next = typeof value === 'function' ? value(menuOpen) : value;`.
+- **`ActionTooltip` на switcher'е `DropdownMenu` — гаси при открытом меню: `disabled={menuOpen}`.**
+  Тултип-попап ложится ПОВЕРХ первого пункта открытого меню и перехватывает клик: Popup меню видит
+  outside-press → меню закрывается, `action` пункта НЕ срабатывает (диагноз S4: клик по пункту →
+  2×`onOpenToggle(false)`, action молчит; с `disabled` флоу работает — verified браузером). Канон
+  «icon-only ⇒ ActionTooltip» остаётся — тултип просто выключается на время открытого меню.
 - **Кликабельность шагов `Stepper` — по ПОСЕЩЁННЫМ (visited-набор в state)**, не «только назад от текущего»:
   вернувшись с шага 2 на шаг 1, пользователь должен уметь кликнуть вперёд на уже посещённый шаг 2. Рифма с «completion из state»: и отметки, и кликабельность — производные от
   visited/completed-набора, не от сравнения индексов. Механика: `Stepper.Item disabled={!visited[id]}` —

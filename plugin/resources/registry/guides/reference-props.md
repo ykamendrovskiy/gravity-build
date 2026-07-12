@@ -22,7 +22,7 @@
 
 | Библиотека | Вход (`package.json → types`) | Компонент → `.d.ts` |
 |---|---|---|
-| uikit | `build/cjs/index.d.ts` (esm-зеркало есть) | `build/esm/components/<Name>/<Name>.d.ts` |
+| uikit | `build/cjs/index.d.ts` (esm-зеркало есть) | `build/esm/components/<Name>/<Name>.d.ts` · **плюс `components/lab/<Name>/`** (экспорт через `build/esm/unstable.d.ts` c префиксом `unstable_` — FileDropZone/ColorPicker/Virtualizer/TreeSelect…): листинг ТОЛЬКО верхнего `components/` пропускает lab-компоненты (класс промаха, пойман дважды) |
 | components | `build/cjs/index.d.ts` | `build/esm/components/<Name>/<Name>.d.ts` |
 | navigation | `build/esm/index.d.ts` | `build/esm/components/<Name>/<Name>.d.ts` (у сложных — вложенная `components/`) |
 | table | `build/esm/index.d.ts` | `build/esm/components/Table/Table.d.ts` · хуки: `build/esm/hooks/useTable.d.ts` |
