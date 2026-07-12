@@ -23,9 +23,11 @@ description: >-
 
 ## Как вести
 
-1. **Прочитай плейбук и каталог** (рядом со скиллом): `service-profile/synthesis-interview.md` (как
-   вести интервью) + `service-profile/dimensions.md` (что распознавать / что спрашивать) +
-   `service-profile/schema/service-profile.schema.json` (контракт) + `service-profile/examples/*.json`
+1. **Прочитай плейбук и каталог** (общий ресурс плагина, пути — от папки этого скилла):
+   `../../resources/service-profile/synthesis-interview.md` (как вести интервью) +
+   `../../resources/service-profile/dimensions.md` (что распознавать / что спрашивать) +
+   `../../resources/service-profile/schema/service-profile.schema.json` (контракт) +
+   `../../resources/service-profile/examples/*.json`
    (форма готового профиля). Веди строго по плейбуку.
 2. **Интервью по плейбуку:** открой описанием сервиса → выведи из него то, что оно уже задаёт (по
    `dimensions.md`) → спрашивай **только дыры** (важные и не выводимые), дефолт — явной опцией →

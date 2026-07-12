@@ -96,6 +96,5 @@ export function gateLayout() {
   var w=window.innerWidth, ov=document.documentElement.scrollWidth-w;
   var worst=null,maxR=0; [].slice.call(document.querySelectorAll('body *')).forEach(function(e){ var r=e.getBoundingClientRect(); if(r.right>maxR){maxR=r.right;worst=e;} });
   function cls(el){ return el&&el.className&&typeof el.className==='string'?el.className.split(/\s+/).slice(0,2).join('.'):(el?el.tagName:null); }
-  function stat(s){ var cs=[].slice.call(document.querySelectorAll(s)).filter(function(c){var r=c.getBoundingClientRect();return r.width>1&&r.height>1;}); if(!cs.length) return null; var rows={}; cs.forEach(function(c){var t=Math.round(c.getBoundingClientRect().top/12)*12;rows[t]=(rows[t]||0)+1;}); var pr=Object.keys(rows).sort(function(a,b){return a-b;}).map(function(k){return rows[k];}); return {n:cs.length,cols:Math.max.apply(null,pr),dist:pr,minW:Math.min.apply(null,cs.map(function(c){return Math.round(c.getBoundingClientRect().width);}))}; }
-  return { width:w, overflowPx:ov, widest: ov>1?cls(worst):null, price: stat('.pc-price-card') };
+  return { width:w, overflowPx:ov, widest: ov>1?cls(worst):null };
 }

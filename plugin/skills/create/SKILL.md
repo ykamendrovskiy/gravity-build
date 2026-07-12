@@ -27,23 +27,23 @@ description: >-
 
 ## Порядок работы
 
-1. **Открой knowledge-registry и следуй ему.** Entry-point — `registry/registry.json` (роутер, рядом с
-   этим `SKILL.md`); прочти его первым и работай строго по полю `workflow`: scaffold → pattern →
+1. **Открой knowledge-registry и следуй ему.** Entry-point — `../../resources/registry/registry.json`
+   (роутер; путь — относительно папки этого скилла, общий ресурс плагина); прочти его первым и работай строго по полю `workflow`: scaffold → pattern →
    interface-foundations → recipe → gravity-foundations → библиотеки (routing / версии — в роутере).
-   **Вход — Figma-макет?** Его ведёт шаг 0 workflow: сначала `registry/guides/figma-mapping.md`
+   **Вход — Figma-макет?** Его ведёт шаг 0 workflow: сначала `../../resources/registry/guides/figma-mapping.md`
    (протокол чтения канала по секциям, карта имён кита → код, политика фиделити «макет = что,
    registry = как», обязательный конфликт-отчёт).
-   Имена компонентов и пропы сверяй с гайдами (`registry/guides/library-uikit.md` и др.) **перед**
+   Имена компонентов и пропы сверяй с гайдами (`../../resources/registry/guides/library-uikit.md` и др.) **перед**
    импортом — не подставляй из памяти других дизайн-систем.
 2. **Проверь профиль сервиса.** Поищи в корне целевого проекта `service-profile.json` (или
    `.gravity/service-profile.json`):
    - **Есть** → это per-service слой «как принято у нас» (тема/бренд, плотность, раскладка,
      форм-политика, сабсет компонентов, архетипы, словарь). Примени его ручки поверх дефолтов по
-     разделу **«Профиль сервиса (если передан)»** в `registry/AGENTS.md`: профиль уточняет открытые
+     разделу **«Профиль сервиса (если передан)»** в `../../resources/registry/AGENTS.md`: профиль уточняет открытые
      ручки, **не отменяет** корректность registry, омиссия = дефолт.
    - **Нет** → собирай по универсальным дефолтам (baseline).
 3. **Собери** запрошенное как готовый к запуску React + TypeScript проект; версии пакетов — verbatim
-   из `registry/registry.json` (`libraries[]` / `bundles[]`), route-only либы ставь целым bundle.
+   из роутера (`libraries[]` / `bundles[]`), route-only либы ставь целым bundle.
 4. **Самопроверка — после зелёного `tsc`/`build`.** Выполни сиблинг-скилл **`verify`** в режиме «после
    сборки»: инструкция — `../verify/SKILL.md`, механика — `../verify/harness/HARNESS.md`. Кратко: сборка
    с живыми сценариями (`VITE_SCENARIOS=1`), предпросмотр на временном порту, `run-gate.mjs`, разбор
@@ -65,7 +65,11 @@ description: >-
 
 ## Структура бандла (читать on-demand)
 
-- `registry/registry.json` — **роутер и entry-point** (workflow + libraries / версии + routing + patterns +
-  recipes + foundations + scaffold). **Начни здесь.**
-- `registry/guides/*.md` — вся проза: library-каталоги, recipes, patterns, foundations (факт живёт в одном guide).
-- `registry/AGENTS.md` — тонкий companion: применение профиля сервиса + fallback при заблокированном фетче.
+Registry — общий ресурс плагина, одна копия для всех скиллов (пути — от папки этого скилла):
+
+- `../../resources/registry/registry.json` — **роутер и entry-point** (workflow + libraries / версии +
+  routing + patterns + recipes + foundations + scaffold). **Начни здесь.**
+- `../../resources/registry/guides/*.md` — вся проза: library-каталоги, recipes, patterns, foundations
+  (факт живёт в одном guide).
+- `../../resources/registry/AGENTS.md` — тонкий companion: применение профиля сервиса + fallback при
+  заблокированном фетче.

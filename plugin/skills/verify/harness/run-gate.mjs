@@ -1,6 +1,11 @@
 // run-gate.mjs — headless gate runner.
-//   node run-gate.mjs <url> <projectDir> [outDir]          — полный гейт (нужен playwright)
-//   node run-gate.mjs --static-only <projectDir> [outDir]  — только static-линия (чистый Node)
+//   node run-gate.mjs <url> <projectDir> [outDir] [--fail-on=any|high]   — полный гейт (нужен playwright)
+//   node run-gate.mjs --static-only <projectDir> [outDir] [--fail-on=…]  — только static-линия (чистый Node)
+// --fail-on: exit 1 при находках (any — любая; high — только высокой уверенности:
+//   invisible-контраст [обе темы] / битые img / [object Object] / icon-leak / console / static-high /
+//   недостижимые сценарии). Без флага exit 0 — вердикт интерпретирует читающий (моделью/человеком).
+// Тёмная тема: на ДЕФОЛТ-сценарии контраст меряется дважды (light и .g-root_theme_dark свапом класса);
+//   нет .g-root → dark_pass='skipped_no_g_root' (честный пропуск, не fake-clean).
 // Lanes: static (source grep) + eval (DOM invariants, width-independent) +
 //        layout sweep (per breakpoint ±1) + full-height screenshot (vision/owner).
 // Scenario walk: if <projectDir>/scenarios.manifest.json exists (self-describing build,
@@ -16,11 +21,16 @@ import { gateDom, gateLayout } from './gate.mjs';
 import fs from 'fs';
 import path from 'path';
 
-const staticOnlyFlag = process.argv[2] === '--static-only';
-const url = staticOnlyFlag ? null : process.argv[2];
-const projectDir = staticOnlyFlag ? process.argv[3] : process.argv[3];
-const outDir = (staticOnlyFlag ? process.argv[4] : process.argv[4]) || '.';
-if (!url && !staticOnlyFlag) { console.error('usage: node run-gate.mjs <url|--static-only> <projectDir> [outDir]'); process.exit(2); }
+const argvAll = process.argv.slice(2);
+const flags = argvAll.filter((a) => a.startsWith('--'));
+const pos = argvAll.filter((a) => !a.startsWith('--'));
+const staticOnlyFlag = flags.includes('--static-only');
+const failOn = (flags.find((a) => a.startsWith('--fail-on')) || '').split('=')[1] || null;
+const url = staticOnlyFlag ? null : pos[0];
+const projectDir = staticOnlyFlag ? pos[0] : pos[1];
+const outDir = (staticOnlyFlag ? pos[1] : pos[2]) || '.';
+if (!url && !staticOnlyFlag) { console.error('usage: node run-gate.mjs <url|--static-only> <projectDir> [outDir] [--fail-on=any|high]'); process.exit(2); }
+if (failOn && !['any', 'high'].includes(failOn)) { console.error('--fail-on принимает any | high'); process.exit(2); }
 
 let chromium = null;
 if (!staticOnlyFlag) {
@@ -58,6 +68,11 @@ if (staticOnlyFlag || !chromium) {
   if (manifestError) console.log('  ⚠ manifest:', manifestError);
   console.log('  ⚠ browser-линии пропущены — вердикт ЧАСТИЧНЫЙ.');
   console.log('verdict →', `${outDir}/verdict.json`);
+  const shigh = staticF.filter((f) => f.sev === 'high').length;
+  if ((failOn === 'any' && staticF.length) || (failOn === 'high' && shigh)) {
+    console.error(`--fail-on=${failOn}: static-находки есть → exit 1 (вердикт при этом ЧАСТИЧНЫЙ)`);
+    process.exit(1);
+  }
   process.exit(0);
 }
 
@@ -101,7 +116,7 @@ page.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0
 
 // width-independent DOM checks at a TALL viewport so every element is in-viewport →
 // elementsFromPoint (contrast bg-resolver) works for below-fold content too.
-async function auditScenario(id) {
+async function auditScenario(id, withDark) {
   const target = urlFor(url, manifest.param, id);
   consoleErrors.length = 0;
   let gotoFailed = false;
@@ -128,6 +143,28 @@ async function auditScenario(id) {
   await page.setViewportSize({ width: REF_W, height: Math.min(Math.max(domH, 900), 8000) });
   await page.waitForTimeout(200);
   const dom = await page.evaluate(gateDom);
+  // тёмный проход (контраст-only, дефолт-сценарий): тема Гравити = класс на .g-root, токены
+  // сменяются чистым CSS — свап класса, замер APCA, возврат. Нет .g-root → честный пропуск.
+  let dark = null;
+  if (withDark) {
+    const swapped = await page.evaluate(() => {
+      const r = document.querySelector('.g-root');
+      if (!r) return false;
+      r.classList.remove('g-root_theme_light'); r.classList.add('g-root_theme_dark');
+      return true;
+    });
+    if (!swapped) { dark = { skipped: 'no_g_root' }; }
+    else {
+      await page.waitForTimeout(150);
+      const d = await page.evaluate(gateDom);
+      dark = { contrast: d.contrast, contrastChecked: d.contrastChecked };
+      await page.evaluate(() => {
+        const r = document.querySelector('.g-root');
+        r.classList.remove('g-root_theme_dark'); r.classList.add('g-root_theme_light');
+      });
+      await page.waitForTimeout(100);
+    }
+  }
   // body signature → noop detection (declared scenario that changes nothing)
   const bodySig = await page.evaluate(() => {
     const s = document.body ? document.body.innerHTML : '';
@@ -139,7 +176,7 @@ async function auditScenario(id) {
   await page.screenshot({ path: shot, fullPage: true });
   // dead server / blank document → the audit is VOID, not "clean" (silent fake-green is the enemy)
   const unreachable = gotoFailed || parseInt(bodySig.split(':')[1], 10) === 0;
-  return { id, dom, bodySig, unreachable, consoleErrors: consoleErrors.slice(), screenshot: shot };
+  return { id, dom, dark, bodySig, unreachable, consoleErrors: consoleErrors.slice(), screenshot: shot };
 }
 
 function summaryOf(dom, errs) {
@@ -164,7 +201,7 @@ try { await page.goto(url, { waitUntil: 'networkidle', timeout: 20000 }); await 
 
 // eval lane + capture per scenario (default first — it anchors noop detection + layout sweep)
 const audits = [];
-for (const id of manifest.ids) audits.push(await auditScenario(id));
+for (let i = 0; i < manifest.ids.length; i++) audits.push(await auditScenario(manifest.ids[i], i === 0));
 const def = audits[0];
 
 // FATAL: default scenario unreachable/blank → no valid verdict at all. Exit loudly (code 3),
@@ -191,7 +228,6 @@ await browser.close();
 
 const staticF = projectDir ? runStatic(projectDir) : [];
 const overflowWidths = sweep.filter((s) => s.overflowPx > 1).map((s) => s.width);
-const minPriceW = Math.min(...sweep.map((s) => (s.price ? s.price.minW : Infinity)));
 
 const verdict = {
   url, ref_width: REF_W, generated: 'run-gate.mjs',
@@ -199,15 +235,17 @@ const verdict = {
   manifest_error: manifest.error,
   summary: {
     ...summaryOf(def.dom, def.consoleErrors),
+    contrast_dark_invisible: def.dark && def.dark.contrast ? def.dark.contrast.filter((c) => c.severity === 'invisible').length : 0,
+    contrast_dark_poor: def.dark && def.dark.contrast ? def.dark.contrast.filter((c) => c.severity === 'poor').length : 0,
+    dark_pass: def.dark ? (def.dark.skipped ? 'skipped_no_g_root' : 'done') : 'off',
     static_findings: staticF.length,
     overflow_widths: overflowWidths.length,
-    min_price_card_px: Number.isFinite(minPriceW) ? minPriceW : null,
     scenarios_audited: audits.length,
     scenario_noop: scenarioNoop,
     scenario_unreachable: unreachableScenarios,
   },
   // top-level dom/consoleErrors/screenshot = default scenario (backward-compatible shape)
-  dom: def.dom, sweep, overflowWidths, static: staticF, consoleErrors: def.consoleErrors, screenshot: def.screenshot,
+  dom: def.dom, darkContrast: def.dark, sweep, overflowWidths, static: staticF, consoleErrors: def.consoleErrors, screenshot: def.screenshot,
   scenarios: Object.fromEntries(audits.map((a) => [a.id ?? 'default', {
     summary: summaryOf(a.dom, a.consoleErrors), bodySig: a.bodySig,
     dom: a.dom, consoleErrors: a.consoleErrors, screenshot: a.screenshot,
@@ -225,7 +263,21 @@ if (manifest.error) console.log('  ⚠ manifest:', manifest.error);
 if (scenarioNoop.length) console.log('  ⚠ noop scenarios (declared but DOM identical to default):', scenarioNoop.join(', '));
 if (unreachableScenarios.length) console.log('  ⚠ unreachable/blank scenarios (аудит НЕ валиден):', unreachableScenarios.join(', '));
 if (def.dom.contrast.length) console.log('  invisible/poor:', def.dom.contrast.slice(0, 6).map((c) => `${c.text}[Lc${c.Lc}]`).join(' | '));
+if (def.dark && def.dark.contrast && def.dark.contrast.length) console.log('  dark invisible/poor:', def.dark.contrast.slice(0, 6).map((c) => `${c.text}[Lc${c.Lc}]`).join(' | '));
+if (def.dark && def.dark.skipped) console.log('  ⚠ тёмный проход пропущен: .g-root не найден (контраст в тёмной теме НЕ проверялся)');
 if (def.dom.brokenImages.length) console.log('  broken-img:', def.dom.brokenImages.map((b) => b.src).join(', '));
 if (staticF.length) console.log('  static:', staticF.map((f) => `${f.id}@${f.file}:${f.line}`).join(', '));
 console.log('  overflow at:', overflowWidths.join(',') || 'none');
 console.log('verdict →', `${outDir}/verdict.json`, '· shots →', audits.map((a) => path.basename(a.screenshot)).join(', '));
+if (failOn) {
+  const s = verdict.summary;
+  const staticHigh = staticF.filter((f) => f.sev === 'high').length;
+  const high = s.contrast_invisible + s.contrast_dark_invisible + s.broken_images + s.object_object +
+    s.button_icon_leak + s.console_errors + staticHigh + s.scenario_unreachable.length;
+  const any = high + s.contrast_poor + s.contrast_dark_poor + s.control_row_mismatch + s.zero_fill_svg +
+    s.empty_slots + s.table_underfill + (staticF.length - staticHigh) + s.overflow_widths + s.scenario_noop.length;
+  if ((failOn === 'any' && any > 0) || (failOn === 'high' && high > 0)) {
+    console.error(`--fail-on=${failOn}: находки есть (any=${any}, high=${high}) → exit 1`);
+    process.exit(1);
+  }
+}
