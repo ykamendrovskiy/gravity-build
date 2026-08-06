@@ -33,6 +33,12 @@ renderFooter={(data) => <FooterItem …/>}   ← низ
 - **Симметрии subheader↔footer НЕТ:** низ — только функция `renderFooter`, итемы в ней — `<FooterItem>`.
   **`FooterItem` экспортируется из корня** (`import {FooterItem} from '@gravity-ui/navigation'` — verified tsc
   @6.1.2; не ищи deep-путей: сквозной реэкспорт root→components→AsideHeader).
+- **Кастом-контент пункта (аватар-профиль и т.п.) — через `itemWrapper`, НЕ кастом-рядом:**
+  `<FooterItem id="profile" title="Аккаунт" itemWrapper={(params, makeItem) => makeItem({...params,
+  icon: <Avatar text="YC" theme="brand" size="m"/>})}/>` — ховер, сетка/инсеты и клик-механика штатного
+  пункта из коробки. Самодельный `div`-ряд мимо `FooterItem` теряет всё три разом (не ховерится как
+  соседние пункты, геометрию приходится подгонять замерами; verified браузером — кастом-ряд заменён
+  итемом 1:1). Работает и в `menuItems` (`itemWrapper` есть у `AsideHeaderItem`).
 - **`AsideHeaderItem` — плоский** (`extends MenuItem`: `id`/`title`/`icon`/`onItemClick`/`current`…), БЕЗ
   обёртки `{item: {...}}` — обёртка = домысел, TS2353.
 - **Лого:** `logo.icon` = `IconProps['data']` (React-компонент/IconData, НЕ JSX `<svg>…</svg>`); для готового
@@ -47,6 +53,23 @@ CSS-переменные `--gn-aside-header-*` (`background-color`, `item-curren
 структуру — добавили subheader/footer-секции → появился второй composite-бар, компенсация `margin-left:-8px` на
 `icon-place` (заскоупленная по ID на menu-items-бар) его не покрыла → поехала ширина кнопок. Корпоративный
 брендинг-слой — дом в **service-profile (theme)**, не в компонентных селекторах.
+
+## Модель высоты и вьюпорт-замок (verified nav 6.1.2 — замер 4 вариантов обвязки)
+
+- **Ни `AsideHeader`, ни `PageLayout`-пара НЕ ограничивают высоту content-pane** — модель высоты у обеих
+  обвязок одна и by design: контент растёт, скроллится ДОКУМЕНТ, рельса остаётся на месте (aside —
+  `position:sticky; height:100vh`). `height:100%` на контент-колонке резолвится ОТ КОНТЕНТА
+  (height-auto цепочка пейна) → «стики»-топбар/`ActionBar` внутри контента уезжают вместе с документом.
+  Для страниц-документов это норм-режим; для app-экрана — нет.
+- **App-рамка (вьюпорт-замок) — обязанность сборки, в обеих обвязках одинаково:** контент-колонке жёсткий
+  `height: 100vh` (+ `min-height`-гард), скролл — внутрь своей области (`overflow-y:auto`), НЕ `height:100%`.
+  Канон рамки и когда она нужна — `figma-mapping` «app-рамка = вьюпорт-замок».
+- **`PageLayout` + `PageLayoutAside` + `PageLayout.Content` — не про высоту.** Пара нужна для сплита
+  поддеревьев aside/content (меньше ре-рендеров, ленивый `renderContent`, `AsideFallback`), слота
+  `topAlert` и контекста ширины `--gn-aside-header-size` в обвязках без `AsideHeader`. Ширинную синхру
+  контента (`width = 100% − aside`) `AsideHeader` даёт сам — пара её не меняет (verified замером: обе
+  обвязки 1224px при рельсе 56). Типы: `PageLayout({compact})`; `PageLayoutAside` = AsideHeaderProps без
+  `compact`/`size` (берёт из контекста PageLayout); `PageLayout.Content({renderContent})`.
 
 ## Заметки
 
