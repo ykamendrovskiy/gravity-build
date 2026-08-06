@@ -70,6 +70,10 @@ CSS-переменные `--gn-aside-header-*` (`background-color`, `item-curren
   контента (`width = 100% − aside`) `AsideHeader` даёт сам — пара её не меняет (verified замером: обе
   обвязки 1224px при рельсе 56). Типы: `PageLayout({compact})`; `PageLayoutAside` = AsideHeaderProps без
   `compact`/`size` (берёт из контекста PageLayout); `PageLayout.Content({renderContent})`.
+- **`ActionBar` в колонке-рамке — задай `flex-shrink: 0` сам:** бар свою высоту не защищает
+  (`flex-shrink:1`, `min-height` нет) → при нехватке высоты окна сжимается пропорционально
+  (verified: 40→28px на лестнице 900→560; симптом — «шапка меняет высоту при вертикальном ресайзе»).
+  Вертикальный контракт колонки целиком — `gravity-foundations-layout`.
 
 ## Заметки
 

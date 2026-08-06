@@ -82,7 +82,7 @@ const SWEEP = [1440, 1400, 1399, 1280, 1185, 1184, 1081, 1080, 769, 768, 577, 57
 
 // --- scenarios.manifest.json (absent → single anonymous scenario = legacy behavior) ---
 function readManifest(dir) {
-  const none = { param: null, def: null, ids: [null], declared: null, error: null, minWidth: null };
+  const none = { param: null, def: null, ids: [null], declared: null, error: null, minWidth: null, frame: { declared: false, minHeight: null } };
   if (!dir) return none;
   const p = path.join(dir, 'scenarios.manifest.json');
   if (!fs.existsSync(p)) return none;
@@ -93,7 +93,12 @@ function readManifest(dir) {
     const def = m.default && m.scenarios.includes(m.default) ? m.default : m.scenarios[0];
     // intendedMinWidth (floor из figma-mapping): ниже него overflow — объявленная политика, не дефект
     const minWidth = Number.isFinite(m.intendedMinWidth) && m.intendedMinWidth > 0 ? m.intendedMinWidth : null;
-    return { param, def, ids: [def, ...m.scenarios.filter((s) => s !== def)], declared: m.scenarios, error: null, minWidth };
+    // frame (app-рамка = вьюпорт-замок, scaffold-app-shell): {"viewport": true, "minHeight": 560} —
+    // в пределах рамки документ скроллиться не должен (frame_leak); ниже minHeight — политика.
+    const fr = m.frame && typeof m.frame === 'object' && m.frame.viewport === true
+      ? { declared: true, minHeight: Number.isFinite(m.frame.minHeight) && m.frame.minHeight > 0 ? m.frame.minHeight : null }
+      : { declared: false, minHeight: null };
+    return { param, def, ids: [def, ...m.scenarios.filter((s) => s !== def)], declared: m.scenarios, error: null, minWidth, frame: fr };
   } catch (e) {
     // malformed manifest = finding, not a silent skip (silent truncation reads as "covered")
     return { ...none, error: 'scenarios.manifest.json: ' + String(e && e.message || e) };
@@ -230,6 +235,138 @@ for (const w of SWEEP) {
   await page.waitForTimeout(60);
   sweep.push(await page.evaluate(gateLayout));
 }
+
+// --- рамка-пачка (frame_leak / pinned_drift / chrome_squeeze) — per scenario, height-dependent ---
+// Механика одна: resize + scroll + remeasure. Классы owner-находок 2026-08-06: «документ скроллится
+// в app-рамке» (топбар уезжает), «sticky объявлен, но не работает», «фикс-хром сжимается по
+// вертикали» (ActionBar 40→28 во флекс-колонке без flex-shrink:0).
+// Правила доверия: frame_leak и дрейф static-хрома (known-chrome) меряются ТОЛЬКО при объявленной
+// рамке (manifest.frame); дрейф fixed/sticky/data-pinned и стабильность высот — всегда.
+// Sticky меряется только уже-пришпиленный (в потоке до точки прилипания уезжает легитимно — не FP).
+const FRAME_BASE_H = 800;
+function frameLadder(minH) {
+  const hs = [FRAME_BASE_H, Math.max(620, minH || 0)];
+  return [...new Set(hs)].filter((h) => !minH || h >= minH);
+}
+
+async function frameProbe(id) {
+  const target = urlFor(url, manifest.param, id);
+  try { await page.goto(target, { waitUntil: 'networkidle', timeout: 20000 }); } catch { return null; }
+  await page.waitForTimeout(200);
+  // пин/хром-набор помечается стабильными ключами (скриншоты уже сняты — мутация DOM безопасна):
+  // data-pinned (контракт сборки) ∪ fixed ∪ sticky-по-вертикали ∪ известный DS-хром.
+  await page.evaluate(() => {
+    let i = 0;
+    const KNOWN_CHROME = /(^|\s|_{2})gn-action-bar|g-actions-panel/;
+    for (const el of document.querySelectorAll('body *')) {
+      if (el.closest('[data-proto-panel]') || el.closest('[class*="g-toaster"]')) continue;
+      const cls = (el.getAttribute && el.getAttribute('class')) || '';
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      if (r.width < 8 || r.height < 8) continue;
+      const stickyY = cs.position === 'sticky' && (cs.top !== 'auto' || cs.bottom !== 'auto');
+      const kind = el.hasAttribute('data-pinned') ? 'marked'
+        : cs.position === 'fixed' ? 'fixed'
+        : stickyY ? 'sticky'
+        : KNOWN_CHROME.test(cls) ? 'chrome' : null;
+      if (!kind) continue;
+      if (el.closest('[data-gate-pin]')) continue; // вложенные не дублируем (панель внутри панели)
+      const tv = cs.top !== 'auto' ? Math.round(parseFloat(cs.top)) : '';
+      const bv = cs.bottom !== 'auto' ? Math.round(parseFloat(cs.bottom)) : '';
+      el.setAttribute('data-gate-pin', `${++i}:${kind}:${(cls.split(/\s+/)[0] || el.tagName).slice(0, 44)}:${tv}:${bv}`);
+    }
+  });
+  const measure = () => page.evaluate(() => {
+    const de = document.documentElement;
+    return {
+      doc: de.scrollHeight - de.clientHeight,
+      docX: de.scrollWidth - de.clientWidth,
+      pins: [...document.querySelectorAll('[data-gate-pin]')].map((el) => {
+        const r = el.getBoundingClientRect();
+        return { key: el.getAttribute('data-gate-pin'), top: Math.round(r.top), left: Math.round(r.left),
+          bottom: Math.round(r.bottom), h: Math.round(r.height), vis: r.width > 0 && r.height > 0 };
+      }),
+    };
+  });
+  // лестница высот в пределах рамки: doc-замок (при объявленной рамке) + стабильность высот хрома
+  const frameLeak = []; const heightsByKey = new Map();
+  for (const h of frameLadder(manifest.frame.minHeight)) {
+    await page.setViewportSize({ width: REF_W, height: h });
+    await page.waitForTimeout(140);
+    const m = await measure();
+    if (manifest.frame.declared) {
+      if (m.doc > 2) frameLeak.push({ h, axis: 'y', px: m.doc });
+      if (m.docX > 2) frameLeak.push({ h, axis: 'x', px: m.docX });
+    }
+    for (const p of m.pins) {
+      if (!p.vis) continue;
+      if (!heightsByKey.has(p.key)) heightsByKey.set(p.key, []);
+      heightsByKey.get(p.key).push({ vh: h, h: p.h });
+    }
+  }
+  // squeeze = высота меняется, но НЕ трекает вьюпорт: full-height хром (рельса AsideHeader,
+  // height:100vh-панели) легитимно растёт/сжимается вместе с окном — закалка FP первой канарейки.
+  const chromeSqueeze = [...heightsByKey.entries()]
+    .filter(([, arr]) => {
+      if (arr.length < 2) return false;
+      const hs = arr.map((a) => a.h), vhs = arr.map((a) => a.vh);
+      const dh = Math.max(...hs) - Math.min(...hs);
+      const dvh = Math.max(...vhs) - Math.min(...vhs);
+      return dh > 1 && Math.abs(dh - dvh) > 4;
+    })
+    .map(([key, arr]) => ({ key, heights: arr.map((a) => `${a.h}@${a.vh}`) }));
+  // дрейф-проба на базовой высоте: скролл документа + крупных контейнеров → пины держат позицию
+  await page.setViewportSize({ width: REF_W, height: FRAME_BASE_H });
+  await page.waitForTimeout(140);
+  const before = await measure();
+  await page.evaluate(() => {
+    window.scrollTo(0, 300);
+    [...document.querySelectorAll('body *')]
+      .filter((el) => {
+        const cs = getComputedStyle(el);
+        return (cs.overflowY === 'auto' || cs.overflowY === 'scroll') && el.scrollHeight - el.clientHeight > 40;
+      })
+      .slice(0, 5)
+      .forEach((el) => { el.scrollTop = 300; });
+  });
+  await page.waitForTimeout(280);
+  const after = await measure();
+  const afterMap = new Map(after.pins.map((p) => [p.key, p]));
+  const pinnedDrift = [];
+  for (const b of before.pins) {
+    if (!b.vis) continue;
+    const [, kind, , tv, bv] = b.key.split(':');
+    if (kind === 'chrome' && !manifest.frame.declared) continue; // static-хром обязан стоять только в заявленной рамке
+    if (kind === 'sticky') {
+      const pinnedNow = (tv !== '' && Math.abs(b.top - Number(tv)) <= 4) ||
+        (bv !== '' && Math.abs((FRAME_BASE_H - b.bottom) - Number(bv)) <= 4);
+      if (!pinnedNow) continue; // не дошёл до точки прилипания — уедет легитимно
+    }
+    const a = afterMap.get(b.key);
+    if (!a || !a.vis) { pinnedDrift.push({ key: b.key, gone: true }); continue; }
+    const dTop = a.top - b.top, dLeft = a.left - b.left;
+    if (Math.abs(dTop) > 2 || Math.abs(dLeft) > 2) pinnedDrift.push({ key: b.key, dTop, dLeft });
+  }
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    [...document.querySelectorAll('body *')].forEach((el) => { if (el.scrollTop) el.scrollTop = 0; });
+  });
+  // ниже объявленного minHeight рамки doc-скролл — ожидаемая политика (репорт, не находка)
+  let belowFloorLeakPx = 0;
+  if (manifest.frame.declared && manifest.frame.minHeight) {
+    await page.setViewportSize({ width: REF_W, height: Math.max(320, manifest.frame.minHeight - 110) });
+    await page.waitForTimeout(140);
+    const m = await measure();
+    belowFloorLeakPx = m.doc > 2 ? m.doc : 0;
+  }
+  return { id: id ?? 'default', frameLeak, chromeSqueeze, pinnedDrift, belowFloorLeakPx };
+}
+
+const frameProbes = [];
+for (const id of manifest.ids) {
+  const r = await frameProbe(id);
+  if (r) frameProbes.push(r);
+}
 await browser.close();
 
 const staticF = projectDir ? runStatic(projectDir) : [];
@@ -239,9 +376,14 @@ const allOverflow = sweep.filter((s) => s.overflowPx > 1).map((s) => s.width);
 const overflowWidths = manifest.minWidth ? allOverflow.filter((w) => w >= manifest.minWidth) : allOverflow;
 const overflowBelowFloor = manifest.minWidth ? allOverflow.filter((w) => w < manifest.minWidth) : [];
 
+const frameLeakN = frameProbes.reduce((n, p) => n + p.frameLeak.length, 0);
+const pinnedDriftN = frameProbes.reduce((n, p) => n + p.pinnedDrift.length, 0);
+const chromeSqueezeN = frameProbes.reduce((n, p) => n + p.chromeSqueeze.length, 0);
+const frameBelowFloorN = frameProbes.filter((p) => p.belowFloorLeakPx > 0).length;
+
 const verdict = {
   url, ref_width: REF_W, generated: 'run-gate.mjs',
-  manifest: manifest.declared ? { param: manifest.param, default: manifest.def, declared: manifest.declared, intendedMinWidth: manifest.minWidth } : null,
+  manifest: manifest.declared ? { param: manifest.param, default: manifest.def, declared: manifest.declared, intendedMinWidth: manifest.minWidth, frame: manifest.frame.declared ? manifest.frame : null } : null,
   manifest_error: manifest.error,
   summary: {
     ...summaryOf(def.dom, def.consoleErrors),
@@ -254,7 +396,13 @@ const verdict = {
     scenarios_audited: audits.length,
     scenario_noop: scenarioNoop,
     scenario_unreachable: unreachableScenarios,
+    frame_pass: manifest.frame.declared ? 'declared' : 'off',
+    frame_leak: frameLeakN,
+    pinned_drift: pinnedDriftN,
+    chrome_squeeze: chromeSqueezeN,
+    frame_leak_below_floor: frameBelowFloorN,
   },
+  frame_probes: frameProbes,
   // top-level dom/consoleErrors/screenshot = default scenario (backward-compatible shape)
   dom: def.dom, darkContrast: def.dark, sweep, overflowWidths, static: staticF, consoleErrors: def.consoleErrors, screenshot: def.screenshot,
   scenarios: Object.fromEntries(audits.map((a) => [a.id ?? 'default', {
@@ -280,6 +428,14 @@ if (def.dom.brokenImages.length) console.log('  broken-img:', def.dom.brokenImag
 if (staticF.length) console.log('  static:', staticF.map((f) => `${f.id}@${f.file}:${f.line}`).join(', '));
 console.log('  overflow at:', overflowWidths.join(',') || 'none');
 if (overflowBelowFloor.length) console.log(`  overflow ниже floor ${manifest.minWidth} (объявленная политика, не находка):`, overflowBelowFloor.join(','));
+for (const p of frameProbes) {
+  const bits = [];
+  if (p.frameLeak.length) bits.push('frame_leak:' + p.frameLeak.map((f) => `${f.axis}${f.px}@${f.h}`).join('/'));
+  if (p.pinnedDrift.length) bits.push('pinned_drift:' + p.pinnedDrift.map((d) => `${d.key.split(':')[2]}${d.gone ? '·gone' : `·Δ${d.dTop},${d.dLeft}`}`).join('/'));
+  if (p.chromeSqueeze.length) bits.push('chrome_squeeze:' + p.chromeSqueeze.map((c) => `${c.key.split(':')[2]}·${c.heights.join('→')}`).join('/'));
+  if (bits.length) console.log(`  frame ${p.id}: ${bits.join(' · ')}`);
+}
+if (frameBelowFloorN) console.log(`  frame: doc-скролл ниже minHeight ${manifest.frame.minHeight} на ${frameBelowFloorN} сценариях (объявленная политика, не находка)`);
 console.log('verdict →', `${outDir}/verdict.json`, '· shots →', audits.map((a) => path.basename(a.screenshot)).join(', '));
 if (failOn) {
   const s = verdict.summary;
@@ -287,7 +443,8 @@ if (failOn) {
   const high = s.contrast_invisible + s.contrast_dark_invisible + s.broken_images + s.object_object +
     s.button_icon_leak + s.console_errors + staticHigh + s.scenario_unreachable.length;
   const any = high + s.contrast_poor + s.contrast_dark_poor + s.control_row_mismatch + s.zero_fill_svg +
-    s.empty_slots + s.table_underfill + (staticF.length - staticHigh) + s.overflow_widths + s.scenario_noop.length;
+    s.empty_slots + s.table_underfill + (staticF.length - staticHigh) + s.overflow_widths + s.scenario_noop.length +
+    s.frame_leak + s.pinned_drift + s.chrome_squeeze; // рамка-линии: any-класс до закалки на живых прогонах
   if ((failOn === 'any' && any > 0) || (failOn === 'high' && high > 0)) {
     console.error(`--fail-on=${failOn}: находки есть (any=${any}, high=${high}) → exit 1`);
     process.exit(1);

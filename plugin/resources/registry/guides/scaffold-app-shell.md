@@ -137,9 +137,19 @@ export const scenario = SCENARIOS_ON
   "labels": {"ideal": "1 — данные загружены", "empty": "2 — пусто"},
   // опционально: floor ширины (figma-mapping) — overflow ниже него гейт
   // классифицирует как объявленную политику адаптива, не находку
-  "intendedMinWidth": 1000
+  "intendedMinWidth": 1000,
+  // опционально: app-рамка («вьюпорт-замок», figma-mapping) объявлена машиночитаемо —
+  // гейт проверяет, что документ НЕ скроллится в пределах рамки (frame_leak); ниже
+  // minHeight doc-скролл = объявленная политика, не находка
+  "frame": {"viewport": true, "minHeight": 560}
 }
 ```
+
+**Маркер `data-pinned`** (контракт с гейтом, как `data-proto-panel`): элементы, которые обязаны
+держать позицию при прокрутке, но закреплены НЕ через `position: sticky/fixed` (топбар/панель
+как flex-хром колонки-рамки), помечай атрибутом `data-pinned` — гейт меряет их дрейф при скролле
+и стабильность высоты при низком окне. Sticky/fixed и штатный хром (`ActionBar`/`ActionsPanel`)
+гейт находит сам, маркер для них не нужен.
 
 - id сценариев = контракт состояний паттерна (`pattern-list` / `pattern-dashboard`: empty / loading / error /
   filter-empty; форма: submit-pending / submit-error; многошаговый флоу: step-2 / done — любое состояние,

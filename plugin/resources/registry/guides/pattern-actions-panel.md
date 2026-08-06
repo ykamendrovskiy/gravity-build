@@ -97,7 +97,10 @@ const ListTable = withTableActions<Item, WithTableSelectionProps<Item>>(withTabl
 
 - **fixed top + scrolling body / bounded region** (закреплённая шапка): whole-page-sticky НЕ подходит (скроллит не
   вся страница). Панель — sticky к низу **скролл-области**; тут добавляются клиренс + реальная высота от app-shell
-  (см. «bounded» в граблях). Апгрейд под scroll-модель конкретной сборки.
+  (см. «bounded» в граблях). Апгрейд под scroll-модель конкретной сборки. В колонке-рамке панель — фикс-хром:
+  `flex-shrink: 0` обязателен (вертикальный контракт — `gravity-foundations-layout`); прилипание и высоту панели
+  гейт меряет сам (штатный хром), при кастомном закреплении не-sticky способом — пометь `data-pinned`
+  (`scaffold-app-shell` «Манифест сценариев»).
 
 ## Грабли прилипания (выверено браузером)
 
