@@ -42,13 +42,19 @@
 /plugin marketplace add https://github.com/ykamendrovskiy/gravity-build.git
 ```
 
-Установи плагин:
+Или с зеркала на SourceCraft — это тот же код, удобно там, где GitHub медленный или недоступен:
+
+```text
+/plugin marketplace add https://git.sourcecraft.dev/yk-space/gravity-build.git
+```
+
+Установи плагин (команда одинаковая, с какого бы адреса ни добавлялся marketplace):
 
 ```text
 /plugin install gravity-build@gravity-build
 ```
 
-> **Падает с `git@github.com: Permission denied (publickey)`?** Это локальная SSH-настройка, а не репозиторий — он публичный. Полный `https://…`-URL в команде выше клонирует по HTTPS (авторизация не нужна), минуя SSH.
+> **Падает с `Permission denied (publickey)`?** Это локальная SSH-настройка, а не репозиторий — он публичный. Полный `https://…`-URL в команде выше клонирует по HTTPS (авторизация не нужна), минуя SSH.
 
 ## Использование
 
@@ -137,6 +143,7 @@ http://localhost:5173/?scenario=submit-error
 - Запусти скилл **`/gravity-build:feedback`** — он соберёт структурированный отчёт и даст
   пред-заполненный issue.
 - Или открой [issue вручную](https://github.com/ykamendrovskiy/gravity-build/issues/new?labels=beta-feedback).
+  Трекер один — на GitHub, даже если плагин ставился с SourceCraft-зеркала.
 
 > Репозиторий публичный — не вставляй в отчёты внутренние имена сервисов, URL и доменные данные.
 
