@@ -1,5 +1,6 @@
 // static-checks.mjs — source-pattern lane (pre-render). Catches logic/idiom/API classes
-// that no DOM snapshot sees. High-precision by design: patterns are narrow, deps-gated.
+// that no DOM snapshot sees. High-precision by design: patterns are narrow, deps-gated
+// (plus per-file import gate `fileRe` where the same component name exists in two libs).
 import fs from 'fs';
 import path from 'path';
 
@@ -12,8 +13,10 @@ const PATTERNS = [
     msg: 'Raw alert()/confirm() — destructive confirm = ConfirmDialog, action feedback = toast.' },
   { id: 'R5', sev: 'high', re: /getActionsColumn<[^>]*>\s*\(\s*\{/,
     msg: 'getActionsColumn signature is (columnId, {getRowActions}) — two args.' },
-  { id: 'R7', sev: 'high', dep: '@gravity-ui/table', re: /<Table\b[^>]*\b(width|stickyHeader)=/,
-    msg: '@gravity-ui/table Table has no width/stickyHeader prop (that is uikit DataTable) — use attributes/style.' },
+  { id: 'R7', sev: 'high', dep: '@gravity-ui/table',
+    fileRe: /\{[^}]*\bTable\b[^}]*\}\s*from\s*['"]@gravity-ui\/table['"]/,
+    re: /<Table\b[^>]*\b(width|stickyHeader)=/,
+    msg: '@gravity-ui/table Table has no width/stickyHeader prop (those are uikit Table props) — size via columns/attributes/css.' },
 ];
 
 function walk(dir) {
@@ -38,6 +41,7 @@ export function runStatic(projectDir) {
     const rel = path.relative(projectDir, f);
     for (const p of PATTERNS) {
       if (p.dep && !deps[p.dep]) continue;
+      if (p.fileRe && !p.fileRe.test(txt)) continue;
       const m = txt.match(p.re);
       if (m) {
         const line = txt.slice(0, m.index).split('\n').length;
