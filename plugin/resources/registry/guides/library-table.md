@@ -44,7 +44,7 @@
 - **`Table` не имеет пропа `width`** — это проп uikit `Table` (`width="max"`; компонента `DataTable` в uikit
   НЕ существует) → TS2322 при копировании. Полная ширина здесь —
   `attributes={{style:{width:'100%'}}}`. А вот **`stickyHeader` — ЕСТЬ** (`BaseTable.d.ts`, boolean; ранняя
-  формулировка «нет обоих» была неверна, verified .d.ts @1.15.3).
+  формулировка «нет обоих» была неверна, verified table@1.20.2 .d.ts).
 
 ## Выбор строк — обязательная обвязка (useRowSelectionFixedHandler)
 

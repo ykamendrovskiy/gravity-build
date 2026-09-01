@@ -52,6 +52,7 @@ Route-only либы из `routing[]` (charts / dashkit / aikit / graph / timelin
 - `library-icons` — офлайн-сабсет имён иконок (имя иконки ≠ проп: сверяй там).
 - `AGENTS.md` (companion) — общий fallback при заблокированном фетче.
 
-*Provenance: пути verified 2026-07-02 npm-pack'ом по пинам роутера (uikit 7.42 / components 4.22 / navigation 6.1 /
-table 1.15 / date-components 3.4 / date-utils 2.7 / dynamic-forms 5.18 / markdown-editor 15.41 / icons 2.18 /
-illustrations 2.1 / page-constructor 8.13); README@tag выборочно: uikit Button, components ConfirmDialog, navigation AsideHeader.*
+*Provenance: пути verified 2026-09-01 npm-pack'ом по пинам роутера (uikit 7.48 / components 4.24 / navigation 6.4 /
+table 1.20 / date-components 3.4 / date-utils 2.7 / dynamic-forms 5.23 / markdown-editor 15.46 / icons 2.22 /
+illustrations 2.1 / page-constructor 8.21) — поле `types` и покомпонентные пути сверены у всех 11 пакетов, расхождений нет;
+README@tag выборочно: uikit Button, components ConfirmDialog, navigation AsideHeader (все три отдают 200 на тегах текущих пинов).*

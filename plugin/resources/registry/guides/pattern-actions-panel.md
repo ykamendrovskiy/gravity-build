@@ -141,12 +141,12 @@ useEffect(() => { const el = ref.current; if (!el) return;
 — у КАЖДОГО item и `button` (видимая кнопка), и `dropdown` (overflow; `group?` — группировка в overflow-меню).
 ⚠️ **`ActionsPanelItem` НЕ экспортируется** из `@gravity-ui/uikit` (→ TS2724) — типизируй массив через
 `ActionsPanelProps['actions']` (элемент — `ActionsPanelProps['actions'][number]`). Экспортируются только
-`ActionsPanel` + `ActionsPanelProps`. (verified uikit@7.42 — `build/.../ActionsPanel/index.d.ts`)
+`ActionsPanel` + `ActionsPanelProps`. (verified uikit@7.48 source+tsc — `build/.../ActionsPanel/types.d.ts`)
 `ActionsPanelProps` = `{actions; onClose?; renderNote?; noteClassName?; className?; maxRowActions?}` — `maxRowActions`
 по умолчанию **4**; пропов `open`/`sticky`/`position` НЕТ (видимость и позиционирование — на потребителе).
 Подменю/switcher — НЕ отдельный вид item: задай `dropdown.item.items: [...]` → панель сама отрендерит кнопку как
 `DropdownMenu`-switcher. Кнопки рендерятся как `view="flat-contrast" size="m"` (переопредели в `button.props`).
-Иконка действия — внутри `button.props.children` (отдельного `icon`-слота нет). (verified uikit@7.42 source)
+Иконка действия — внутри `button.props.children` (отдельного `icon`-слота нет). (verified uikit@7.48 source)
 
 ## Дальше
 

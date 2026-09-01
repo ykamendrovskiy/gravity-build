@@ -23,13 +23,13 @@
 | `RadioButton` | `SegmentedRadioGroup` (сегментированный single-choice) или `Radio` + `RadioGroup` (обычные радио) | `RadioButton` в экспортах нет — устаревшее имя |
 | `<Tabs items={[...]} />` (монолит) | `TabProvider` + `TabList` + `Tab` + `TabPanel` (композиция) | старый API, в uikit@7 разнесён на композицию |
 | `TreeSelect` / `TreeList` из корня | `unstable_TreeSelect` / `unstable_TreeList` из `@gravity-ui/uikit/unstable` | в корневом экспорте их нет — только под `./unstable` |
-| `FileDropZone` «нет такого» / самодельная дроп-зона | `unstable_FileDropZone` из `@gravity-ui/uikit/unstable` (`title` / `description` / `buttonText` / `icon` / `accept` / `onUpdate(accepted, rejected)`) | живёт в **`components/lab/`** — листинг верхнего `components/` его НЕ покажет (класс промаха: два наивных агента подряд); смотри и `lab/`, и `unstable.d.ts` (verified uikit@7.44: применён живой сборкой) |
+| `FileDropZone` «нет такого» / самодельная дроп-зона | `unstable_FileDropZone` из `@gravity-ui/uikit/unstable` (`title` / `description` / `buttonText` / `icon` / `accept` / `onUpdate(accepted, rejected)`) | живёт в **`components/lab/`** — листинг верхнего `components/` его НЕ покажет (класс промаха: два наивных агента подряд); смотри и `lab/`, и `unstable.d.ts` (verified uikit@7.48 — папка `components/lab/` + реэкспорт в `unstable.d.ts`; живой сборкой применён @7.44) |
 | `ListItemView` из корня / самодельная строка сайдбара | `unstable_ListItemView` из `@gravity-ui/uikit/unstable` (`import {unstable_ListItemView as ListItemView}`) | готовая строка списка/меню (`content={{title, startSlot}}` + `selected` + `height`) — но только под `./unstable`; рендер-грабли selected — см. «Грабли вёрстки» |
 | `<Grid>` | грид-система = `Row` + `Col` (из layout) | компонента `Grid` нет |
 | индикатор шагов «с нуля» | `Stepper` — он есть, не сочиняй | готовый компонент существует |
 | `<Toaster />` как JSX | класс `new Toaster()` + хук `useToaster()` | setup — в `scaffold-app-shell` |
 | `Badge` / `Chip` / `Tag` / `Pill` | `Label` (тег / чип / статус-метка) | в uikit нет `Badge`; метка-чип = `Label` |
-| `Heading` / `Title` / `<h1>`-компонент | `Text` с `variant` из шкалы типографики (шкала — канон `gravity-foundations-typography`) | отдельного `Heading` нет; `header-3…6` НЕ существуют (verified source@7.44 — `TEXT_VARIANTS`) |
+| `Heading` / `Title` / `<h1>`-компонент | `Text` с `variant` из шкалы типографики (шкала — канон `gravity-foundations-typography`) | отдельного `Heading` нет; `header-3…6` НЕ существуют (verified uikit@7.48 source — `TEXT_VARIANTS`) |
 | `Modal` с пропом `title` | `Dialog` (`Dialog.Header` / `Body` / `Footer`) | `Modal` низкоуровневый (без `title`); диалог с шапкой/футером = `Dialog` |
 | `Table.Head` / `Body` / `Row` / `Cell` (композиц. таблица как в HTML/MUI) | uikit `Table` — `data`/`columns`-driven (`<Table data columns/>`), подкомпонентов НЕТ; группировка/дерево/DnD → `@gravity-ui/table` (см. `registry.json`) | частый рефлекс из HTML/других ДС: uikit Table НЕ композиционный |
 
@@ -43,9 +43,9 @@
 | `TextInput` | пропа `width` НЕТ (это `Select`) → `width="max"` на `TextInput` = TS2322 | полноширинный по умолчанию; нужна ширина — оберни в `<div style={{width}}>` / Flex с шириной |
 | `PlaceholderContainer` | проп `image` **required** (не опционально); голая `Icon` растягивается огромной | дай иллюстрацию из `@gravity-ui/illustrations` — имена + **покраска по темам** в `library-illustrations` |
 | `TextInput` — слот иконки | пропов `leftContent`/`rightContent` НЕТ → TS2322 | слоты `startContent` / `endContent` (полный слот-каталог — `library-icons`) |
-| `Select` — иконка в контроле | у `Select` слота иконки НЕТ вообще (`start/endContent` тоже не существуют → TS2322 excess-prop; verified source@7.44) | кастомный триггер через `renderControl` |
+| `Select` — иконка в контроле | у `Select` слота иконки НЕТ вообще (`start/endContent` тоже не существуют → TS2322 excess-prop; verified uikit@7.48 source+tsc) | кастомный триггер через `renderControl` |
 | `Flex` / `Box` — отступы | нет MUI-стиля `padding`/`margin`-пропов; `gap="md"` не типизируется | `gap={N}` — число из шкалы токенов (шкала и px — канон `gravity-foundations-spacing`); отступы — хелпер `spacing`/`sp` или `style` |
-| uikit `Table` + HOC-стек | `withTableSorting(withTableSelection(withTableActions(Table)))` теряет пропы внутренних обёрток в типах → `getRowActions`/`onSortChange` не видны (TS2322) | у каждого HOC сигнатура `withX<I extends TableDataItem, E extends {} = {}>` — **`I` = тип строки (1-й), `E` = накопленные пропы (2-й)**. Протяни оба снизу вверх: `withTableActions<Data, WithTableSortingProps & WithTableSelectionProps<Data>>(withTableSelection<Data, WithTableSortingProps>(withTableSorting<Data>(Table)))`. **НЕ** `as unknown as` и **НЕ** каст базового `Table` к `ComponentType<TableProps<Data>>` (схлопывает накопленные пропы). NB: `WithTableSortingProps` — не дженерик; `WithTableSelectionProps<I>`/`WithTableActionsProps<I>` — дженерики (verified uikit@7.42 source) |
+| uikit `Table` + HOC-стек | `withTableSorting(withTableSelection(withTableActions(Table)))` теряет пропы внутренних обёрток в типах → `getRowActions`/`onSortChange` не видны (TS2322) | у каждого HOC сигнатура `withX<I extends TableDataItem, E extends {} = {}>` — **`I` = тип строки (1-й), `E` = накопленные пропы (2-й)**. Протяни оба снизу вверх: `withTableActions<Data, WithTableSortingProps & WithTableSelectionProps<Data>>(withTableSelection<Data, WithTableSortingProps>(withTableSorting<Data>(Table)))`. **НЕ** `as unknown as` и **НЕ** каст базового `Table` к `ComponentType<TableProps<Data>>` (схлопывает накопленные пропы). NB: `WithTableSortingProps` — не дженерик; `WithTableSelectionProps<I>`/`WithTableActionsProps<I>` — дженерики (verified uikit@7.48 source) |
 | uikit `Table` колонка — сортировка | проп `sortable` на колонке НЕ существует (рефлекс из MUI/antd) → TS2353 | `withTableSorting` читает `column.meta.sort`: `meta: {sort: true}` (или compare-fn `(a,b) => number`), не `sortable` (verified: uikit source) |
 | uikit `Table` колонка — выравнивание | `align: 'left'`/`'right'` — физические значения **deprecated** (console-warning `[Table] Physical values (left, right) … deprecated`) | логические `align: 'start'`/`'end'` (`'center'` без изменений); числовую колонку правь `align: 'end'` (verified browser: варнинг уходит, колонка остаётся правой) |
 
@@ -86,7 +86,7 @@
 - **Иконка+текст в `Button` — передавай детей МАССИВОМ** `[<Icon data={X} size={16}/>, 'Текст']`, **не Fragment**
   `<><Icon/> Текст</>`. uikit `prepareChildren` детектит иконку только среди **прямых** детей; `React.Children.toArray`
   держит Fragment одним узлом → иконка уходит в `g-button__text` (top-aligned, поверх текста). Массив → иконка в
-  `g-button__icon` (центр + gap). (verified uikit@7.42 source+browser; то же для `button.props.children` в `ActionsPanel`.)
+  `g-button__icon` (центр + gap). (verified uikit@7.48 source — `prepareChildren` в `Button.js`; браузером — @7.42. То же для `button.props.children` в `ActionsPanel`.)
 - **`Button` в ряду с инпутами/селектами — тот же `size`** (обычно `m`): `size="l"`-кнопка рядом с `m`-контролами
   визуально разъезжается по высоте. Размер кнопки — по контексту: в ряду контролов = размер контролов; отдельная
   primary-кнопка формы — по форм-политике (profile).
@@ -107,7 +107,7 @@
   сложности действия (когда подпись короче смысла). Практика universal; formulировки — вкус сервиса (profile).
 - **`Stepper.Item` `id` и `value` — СТРОКАМИ, оба.** Тип `id` схлопывается до `string` (пересечение с Button
   `id?: string` → на числе TS2322), а подсветка текущего шага — строгое `id === value`: числовой `value` при
-  строковом `id` **молча** гасит подсветку (tsc может пройти). verified .d.ts + repro @ uikit 7.43.
+  строковом `id` **молча** гасит подсветку (tsc может пройти). verified .d.ts + repro @ uikit 7.48.
 - **`Stepper` на узких экранах — оборачивай в `overflowX:auto`.** Это непереносящийся горизонтальный
   флекс-`<ol>` (без `flex-wrap`; пропов orientation/wrap/scroll НЕТ — verified .d.ts): 3 текстовых шага =
   интринзик ~450px → на ≤375 бьёт за вьюпорт и тянет весь документ. Канон «скролл внутри виджета»
@@ -117,7 +117,7 @@
 - **Controlled-`DropdownMenu` (`open`+`onOpenToggle`) — в колбэк приходит и ФУНКЦИЯ-апдейтер.** Типы
   обещают `(open: boolean) => void`, но switcher-клик идёт через внутренний toggle
   (`setPopupShown(updater)`), а в controlled-режиме этот сеттер = твой `onOpenToggle` — прилетает
-  `SetStateAction<boolean>` (verified рантаймом + source `usePopupVisibility` @ uikit 7.44). `tsc` молчит,
+  `SetStateAction<boolean>` (verified source `usePopupVisibility` @ uikit 7.48 — тип обещает `(open: boolean) => void`, внутри `setPopupShown(updater)`; рантаймом — @7.44). `tsc` молчит,
   а «значение»-функция в `setState` тихо превращается в toggle. Разворачивай в хендлере:
   `const next = typeof value === 'function' ? value(menuOpen) : value;`.
 - **`ActionTooltip` на switcher'е `DropdownMenu` — гаси при открытом меню: `disabled={menuOpen}`.**
