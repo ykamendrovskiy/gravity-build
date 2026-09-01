@@ -110,7 +110,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 Имя иконки легко сгаллюцинировать. Точный машиночитаемый каталог — **`metadata.json`** в репозитории:
 
 - **Файл:** <https://github.com/gravity-ui/icons/blob/main/metadata.json> (raw: `raw.githubusercontent.com/gravity-ui/icons/main/metadata.json`).
-- Это массив всех иконок (799 @ v2.21); у каждой: `name` (kebab), `style` (`regular` / `fill`), `componentName` (**это и есть имя импорта**, PascalCase), `keywords` (поисковые слова по смыслу — заполнены у ~43%).
+- Это массив всех иконок (799 @ v2.22); у каждой: `name` (kebab), `style` (`regular` / `fill`), `componentName` (**это и есть имя импорта**, PascalCase), `keywords` (поисковые слова по смыслу — заполнены у ~43%).
 - **Как пользоваться:** зафетчи файл и найди иконку по `name`/`keywords` под нужный смысл → импортируй её `componentName`. Пример: ищешь «календарь» → `Calendar`; «удалить» → `CircleXmark` / `CircleMinus`.
 - Многие иконки имеют пару `regular` + `fill` (заливка) — `componentName` у fill-версии оканчивается на `Fill` (напр. `AlarmFill`).
 
@@ -120,7 +120,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 
 ## Офлайн-сабсет частых имён (быстрая проверка без фетча)
 
-Фетч `metadata.json` недоступен — сверь частое имя здесь (verified против metadata @ icons v2.21 — весь сабсет, включая «НЕ существует»-гарды; набор имён 2.21 идентичен 2.20 — дифф пуст). Имени нет в списке → фетч/showcase, **не выдумывай**.
+Фетч `metadata.json` недоступен — сверь частое имя здесь (verified против metadata @ icons v2.22 — весь сабсет, включая «НЕ существует»-гарды; набор имён 2.22 идентичен 2.21 и 2.20 — дифф пуст). Имени нет в списке → фетч/showcase, **не выдумывай**.
 
 **Нулевой шаг — свой установленный пакет (офлайн, точно ТВОЯ версия):** пакет плоский, имя компонента = имя
 файла: `ls node_modules/@gravity-ui/icons | grep -i <тема>` (напр. `grep -i layout` → `LayoutList`,
@@ -130,7 +130,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 - **Действия:** добавить `Plus` (в круге `CirclePlus`) · удалить **`TrashBin`** (НЕ `Trash`) · редактировать `Pencil` · закрыть/× `Xmark` · ок/чек `Check` · искать `Magnifier` · фильтр `Funnel` · обновить `ArrowRotateLeft` · копировать `Copy` · ещё/меню `Ellipsis` (верт. `EllipsisVertical`) · настройки `Gear` · скачать `ArrowDownToLine` · загрузить `ArrowUpFromLine` · сохранить `FloppyDisk`.
 - **Статусы/фидбэк:** инфо `CircleInfo` · предупреждение `TriangleExclamation` · ошибка `CircleXmark` · успех `CircleCheck` · запрет `Ban`.
 - **Инфраструктура (домен):** сервер `Server` · БД `Database` · облако `Cloud` · диск/хранилище `HardDrive` · дисплей/монитор `Display` · CPU `Cpu` · контейнеры/кубы `Cubes3` · питание `Power`.
-- **Раскладка / переключатели вида / сайдбар (verified @2.21, write-back Storage CD):** решётка-меню 9 точек
+- **Раскладка / переключатели вида / сайдбар (verified @2.22, write-back Storage CD):** решётка-меню 9 точек
   `Dots9` (`Squares4` НЕ существует) · вид-список `LayoutList` · вид-плитка `LayoutCells` (крупная
   `LayoutCellsLarge`) · колонки `LayoutColumns` · боковая панель `LayoutSideContent` / `…Left` / `…Right`
   (`…Enabled` НЕ существует) · вкладки `LayoutTabs` · циклы/релизы `Arrows3RotateLeft` · модуль/плагин `Puzzle`
@@ -138,7 +138,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 - **Объекты/нав:** папка `Folder` · файл `File` · пользователь `Person` (мн. `Persons`) · календарь `Calendar` · часы `Clock` · дом `House` · замок `Lock` · ключ `Key` · тег `Tag` · ссылка `Link` · показать `Eye` (скрыть `EyeSlash`) · слайдеры `Sliders`.
 - **Шевроны/стрелки:** раскрытие `ArrowChevronDown` / `…Up` / `…Left` / `…Right`; сортировка `ArrowUpArrowDown`.
 
-NB: у многих есть `*Fill`-версия (заливка) — `componentName` оканчивается на `Fill`. Полный каталог (799 @ v2.21) — `metadata.json` выше.
+NB: у многих есть `*Fill`-версия (заливка) — `componentName` оканчивается на `Fill`. Полный каталог (799 @ v2.22) — `metadata.json` выше.
 
 ## See also
 
