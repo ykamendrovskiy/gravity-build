@@ -52,7 +52,9 @@ Route-only либы из `routing[]` (charts / dashkit / aikit / graph / timelin
 - `library-icons` — офлайн-сабсет имён иконок (имя иконки ≠ проп: сверяй там).
 - `AGENTS.md` (companion) — общий fallback при заблокированном фетче.
 
-*Provenance: пути verified 2026-09-01 npm-pack'ом по пинам роутера (uikit 7.48 / components 4.24 / navigation 6.4 /
-table 1.20 / date-components 3.4 / date-utils 2.7 / dynamic-forms 5.23 / markdown-editor 15.46 / icons 2.22 /
-illustrations 2.1 / page-constructor 8.21) — поле `types` и покомпонентные пути сверены у всех 11 пакетов, расхождений нет;
-README@tag выборочно: uikit Button, components ConfirmDialog, navigation AsideHeader (все три отдают 200 на тегах текущих пинов).*
+*Provenance: пути verified npm-pack'ом по пинам роутера (uikit 7.49 и date-components 4.0 — пересверены 2026-09-03;
+остальные 2026-09-01: components 4.24 / navigation 6.4 / table 1.20 / date-utils 2.7 / dynamic-forms 5.23 /
+markdown-editor 15.46 / icons 2.22 / illustrations 2.1 / page-constructor 8.21) — поле `types` и покомпонентные пути
+сверены у всех 11 пакетов, расхождений нет (date-components 4.0 держит `types`=`dist/cjs/index.d.ts` и компоненты в
+`dist/esm/components/`, плюс с v4 везёт AI-доки в `dist/docs/` — маршрут в `library-dates`); README@tag выборочно:
+uikit Button (200 @ v7.49.0), components ConfirmDialog, navigation AsideHeader (все три отдают 200 на тегах текущих пинов).*

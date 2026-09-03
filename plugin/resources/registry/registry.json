@@ -24,7 +24,7 @@
   ],
 
   "libraries": [
-    { "name": "uikit", "package": "@gravity-ui/uikit", "version": "^7.48.3",
+    { "name": "uikit", "package": "@gravity-ui/uikit", "version": "^7.49.0",
       "docs": { "guide": "guides/library-uikit.md", "upstream": "https://github.com/gravity-ui/uikit/blob/main/AGENTS.md" },
       "summary": "Базовые контролы + guard имён (RadioButton→SegmentedRadioGroup, монолитный Tabs, TreeList из корня, Heading→Text, Badge→Label). Сверяй имя перед импортом; детальный API — upstream AGENTS.md." },
     { "name": "components", "package": "@gravity-ui/components", "version": "^4.24.0",
@@ -56,8 +56,8 @@
       "docs": { "guide": "guides/library-dynamic-forms.md" },
       "bundle": "dynamic-forms",
       "summary": "Формы из JSON-схемы (DynamicField в react-final-form + DynamicView). Ставь bundle (peer final-form/react-final-form). Для формы 5-10 полей — uikit + FormRow (оверкилл)." },
-    { "name": "date-components", "package": "@gravity-ui/date-components", "version": "^3.4.2",
-      "note": "мажор 4.0.0 вышел (2026-08) — НЕ бампаем без валидационного захода; ^3.4.2 = последняя 3.x",
+    { "name": "date-components", "package": "@gravity-ui/date-components", "version": "^4.0.0",
+      "note": "на 4.x с 2026-09-03 после валидационного захода (стенд + Playwright): API-совместимо, мажор чисто поведенческий — invalid-даты вводятся, но не снапаются и НЕ коммитятся через onUpdate (см. library-dates «Грабли контракта»). peer идентичен 3.x (uikit ^7.21 / date-utils ^2.6). 4.0.0 = последняя на npm.",
       "peer": ["@gravity-ui/uikit@^7.42.0", "@gravity-ui/date-utils@^2.7.0"],
       "docs": { "guide": "guides/library-dates.md" },
       "bundle": "dates",
@@ -103,11 +103,11 @@
     { "name": "dates", "title": "Даты и время",
       "when": "Сроутился на дату/время (recipe с дата-полем). Две либы в паре: UI-контрол + value-слой.",
       "packages": [
-        { "package": "@gravity-ui/date-components", "version": "^3.4.2" },
+        { "package": "@gravity-ui/date-components", "version": "^4.0.0" },
         { "package": "@gravity-ui/date-utils", "version": "^2.7.1" }
       ],
       "antiPatterns": [
-        "Выдумывать date-components@^3.5.0 / ^3.6.0 — таких версий нет (последняя 3.x = 3.4.2). Мажор 4.0.0 существует, но мы осознанно на 3.x — см. note в libraries[].",
+        "Выдумывать несуществующие версии date-components — на npm 4.0.0 = последняя (4.0.x / 4.1 ещё нет), а 3.x — прошлый мажор, не откатывай. См. note в libraries[].",
         "date-components без date-utils — date-utils его value-мост (пикеры отдают значения в этом формате)."
       ] },
     { "name": "dynamic-forms", "title": "Формы из JSON-схемы",

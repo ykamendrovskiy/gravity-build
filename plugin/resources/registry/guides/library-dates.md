@@ -1,6 +1,6 @@
 # Каталог: Даты и время (date-components + date-utils)
 
-Две библиотеки в паре. У апстрима нет AI-доков → точный API бери из README / Storybook, имена экспортов сверяй перед использованием.
+Две библиотеки в паре. date-components (v4+) **везёт AI-доки прямо в пакете** — `node_modules/@gravity-ui/date-components/dist/docs/` (`INDEX.md` + `components/<Name>.md`): это source of truth по API, именам экспортов и пропам, сверяй там. date-utils AI-доков не везёт — его API из README / типов.
 
 ## Что → бери
 
@@ -30,7 +30,22 @@ dateTime({input, timeZone});                          // конструктор 
 
 ## date-components (UI)
 
-Готовые контролы дат поверх date-utils: дата-пикеры, календарь, диапазоны, relative-date-пикер. **Точные имена экспортов и пропы — из README / Storybook:** <https://github.com/gravity-ui/date-components> и <https://preview.gravity-ui.com/date-components>. Значения они принимают/отдают в формате `date-utils` — связывай через него, не конвертируй руками.
+Готовые контролы дат поверх date-utils: дата-пикеры, календарь, диапазоны, relative-date-пикер. **Точные имена экспортов и пропы — из шипнутых AI-доков:** `dist/docs/INDEX.md` + `dist/docs/components/<Name>.md` (DateField, DatePicker, Calendar, RangeCalendar, RelativeDateField, RelativeDatePicker); Storybook <https://preview.gravity-ui.com/date-components> — для визуала. Значения они принимают/отдают в формате `date-utils` — связывай через него, не конвертируй руками.
+
+## Грабли контракта
+
+- **Локаль ГРУЗИТСЯ, а не только ставится.** `lang` в `ThemeProvider` задаёт язык, но данные локали
+  надо загрузить: `await settings.loadLocale('ru')` из `@gravity-ui/date-utils` **до** рендера — иначе
+  даты рисуются в дефолтной локали. При переключении языка — грузи до switch; при мультиязычии — прелоад
+  всех нужных локалей на старте. (verified date-components@4.0 dist/docs/INDEX.md + date-utils@2.7 `settings.loadLocale`)
+- **Invalid-даты (v4): displayed молча ≠ value.** С 4.0.0 поле **показывает** невалидную дату (напр. `31.02`)
+  и не снапает её к валидной; но `onUpdate` зовётся **только на валидном значении** → connected value молча
+  остаётся прежним, отображаемый текст с ним расходится. Лови невалид через `validationState="invalid"` +
+  `errorMessage` (out-of-bounds min/max поле само рисует как invalid). Сигнатура: `onUpdate: (value: DateTime | null) => void`.
+  (verified date-components@4.0 — стенд + Playwright, dist/docs/components/DateField.md)
+- **onUpdate только на валидном (v4).** `RelativeDateField`/`DateField` НЕ стреляют `onUpdate` на промежуточных
+  невалидных вводах (набор «now-1d» посимвольно = onUpdate только на «now» и «now-1d») — не вешай на них
+  per-keystroke реакции (лайв-фильтр «по мере ввода»). (verified date-components@4.0 — стенд + Playwright)
 
 ## Интеграция
 
@@ -40,4 +55,4 @@ dateTime({input, timeZone});                          // конструктор 
 ## See also
 
 - `registry.json` — строка «Поля даты/времени» (routing) + версии (`bundles[]` → dates).
-- Апстрим без AI-доков → README / Storybook (этот guide = основной AI-источник).
+- date-components (v4+) везёт AI-доки в пакете (`dist/docs/`) — они source of truth по API; этот guide = курированное поверх (роутинг, грабли контракта, идиомы). date-utils — README / типы.

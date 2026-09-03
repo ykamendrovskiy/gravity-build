@@ -60,7 +60,7 @@ import './theme.css';   // ← .theme.css из профиля, скопиров�
 
 ⚠️ **Вложенный `ThemeProvider` БЕЗ `scoped` не скоупит** — нескоупленный пишет тему-класс в `document.body`
 (глобально, last-wins), а не в поддерево. Для секции всегда `scoped`. Классы темы: `g-root` +
-`g-root_theme_{light,dark,light-hc,dark-hc}`. (verified uikit@7.48 — `src/components/theme/`.)
+`g-root_theme_{light,dark,light-hc,dark-hc}`. (verified uikit@7.49 — `src/components/theme/`.)
 
 ## Создать или отредактировать тему
 
