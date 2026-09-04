@@ -1,31 +1,51 @@
 #!/usr/bin/env node
 // Бутстрап каталога решений: извлекает кандидатов из репо (Next.js pages-router + src/{components,blocks,content,api})
-// и пишет черновик catalog.md (формат — catalog-format.md рядом). Ничего не квалифицирует: фразы «что это» —
+// и пишет папку catalog/ (index.md + карточки; формат — catalog-format.md рядом). Ничего не квалифицирует: фразы «что это» —
 // заготовки по имени/маршруту, их уточняет скилл catalog по коду. Другие фреймворки — пока вручную по формату.
-// usage: node extract-catalog.mjs <repoRoot> [--out <catalog.md>] [--json <candidates.json>]
+// usage:
+//   node extract-catalog.mjs <repoRoot> [--out-dir <repoRoot>/catalog] [--json <candidates.json>]   бутстрап: index.md + карточки
+//   node extract-catalog.mjs --index <catalog/>     пересобрать index.md из карточек (после удаления/правки файлов)
+//   node extract-catalog.mjs --lint <catalog/>      проверить форму: длина строк, код в дереве
 import fs from 'node:fs';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
-// --lint <catalog.md>: проверка формы строк (длина, число граблей на единицу); ничего не пишет
+const CARD_RE = /^- \*\*([^*]+)\*\*/;
+const readCards = (dir) => fs.readdirSync(dir).filter((f) => f.endsWith('.md') && !['index.md', 'README.md'].includes(f)).map((f) => ({file: f, text: fs.readFileSync(path.join(dir, f), 'utf8')}));
+const cardLine = (text) => (text.split('\n').find((l) => CARD_RE.test(l)) || '').trim();
+const cardSection = (text) => ((text.match(/^раздел:\s*(.+)$/m) || [])[1] || 'Прочее').trim();
+const SECTIONS = ['Страницы', 'Каркас', 'Блоки', 'Компоненты', 'Модели контента', 'Источники данных', 'Как принято', 'Вне каталога', 'Прочее'];
+const TITLES = {'Страницы': '## Страницы (по устройству)', 'Каркас': '## Каркас', 'Блоки': '## Блоки', 'Компоненты': '## Компоненты', 'Модели контента': '## Модели контента и данные', 'Источники данных': '## Источники данных', 'Как принято': '## Как принято в репо', 'Вне каталога': '## Вне каталога, но существует', 'Прочее': '## Прочее'};
+const buildIndex = (dir) => {
+  const cards = readCards(dir); const by = {};
+  for (const c of cards) { const sec = cardSection(c.text); (by[sec] = by[sec] || []).push(cardLine(c.text) || `- **${c.file.replace(/\.md$/, '')}** — (строка индекса не найдена в карточке)`); }
+  const out = ['# Каталог решений — индекс (генерируется из карточек; правь карточки, не индекс)', '', 'Что уже есть и из чего собрано. Перед новой страницей сверься: не изобретай новое без необходимости, а если существующее не подходит — скажи почему. Построил новое — добавь карточку.', ''];
+  for (const sec of SECTIONS) if (by[sec]) { out.push(TITLES[sec], ''); for (const l of by[sec]) out.push(l); out.push(''); }
+  return out.join('\n');
+};
+// --index <catalog/>
+if (args[0] === '--index') { const dir = path.resolve(args[1]); fs.writeFileSync(path.join(dir, 'index.md'), buildIndex(dir)); console.log(`index.md пересобран: ${readCards(dir).length} карточек`); process.exit(0); }
+// --lint <catalog/> (или один .md — старый одиночный формат)
 if (args[0] === '--lint') {
-  const file = args[1]; const text = fs.readFileSync(file, 'utf8').split('\n');
-  let unit = null, gotchas = 0, warns = 0;
-  const flushUnit = () => { if (unit && gotchas > 3) { console.log(`WARN ${unit}: граблей ${gotchas} (> 3) — сверни в одну с ссылкой на AUDIT`); warns++; } };
-  text.forEach((line, i) => {
-    const m = line.match(/^- \*\*([^*]+)\*\*/);
-    if (m) { flushUnit(); unit = m[1]; gotchas = 0; }
-    if (/^\s+- грабли:/.test(line)) gotchas += line.split(' · ').length;
-    const textLen = line.replace(/ · код: `[^`]*`/, '').length; // путь к коду длине не вредит — меряем текст
-    if (textLen > 200 && !/^# |^Одна строка|^> /.test(line)) { console.log(`WARN строка ${i + 1} (${textLen} зн. текста): ${line.slice(0, 90)}… — сократи до факта + указателя`); warns++; }
-  });
-  flushUnit();
-  console.log(warns ? `${warns} предупреждений` : 'OK — каталог в форме');
-  process.exit(0);
+  const target = path.resolve(args[1]); let warns = 0; const warn = (m) => { console.log('WARN ' + m); warns++; };
+  const lintLine = (line, where) => { const textLen = line.replace(/ · код: `[^`]*`/, '').length; if (textLen > 200 && !/^# |^Что уже|^> |^Одна строка/.test(line)) warn(`${where}: строка ${textLen} зн. текста — сократи до факта + указателя: ${line.slice(0, 80)}…`); };
+  if (fs.statSync(target).isDirectory()) {
+    const repo = path.dirname(target);
+    for (const c of readCards(target)) {
+      const id = c.file.replace(/\.md$/, '');
+      lintLine(cardLine(c.text), id);
+      const code = (c.text.match(/^код:[ \t]*(.+)$/m) || [])[1];
+      if (code) for (const f of code.split(',').map((x) => x.trim().split(' ')[0].replace(/\/\*$/, '')).filter((x) => /[\/.]/.test(x) && !/[<>\[\]*()]/.test(x))) { if (!fs.existsSync(path.join(repo, f))) warn(`${id}: код не найден в дереве: ${f}`); }
+    }
+    const idx = path.join(target, 'index.md'); if (fs.existsSync(idx)) fs.readFileSync(idx, 'utf8').split('\n').forEach((l, i) => lintLine(l, `index.md:${i + 1}`));
+  } else {
+    fs.readFileSync(target, 'utf8').split('\n').forEach((line, i) => lintLine(line, `строка ${i + 1}`));
+  }
+  console.log(warns ? `${warns} предупреждений` : 'OK — каталог в форме'); process.exit(0);
 }
 const repoRoot = path.resolve(args.find((a) => !a.startsWith('--')) ?? '.');
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const outPath = opt('--out') ?? path.join(repoRoot, 'catalog.md');
+const outDir = opt('--out-dir') ?? path.join(repoRoot, 'catalog');
 const jsonPath = opt('--json');
 
 const exists = (p) => fs.existsSync(path.join(repoRoot, p));
@@ -134,34 +154,24 @@ const priority = candidates.filter((c) =>
   (c.kind === 'data-source' && c.signals?.external && (c.usedBy?.length ?? 0) >= 1)
 ).map((c) => c.id);
 
-// ── Запись каталога ───────────────────────────────────────────────────────────────────────
-const SECTION = {archetype: '## Страницы (по устройству)', wrapper: '## Каркас', block: '## Блоки', component: '## Компоненты', 'content-model': '## Модели контента и данные', 'data-source': '## Источники данных', convention: '## Как принято в репо'};
-const ORDER = ['archetype', 'wrapper', 'block', 'component', 'content-model', 'data-source', 'convention'];
+// ── Запись каталога: папка с карточками + index.md ─────────────────────────────────────────
+const SEC_OF = {archetype: 'Страницы', wrapper: 'Каркас', block: 'Блоки', component: 'Компоненты', 'content-model': 'Модели контента', 'data-source': 'Источники данных', convention: 'Как принято'};
 const prio = new Set(priority);
 const line = (c) => {
   const route = c.route ? `\`${c.route}\` · ` : '';
-  const phrase = c.kind === 'convention' ? (c.rule ?? c.title) : `${c.title}${c.usedBy?.length ? ` (используется: ${c.usedBy.length})` : ''} — уточнить: что это / для какой задачи`;
-  const code = (c.code ?? []).slice(0, 3).join(', ');
-  return `- **${c.id}** — ${route}${phrase} · код: \`${code}\``;
+  const phrase = c.kind === 'convention' ? (c.rule ?? c.title) : `${c.title} — уточнить`;
+  return `- **${c.id}** — ${route}${phrase} · код: \`${(c.code ?? []).slice(0, 3).join(', ')}\``;
 };
-const md = [];
-md.push(`# Каталог решений — ${pkg.name ?? path.basename(repoRoot)} (черновик бутстрапа, ${new Date().toISOString().slice(0, 10)})`, '');
-md.push('Одна строка на единицу: где код · что это · грабли (если наступали). Перед новой страницей сверься с каталогом: что уже есть и как устроено; не изобретай новое без необходимости, а если существующее не подходит — скажи почему. Что построил, что взял отсюда и почему не подошло существующее, на что наступил — допиши сюда.', '');
-md.push('> Черновик скрипта: фразы «уточнить…» заполняются по коду (скилл catalog); разделы «Остальное» — кандидаты, которые можно не индексировать.', '');
-for (const k of ORDER) {
-  const top = candidates.filter((c) => c.kind === k && prio.has(c.id));
-  const rest = candidates.filter((c) => c.kind === k && !prio.has(c.id) && !c.signals?.redirectOnly && !c.signals?.infra);
-  if (!top.length && !rest.length) continue;
-  md.push(SECTION[k], '');
-  for (const c of top) md.push(line(c));
-  if (rest.length) { md.push('', `<details><summary>Остальное (${rest.length})</summary>`, ''); for (const c of rest) md.push(line(c)); md.push('', '</details>'); }
-  md.push('');
+fs.mkdirSync(outDir, {recursive: true});
+let written = 0;
+for (const c of candidates) {
+  if (c.signals?.redirectOnly || c.signals?.infra) continue;
+  if (!prio.has(c.id)) continue; // «Остальное» в карточки не пишем — только в json (кандидаты на квалификацию)
+  const card = [`# ${c.id}`, line(c), `код: ${(c.code ?? []).join(', ')}`, `раздел: ${SEC_OF[c.kind] ?? 'Прочее'}`, 'ссылки:', ''].join('\n');
+  const file = path.join(outDir, `${c.id}.md`); if (!fs.existsSync(file)) { fs.writeFileSync(file, card); written++; }
 }
-md.push('## Вне каталога, но существует', '');
-for (const c of candidates.filter((c) => c.signals?.redirectOnly || c.signals?.infra)) md.push(`- **${c.id}** — \`${c.route}\` · ${c.signals?.redirectOnly ? 'страница-редирект (client-side replace)' : 'служебный маршрут'} · код: \`${c.code.join(', ')}\``);
-md.push('');
-fs.mkdirSync(path.dirname(outPath), {recursive: true});
-fs.writeFileSync(outPath, md.join('\n'));
+const rest = candidates.filter((c) => !prio.has(c.id) && !c.signals?.redirectOnly && !c.signals?.infra);
+fs.writeFileSync(path.join(outDir, 'index.md'), buildIndex(outDir));
 if (jsonPath) fs.writeFileSync(jsonPath, JSON.stringify({candidates, priority}, null, 2) + '\n');
 const byKind = {}; for (const c of candidates) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
-console.log(`кандидатов: ${candidates.length} ${JSON.stringify(byKind)}; в основной список: ${priority.length}; → ${outPath}`);
+console.log(`кандидатов: ${candidates.length} ${JSON.stringify(byKind)}; карточек создано: ${written}; вне основного списка (в --json): ${rest.length}; → ${outDir}`);
