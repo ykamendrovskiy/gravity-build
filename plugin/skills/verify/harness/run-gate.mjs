@@ -198,6 +198,7 @@ function summaryOf(dom, errs) {
     control_row_mismatch: dom.controlRowMismatch.length,
     object_object: dom.objectObject.length,
     button_icon_leak: dom.buttonIconLeak.length,
+    input_icon_inset: (dom.inputIconInset || []).length,
     zero_fill_svg: dom.zeroFillSvg.length,
     empty_slots: dom.emptySlot.length,
     table_underfill: (dom.tableUnderfill || []).length,
@@ -442,7 +443,7 @@ if (failOn) {
   const staticHigh = staticF.filter((f) => f.sev === 'high').length;
   const high = s.contrast_invisible + s.contrast_dark_invisible + s.broken_images + s.object_object +
     s.button_icon_leak + s.console_errors + staticHigh + s.scenario_unreachable.length;
-  const any = high + s.contrast_poor + s.contrast_dark_poor + s.control_row_mismatch + s.zero_fill_svg +
+  const any = high + s.contrast_poor + s.contrast_dark_poor + s.control_row_mismatch + s.input_icon_inset + s.zero_fill_svg +
     s.empty_slots + s.table_underfill + (staticF.length - staticHigh) + s.overflow_widths + s.scenario_noop.length +
     s.frame_leak + s.pinned_drift + s.chrome_squeeze; // рамка-линии: any-класс до закалки на живых прогонах
   if ((failOn === 'any' && any > 0) || (failOn === 'high' && high > 0)) {

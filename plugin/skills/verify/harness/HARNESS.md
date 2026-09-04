@@ -47,6 +47,9 @@ flag-build при этом остаётся честным прод-билдом
 - Находки чини **классами по гайдам registry** (у каждого инварианта есть свой guide-канон: контраст —
   `library-page-constructor`/`gravity-foundations-color`; оверфлоу — reset/скролл-модели; размеры в ряду —
   `library-uikit`; пустые слоты — `library-illustrations`), а не точечными заплатками под чек.
+- `input_icon_inset` — лидирующая иконка в `TextInput` прижата к краю поля (uikit-слот `startContent`
+  тесный by design): чинится обёрткой с левым инсетом по размеру контрола (s/m — `spacing-2`, l/xl —
+  `spacing-3`) и малым зазором до текста — канон `library-icons` «Инсет старт-иконки в инпутах».
 - `scenario_noop` — задекларированный в манифесте сценарий не меняет UI: либо пресеть состояние
   (идиома `FILLED_PRESET` в `scaffold-app-shell`), либо убери id из манифеста.
 - **Рамка и закрепления** (`frame_*`, `pinned_drift`, `chrome_squeeze`): `frame_leak` — документ

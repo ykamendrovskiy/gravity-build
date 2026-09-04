@@ -32,7 +32,7 @@ export function gateDom() {
   function directText(el){ for(var i=0;i<el.childNodes.length;i++){ var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim().length>0) return n.textContent.trim(); } return null; }
   function sel(el){ var s=el.tagName.toLowerCase(); if(el.className&&typeof el.className==='string'){ var c=el.className.split(/\s+/).filter(function(x){return x&&(x.indexOf('g-')===0||x.indexOf('pc-')===0);}).slice(0,2).join('.'); if(c) s+='.'+c; } return s; }
 
-  var out={contrast:[],contrastChecked:0,brokenImages:[],buttonIconLeak:[],controlRowMismatch:[],objectObject:[],zeroFillSvg:[],emptySlot:[],tableUnderfill:[]};
+  var out={contrast:[],contrastChecked:0,brokenImages:[],buttonIconLeak:[],inputIconInset:[],controlRowMismatch:[],objectObject:[],zeroFillSvg:[],emptySlot:[],tableUnderfill:[]};
 
   // contrast (APCA) + literal [object Object] in one pass over text nodes
   var els=document.querySelectorAll('body *');
@@ -50,6 +50,15 @@ export function gateDom() {
 
   // icon+text Button with icon leaked into text slot (Fragment)
   var btns=document.querySelectorAll('.g-button'); for(var k=0;k<btns.length;k++){ var b=btns[k]; if(inProto(b)) continue; if(b.querySelector('svg')&&b.textContent.trim()&&!b.querySelector('[class*="g-button__icon"]')) out.buttonIconLeak.push({text:b.textContent.trim().slice(0,25)}); }
+
+  // leading icon flush to the input edge: uikit startContent slot is tight by design (padding-inline-start 1px) —
+  // canon library-icons «Инсет старт-иконки»: left inset by control size (s/m: 8px, l/xl: 12px), wrapper pads it
+  var inputs=document.querySelectorAll('.g-text-input'); for(var q=0;q<inputs.length;q++){ var inp=inputs[q]; if(inProto(inp)||!visible(inp)) continue;
+    var start=inp.querySelector('.g-text-input__additional-content_placement_start'); if(!start) continue; var ic=start.querySelector('svg'); if(!ic) continue;
+    var ib=inp.getBoundingClientRect(), sb=ic.getBoundingClientRect(); if(!sb.width) continue;
+    var rtl=getComputedStyle(inp).direction==='rtl'; var inset=rtl?Math.round(ib.right-sb.right):Math.round(sb.left-ib.left);
+    var big=/g-text-input_size_(l|xl)\b/.test(inp.className); var need=big?12:8;
+    if(inset<need-2) out.inputIconInset.push({size:big?'l/xl':'s/m',inset:inset,expected:need,placeholder:(inp.querySelector('input')||{}).placeholder||''}); }
 
   // control-row size mismatch (button vs input/select in one row)
   var ctrls=[]; ['.g-button','.g-text-input','.g-select','.g-text-area'].forEach(function(s){ document.querySelectorAll(s).forEach(function(e){ if(inProto(e)||!visible(e)) return;
