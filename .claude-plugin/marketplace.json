@@ -8,7 +8,7 @@
     {
       "name": "gravity-build",
       "source": "./plugin",
-      "description": "Сборка прототипов и приложений «как принято» на настоящих компонентах Gravity UI: knowledge-registry (имена/версии/app-shell/recipes/темизация) + опциональный per-service профиль. Скиллы: сборка, синтез профиля, write-back, feedback."
+      "description": "Сборка прототипов и приложений «как принято» на настоящих компонентах Gravity UI: knowledge-registry (имена/версии/app-shell/recipes/темизация) + опциональный per-service профиль. Скиллы: сборка, проверка, синтез профиля, каталог решений, write-back, feedback."
     }
   ]
 }
