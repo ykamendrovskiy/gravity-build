@@ -42,7 +42,7 @@
 | `Select` — `value` | `value="eu"` строкой — тип не примет / поведение ломается: `value` **ВСЕГДА массив**, даже для single-select | `value={['eu']}` + `onUpdate={([v]) => …}` (деструктурируй первый элемент) |
 | `TextInput` | пропа `width` НЕТ (это `Select`) → `width="max"` на `TextInput` = TS2322 | полноширинный по умолчанию; нужна ширина — оберни в `<div style={{width}}>` / Flex с шириной |
 | `PlaceholderContainer` | проп `image` **required** (не опционально); голая `Icon` растягивается огромной | дай иллюстрацию из `@gravity-ui/illustrations` — имена + **покраска по темам** в `library-illustrations` |
-| `TextInput` — слот иконки | пропов `leftContent`/`rightContent` НЕТ → TS2322 | слоты `startContent` / `endContent` (полный слот-каталог — `library-icons`) |
+| `TextInput` — слот иконки | пропов `leftContent`/`rightContent` НЕТ → TS2322; голая `Icon` в `startContent` прижата к краю (слот тесный by design, `padding-inline-start: 1px`) | слоты `startContent` / `endContent`; **инсет — обёрткой** по размеру контрола (s/m 8px, l/xl 12px) — `library-icons` «Инсет старт-иконки» |
 | `Select` — иконка в контроле | у `Select` слота иконки НЕТ вообще (`start/endContent` тоже не существуют → TS2322 excess-prop; verified uikit@7.49 source+tsc) | кастомный триггер через `renderControl` |
 | `Flex` / `Box` — отступы | нет MUI-стиля `padding`/`margin`-пропов; `gap="md"` не типизируется | `gap={N}` — число из шкалы токенов (шкала и px — канон `gravity-foundations-spacing`); отступы — хелпер `spacing`/`sp` или `style` |
 | uikit `Table` + HOC-стек | `withTableSorting(withTableSelection(withTableActions(Table)))` теряет пропы внутренних обёрток в типах → `getRowActions`/`onSortChange` не видны (TS2322) | у каждого HOC сигнатура `withX<I extends TableDataItem, E extends {} = {}>` — **`I` = тип строки (1-й), `E` = накопленные пропы (2-й)**. Протяни оба снизу вверх: `withTableActions<Data, WithTableSortingProps & WithTableSelectionProps<Data>>(withTableSelection<Data, WithTableSortingProps>(withTableSorting<Data>(Table)))`. **НЕ** `as unknown as` и **НЕ** каст базового `Table` к `ComponentType<TableProps<Data>>` (схлопывает накопленные пропы). NB: `WithTableSortingProps` — не дженерик; `WithTableSelectionProps<I>`/`WithTableActionsProps<I>` — дженерики (verified uikit@7.49 source) |
@@ -168,7 +168,7 @@
 
 - **Выбор строк в таблице ⇒ массовые действия** → `pattern-actions-panel` (панель видна при непустом выборе;
   раскладка sticky / ширина = таблице / компенсирующий отступ + критичная container-width-механика `ActionsPanel`).
-- **Иконка в контроле — слот + размер** → `library-icons` (правильный слот даёт отступы даром; размер — руками
+- **Иконка в контроле — слот + размер + инсет** → `library-icons`: в `Button` слот даёт отступы даром; в `TextInput startContent` — НЕТ (слот тесный by design), инсет обёрткой по размеру контрола; размер иконки — по шкале контрола.
   по шкале контрола).
 - **Форма ⇒ `FormRow`, не инлайн `label=`** → `pattern-form` (раскладка формы) + `library-components` (сам `FormRow`).
 - **Безопасность данных** (деструктив → `Dialog`, guard несохранённого, видимый submit-feedback) →

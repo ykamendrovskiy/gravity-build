@@ -57,11 +57,17 @@ verified гейтом: без обёртки таблица бьёт за 375 н
 ```tsx
 <Flex gap={2} alignItems="center">           {/* gap — число-шкала 1-8, не px/строки */}
   <TextInput value={q} onUpdate={setQ} placeholder="Поиск" hasClear
-             startContent={<Icon data={Magnifier} size={16}/>} />
+             startContent={
+               <span style={{display: 'inline-flex', alignItems: 'center',
+                             paddingInlineStart: 'var(--g-spacing-2)',   // инсет по размеру контрола: s/m — spacing-2, l/xl — spacing-3
+                             paddingInlineEnd: 'var(--g-spacing-1)'}}>
+                 <Icon data={Magnifier} size={16}/>
+               </span>
+             } />
   <Select placeholder="Тип" options={...} />
 </Flex>
 ```
-Иконка поиска — в слот `startContent` (НЕ `leftContent`), размер по контролу — см. library-icons.
+Иконка поиска — в слот `startContent` (НЕ `leftContent`); **слот тесный by design — инсет обёрткой** (s/m `spacing-2`, l/xl `spacing-3`, зазор до текста `spacing-1`), размер по контролу — канон `library-icons` «Инсет старт-иконки в инпутах».
 **Хорошая практика:** у поля поиска — проп `hasClear` (крестик очистки, когда введён текст; verified uikit@7.49).
 
 ### ActionsPanel на выборе строк
