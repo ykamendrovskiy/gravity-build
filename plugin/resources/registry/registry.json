@@ -47,7 +47,7 @@
       "peer": ["@gravity-ui/uikit@^7.42.0"],
       "docs": { "guide": "guides/library-illustrations.md" },
       "summary": "Иллюстрации для пустых/ошибочных состояний (PlaceholderContainer.image, НЕ растянутая иконка). Нужна покраска по темам/бренду через --gil-color-*." },
-    { "name": "page-constructor", "package": "@gravity-ui/page-constructor", "version": "^8.21.1",
+    { "name": "page-constructor", "package": "@gravity-ui/page-constructor", "version": "^8.22.0",
       "peer": ["@gravity-ui/uikit@^7.1.1", "sass", "vite-plugin-node-polyfills"],
       "docs": { "upstream": "https://github.com/gravity-ui/page-constructor/blob/main/AGENTS.md", "guide": "guides/library-page-constructor.md" },
       "summary": "Config-driven лендинг-блоки (PageConstructorProvider). Конфиги блоков — из editor/data/templates/*.json установленного пакета + .d.ts, не угадывай. Нужны Vite-фиксы (~-alias + node-polyfills) + SCSS." },

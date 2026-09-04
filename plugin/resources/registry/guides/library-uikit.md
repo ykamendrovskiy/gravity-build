@@ -130,7 +130,7 @@
   visited/completed-набора, не от сравнения индексов. Механика: `Stepper.Item disabled={!visited[id]}` —
   disabled-Item рендерит disabled-кнопку (не эмитит `onUpdate` + даёт визуальный аффорданс; verified).
 - **uikit `Table` — всегда давай `getRowId` со стабильным id** (`getRowId="id"` / функция): без него строки
-  кеятся индексом (`String(index)` → React `key`; verified Table.js 7.43) → при фильтрации/сортировке React
+  кеятся индексом (`String(index)` → React `key`; verified uikit@7.49 Table.js) → при фильтрации/сортировке React
   переиспользует `<tr>` со сменой содержимого — бледный 1px-разделитель (`--g-color-line-generic`) даёт
   paint-глюк «пропала линия между строками», при этом computed-стили чистые (ловится только глазом; verified repro: фильтр→сброс).
 - **`Checkbox` ВНУТРИ кликабельного `Card type="selection"` — не делай:** событие двоится (toggle срабатывает

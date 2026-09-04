@@ -130,7 +130,7 @@ uikit `startContent`-слот **тесный** — `padding-inline-start: 1px` b
 - **Действия:** добавить `Plus` (в круге `CirclePlus`) · удалить **`TrashBin`** (НЕ `Trash`) · редактировать `Pencil` · закрыть/× `Xmark` · ок/чек `Check` · искать `Magnifier` · фильтр `Funnel` · обновить `ArrowRotateLeft` · копировать `Copy` · ещё/меню `Ellipsis` (верт. `EllipsisVertical`) · настройки `Gear` · скачать `ArrowDownToLine` · загрузить `ArrowUpFromLine` · сохранить `FloppyDisk`.
 - **Статусы/фидбэк:** инфо `CircleInfo` · предупреждение `TriangleExclamation` · ошибка `CircleXmark` · успех `CircleCheck` · запрет `Ban`.
 - **Инфраструктура (домен):** сервер `Server` · БД `Database` · облако `Cloud` · диск/хранилище `HardDrive` · дисплей/монитор `Display` · CPU `Cpu` · контейнеры/кубы `Cubes3` · питание `Power`.
-- **Раскладка / переключатели вида / сайдбар (verified @2.22, write-back Storage CD):** решётка-меню 9 точек
+- **Раскладка / переключатели вида / сайдбар (verified icons@2.22, write-back Storage CD):** решётка-меню 9 точек
   `Dots9` (`Squares4` НЕ существует) · вид-список `LayoutList` · вид-плитка `LayoutCells` (крупная
   `LayoutCellsLarge`) · колонки `LayoutColumns` · боковая панель `LayoutSideContent` / `…Left` / `…Right`
   (`…Enabled` НЕ существует) · вкладки `LayoutTabs` · циклы/релизы `Arrows3RotateLeft` · модуль/плагин `Puzzle`
