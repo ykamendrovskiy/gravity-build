@@ -7,6 +7,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
+// --lint <catalog.md>: проверка формы строк (длина, число граблей на единицу); ничего не пишет
+if (args[0] === '--lint') {
+  const file = args[1]; const text = fs.readFileSync(file, 'utf8').split('\n');
+  let unit = null, gotchas = 0, warns = 0;
+  const flushUnit = () => { if (unit && gotchas > 3) { console.log(`WARN ${unit}: граблей ${gotchas} (> 3) — сверни в одну с ссылкой на AUDIT`); warns++; } };
+  text.forEach((line, i) => {
+    const m = line.match(/^- \*\*([^*]+)\*\*/);
+    if (m) { flushUnit(); unit = m[1]; gotchas = 0; }
+    if (/^\s+- грабли:/.test(line)) gotchas += line.split(' · ').length;
+    if (line.length > 200 && !/^# |^Одна строка/.test(line)) { console.log(`WARN строка ${i + 1} (${line.length} зн.): ${line.slice(0, 90)}… — сократи до факта + указателя`); warns++; }
+  });
+  flushUnit();
+  console.log(warns ? `${warns} предупреждений` : 'OK — каталог в форме');
+  process.exit(0);
+}
 const repoRoot = path.resolve(args.find((a) => !a.startsWith('--')) ?? '.');
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
 const outPath = opt('--out') ?? path.join(repoRoot, 'catalog.md');
