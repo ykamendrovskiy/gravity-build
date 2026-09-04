@@ -16,7 +16,8 @@ if (args[0] === '--lint') {
     const m = line.match(/^- \*\*([^*]+)\*\*/);
     if (m) { flushUnit(); unit = m[1]; gotchas = 0; }
     if (/^\s+- грабли:/.test(line)) gotchas += line.split(' · ').length;
-    if (line.length > 200 && !/^# |^Одна строка/.test(line)) { console.log(`WARN строка ${i + 1} (${line.length} зн.): ${line.slice(0, 90)}… — сократи до факта + указателя`); warns++; }
+    const textLen = line.replace(/ · код: `[^`]*`/, '').length; // путь к коду длине не вредит — меряем текст
+    if (textLen > 200 && !/^# |^Одна строка|^> /.test(line)) { console.log(`WARN строка ${i + 1} (${textLen} зн. текста): ${line.slice(0, 90)}… — сократи до факта + указателя`); warns++; }
   });
   flushUnit();
   console.log(warns ? `${warns} предупреждений` : 'OK — каталог в форме');
