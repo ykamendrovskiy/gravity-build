@@ -1,6 +1,8 @@
 // static-checks.mjs — source-pattern lane (pre-render). Catches logic/idiom/API classes
 // that no DOM snapshot sees. High-precision by design: patterns are narrow, deps-gated
 // (plus per-file import gate `fileRe` where the same component name exists in two libs).
+// runStatic() → { files_scanned, findings } — число просмотренных исходников отдаётся наружу:
+// 0 файлов = «статики не было» (статический HTML, dist), а не «чисто» (schema_version 2).
 import fs from 'fs';
 import path from 'path';
 
@@ -35,8 +37,10 @@ export function runStatic(projectDir) {
   let deps = {};
   try { const pj = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8')); deps = { ...pj.dependencies, ...pj.devDependencies }; } catch {}
   const findings = [];
+  let files_scanned = 0;
   for (const f of walk(projectDir)) {
     if (!/\.(tsx?|jsx?)$/.test(f)) continue;
+    files_scanned++;
     const txt = fs.readFileSync(f, 'utf8');
     const rel = path.relative(projectDir, f);
     for (const p of PATTERNS) {
@@ -64,5 +68,5 @@ export function runStatic(projectDir) {
       }
     }
   }
-  return findings;
+  return { files_scanned, findings };
 }

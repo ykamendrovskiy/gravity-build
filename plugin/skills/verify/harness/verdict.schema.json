@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "gravity-build/verdict.schema.json",
+  "title": "Вердикт самопроверки (run-gate.mjs), schema_version 2",
+  "description": "Три независимых признака: valid (запуск состоялся), complete (все запрошенные и применимые проверки выполнены), находки (summary). Exit-коды: 0 — чисто/ниже порога; 1 — находки достигли порога --fail-on; 2 — ошибка вызова; 3 — невалидный запуск (valid=false), независимо от --fail-on; 4 — покрытие неполное при --strict. Ячейка coverage: 'done' | {skipped: <причина>} | 'out_of_scope' | {out_of_scope: <причина>}; complete=false ⇔ есть хоть одна ячейка skipped.",
+  "type": "object",
+  "required": ["schema_version", "generated", "mode", "valid", "complete", "coverage", "summary", "static"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "generated": { "const": "run-gate.mjs" },
+    "mode": { "enum": ["full", "static-only"] },
+    "reason": { "type": ["string", "null"], "description": "static-only: почему без браузера" },
+    "url": { "type": ["string", "null"] },
+    "ref_width": { "type": "integer" },
+    "valid": { "type": "boolean" },
+    "invalid_reason": {
+      "type": ["string", "null"],
+      "enum": [null, "project_dir_missing", "manifest_error", "page_unreachable", "blank_document", "no_visible_content", "ready_selector_not_found"]
+    },
+    "complete": { "type": "boolean" },
+    "incomplete_reasons": { "type": "array", "items": { "type": "string" }, "description": "«<сценарий>.<ячейка>: <причина>» для каждой skipped-ячейки" },
+    "manifest": { "type": ["object", "null"] },
+    "manifest_error": { "type": ["string", "null"] },
+    "coverage": {
+      "type": "object",
+      "required": ["scenarios", "widths", "themes_observed", "theme_restore", "static"],
+      "properties": {
+        "scenarios": {
+          "type": "object",
+          "description": "Матрица: сценарий → ячейки. Ключ анонимного сценария — 'default'.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["dom", "console", "contrast", "contrast_dark", "widths", "frame", "screenshot"],
+            "additionalProperties": { "$ref": "#/definitions/cell" }
+          }
+        },
+        "widths": { "type": "array", "items": { "type": "integer" }, "description": "Сетка ширин свипа (пусто в static-only)" },
+        "themes_observed": { "type": "array", "items": { "type": "string" }, "description": "Темы по классу .g-root, как наблюдались (light/dark/light-hc/dark-hc/unknown); ничего не назначается" },
+        "theme_restore": { "enum": ["ok", "mismatch", "n/a"], "description": "Классы .g-root после тёмного прохода равны исходным (n/a — свапа не было)" },
+        "static": { "$ref": "#/definitions/cell" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "Агрегат по всем реально проверенным сценариям (DOM + console суммируются; dark — дефолтный сценарий; overflow_widths — число пар сценарий×ширина)",
+      "properties": {
+        "contrast_invisible": { "type": "integer" }, "contrast_poor": { "type": "integer" },
+        "broken_images": { "type": "integer" }, "control_row_mismatch": { "type": "integer" },
+        "object_object": { "type": "integer" }, "button_icon_leak": { "type": "integer" },
+        "input_icon_inset": { "type": "integer" }, "zero_fill_svg": { "type": "integer" },
+        "empty_slots": { "type": "integer" }, "table_underfill": { "type": "integer" },
+        "console_errors": { "type": "integer" },
+        "contrast_dark_invisible": { "type": "integer" }, "contrast_dark_poor": { "type": "integer" },
+        "dark_pass": { "enum": ["done", "skipped_no_g_root", "same_as_initial", "off"] },
+        "static_findings": { "type": "integer" },
+        "overflow_widths": { "type": "integer" }, "overflow_below_floor": { "type": "integer" },
+        "scenarios_audited": { "type": "integer" },
+        "scenario_noop": { "type": "array", "items": { "type": "string" } },
+        "scenario_unreachable": { "type": "array", "items": { "type": "string" } },
+        "frame_pass": { "enum": ["declared", "off"] },
+        "frame_leak": { "type": "integer" }, "pinned_drift": { "type": "integer" }, "chrome_squeeze": { "type": "integer" }, "frame_leak_below_floor": { "type": "integer" }
+      }
+    },
+    "default_summary": { "type": "object", "description": "Те же счётчики только по дефолтному сценарию (для сравнения с агрегатом)" },
+    "static": {
+      "type": "object",
+      "required": ["files_scanned", "skipped_reason", "findings"],
+      "properties": {
+        "files_scanned": { "type": "integer" },
+        "skipped_reason": { "type": ["string", "null"], "enum": [null, "no_sources"] },
+        "findings": { "type": "array", "items": { "type": "object", "required": ["id", "sev", "file", "line", "msg"] } }
+      }
+    },
+    "overflowWidths": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "integer" } }, "description": "сценарий → ширины с горизонтальным оверфлоу (≥ floor)" },
+    "scenarios": { "type": "object", "description": "Полные данные по сценариям: summary, dom, consoleErrors, screenshot, bodySig, sweep" },
+    "frame_probes": { "type": "array" },
+    "dom": { "type": "object" }, "darkContrast": {}, "consoleErrors": { "type": "array" }, "screenshot": { "type": "string" }
+  },
+  "definitions": {
+    "cell": {
+      "oneOf": [
+        { "enum": ["done", "out_of_scope"] },
+        { "type": "object", "required": ["skipped"], "properties": { "skipped": { "type": "string" } }, "additionalProperties": false },
+        { "type": "object", "required": ["out_of_scope"], "properties": { "out_of_scope": { "type": "string" } }, "additionalProperties": false }
+      ]
+    }
+  }
+}

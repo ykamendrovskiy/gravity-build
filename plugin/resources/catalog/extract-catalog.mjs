@@ -5,7 +5,8 @@
 // usage:
 //   node extract-catalog.mjs <repoRoot> [--out-dir <repoRoot>/catalog] [--json <candidates.json>]   бутстрап: index.md + карточки
 //   node extract-catalog.mjs --index <catalog/>     пересобрать index.md из карточек (после удаления/правки файлов)
-//   node extract-catalog.mjs --lint <catalog/>      проверить форму: длина строк, код в дереве
+//   node extract-catalog.mjs --lint <catalog/>      проверить форму: длина строк, код в дереве, разделы, свежесть index.md
+//   node extract-catalog.mjs --from-legacy <catalog.md> [--out-dir <catalog/>]   перенос старого одиночного файла в карточки (текст строк сохраняется)
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -13,12 +14,14 @@ const args = process.argv.slice(2);
 const CARD_RE = /^- \*\*([^*]+)\*\*/;
 const readCards = (dir) => fs.readdirSync(dir).filter((f) => f.endsWith('.md') && !['index.md', 'README.md'].includes(f)).map((f) => ({file: f, text: fs.readFileSync(path.join(dir, f), 'utf8')}));
 const cardLine = (text) => (text.split('\n').find((l) => CARD_RE.test(l)) || '').trim();
-const cardSection = (text) => ((text.match(/^раздел:\s*(.+)$/m) || [])[1] || 'Прочее').trim();
+const cardSectionRaw = (text) => ((text.match(/^раздел:\s*(.+)$/m) || [])[1] || 'Прочее').trim();
 const SECTIONS = ['Страницы', 'Каркас', 'Блоки', 'Компоненты', 'Модели контента', 'Источники данных', 'Как принято', 'Вне каталога', 'Прочее'];
+// раздел не из формата → карточка НЕ теряется: попадает в «Прочее», о чём говорится вслух (T6, аудит 2026-09-05)
+const cardSection = (text, file) => { const raw = cardSectionRaw(text); if (SECTIONS.includes(raw)) return raw; console.error(`WARN ${file}: раздел «${raw}» не из формата (${SECTIONS.slice(0, -1).join(' | ')}) — помещён в «Прочее»`); return 'Прочее'; };
 const TITLES = {'Страницы': '## Страницы (по устройству)', 'Каркас': '## Каркас', 'Блоки': '## Блоки', 'Компоненты': '## Компоненты', 'Модели контента': '## Модели контента и данные', 'Источники данных': '## Источники данных', 'Как принято': '## Как принято в репо', 'Вне каталога': '## Вне каталога, но существует', 'Прочее': '## Прочее'};
 const buildIndex = (dir) => {
   const cards = readCards(dir); const by = {};
-  for (const c of cards) { const sec = cardSection(c.text); (by[sec] = by[sec] || []).push(cardLine(c.text) || `- **${c.file.replace(/\.md$/, '')}** — (строка индекса не найдена в карточке)`); }
+  for (const c of cards) { const sec = cardSection(c.text, c.file); (by[sec] = by[sec] || []).push(cardLine(c.text) || `- **${c.file.replace(/\.md$/, '')}** — (строка индекса не найдена в карточке)`); }
   const out = ['# Каталог решений — индекс (генерируется из карточек; правь карточки, не индекс)', '', 'Что уже есть и из чего собрано. Перед новой страницей сверься: не изобретай новое без необходимости, а если существующее не подходит — скажи почему. Построил новое — добавь карточку.', ''];
   for (const sec of SECTIONS) if (by[sec]) { out.push(TITLES[sec], ''); for (const l of by[sec]) out.push(l); out.push(''); }
   return out.join('\n');
@@ -34,14 +37,43 @@ if (args[0] === '--lint') {
     for (const c of readCards(target)) {
       const id = c.file.replace(/\.md$/, '');
       lintLine(cardLine(c.text), id);
+      const rawSec = cardSectionRaw(c.text); if (!SECTIONS.includes(rawSec)) warn(`${id}: раздел «${rawSec}» не из формата — в индексе окажется в «Прочее»`);
+      if (!cardLine(c.text)) warn(`${id}: строка индекса (- **id** — …) в карточке не найдена`);
       const code = (c.text.match(/^код:[ \t]*(.+)$/m) || [])[1];
       if (code) for (const f of code.split(',').map((x) => x.trim().split(' ')[0].replace(/\/\*$/, '')).filter((x) => /[\/.]/.test(x) && !/[<>\[\]*()]/.test(x))) { if (!fs.existsSync(path.join(repo, f))) warn(`${id}: код не найден в дереве: ${f}`); }
     }
-    const idx = path.join(target, 'index.md'); if (fs.existsSync(idx)) fs.readFileSync(idx, 'utf8').split('\n').forEach((l, i) => lintLine(l, `index.md:${i + 1}`));
+    const idx = path.join(target, 'index.md');
+    if (fs.existsSync(idx)) {
+      fs.readFileSync(idx, 'utf8').split('\n').forEach((l, i) => lintLine(l, `index.md:${i + 1}`));
+      // свежесть: индекс = функция карточек; расхождение = карточка не представлена или строка изменена
+      const origErr = console.error; console.error = () => {}; const fresh = buildIndex(target); console.error = origErr;
+      if (fresh !== fs.readFileSync(idx, 'utf8')) warn('index.md не совпадает с карточками — пересобери: --index ' + path.basename(target) + '/');
+    } else warn('index.md отсутствует — пересобери: --index');
   } else {
     fs.readFileSync(target, 'utf8').split('\n').forEach((line, i) => lintLine(line, `строка ${i + 1}`));
   }
   console.log(warns ? `${warns} предупреждений` : 'OK — каталог в форме'); process.exit(0);
+}
+// --from-legacy <catalog.md>: старый одиночный файл (v0.6.0-черновик) → карточки; строки пользователя сохраняются verbatim,
+// раздел — по заголовку «## …» исходника, файл не удаляется (решает пользователь).
+if (args[0] === '--from-legacy') {
+  const legacy = path.resolve(args[1]);
+  const oi = args.indexOf('--out-dir'); const dir = path.resolve(oi >= 0 ? args[oi + 1] : path.join(path.dirname(legacy), 'catalog'));
+  const secOf = (h) => SECTIONS.find((s) => h.toLowerCase().startsWith(s.toLowerCase())) || (/^модел/i.test(h) ? 'Модели контента' : /^источник/i.test(h) ? 'Источники данных' : /^как принято/i.test(h) ? 'Как принято' : /^вне каталога/i.test(h) ? 'Вне каталога' : 'Прочее');
+  fs.mkdirSync(dir, {recursive: true});
+  let sec = 'Прочее', made = 0, kept = 0;
+  for (const line of fs.readFileSync(legacy, 'utf8').split('\n')) {
+    const h = line.match(/^##\s+(.+)$/); if (h) { sec = secOf(h[1].trim()); continue; }
+    const m = line.match(CARD_RE); if (!m) continue;
+    const id = m[1].trim().replace(/[^\wа-яё-]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
+    const code = (line.match(/код:\s*`([^`]*)`/) || [])[1] || '';
+    const file = path.join(dir, `${id}.md`);
+    if (fs.existsSync(file)) { kept++; continue; }
+    fs.writeFileSync(file, [`# ${id}`, line.trim(), `код: ${code}`, `раздел: ${sec}`, 'ссылки:', ''].join('\n')); made++;
+  }
+  fs.writeFileSync(path.join(dir, 'index.md'), buildIndex(dir));
+  console.log(`перенос из ${path.basename(legacy)}: карточек создано ${made}, уже были ${kept} → ${dir}; исходный файл не удалён — проверь index.md и убери ${path.basename(legacy)} сам`);
+  process.exit(0);
 }
 const repoRoot = path.resolve(args.find((a) => !a.startsWith('--')) ?? '.');
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
@@ -62,7 +94,8 @@ const pages = walk('src/pages').filter((f) => /\.tsx$/.test(f) && !/\/_(app|docu
 const pageInfo = [];
 for (const f of pages) {
   const src = read(f);
-  const route = '/' + rel(f).replace(/^src\/pages\//, '').replace(/\/index\.tsx$|\.tsx$/, '');
+  // корневой src/pages/index.tsx — маршрут '/', не '/index' (T6, аудит 2026-09-05)
+  const route = ('/' + rel(f).replace(/^src\/pages\//, '').replace(/\.tsx$/, '').replace(/(^|\/)index$/, '$1')).replace(/(.)\/$/, '$1');
   const imports = [...src.matchAll(/import\s+(?:\{([^}]+)\}|(\w+))\s+from\s+'([^']+)'/g)]
     .map((m) => ({names: (m[1] ?? m[2]).split(',').map((s) => s.trim().split(' as ').pop()).filter(Boolean), from: m[3]}));
   const localComps = imports.filter((i) => /components|blocks/.test(i.from)).flatMap((i) => i.names.map((n) => ({n, from: i.from})));
@@ -131,7 +164,9 @@ if (walk('src/components').some((f) => f.endsWith('.scss'))) add({id: 'conv-styl
 const exampleDirs = walk('src/content').filter((f) => /examples\/components\/.*\.tsx$/.test(f));
 if (exampleDirs.length) add({id: 'conv-live-examples', kind: 'convention', title: 'Живые примеры для документации', code: [rel(path.dirname(exampleDirs[0])) + '/'], rule: `Примеры — файлы *Example.tsx в ${rel(path.dirname(exampleDirs[0]))} (${exampleDirs.length} шт.)`, where: ['src/content/**/examples/components/**'], signals: {}});
 const nextCfg = exists('next.config.js') ? read('next.config.js') : '';
-add({id: 'conv-routing', kind: 'convention', title: 'Маршрутизация и переезды адресов', code: ['next.config.js', exists('src/middleware.ts') ? 'src/middleware.ts' : ''].filter(Boolean), rule: `redirects() в next.config.js: ${/redirects\s*\(/.test(nextCfg) ? 'есть' : 'нет'}; middleware: ${exists('src/middleware.ts') ? 'есть' : 'нет'}`, where: ['next.config.js'], signals: {}});
+// ссылки только на существующие файлы (ревью Codex v0.6.1: конфиг не выдумываем)
+const routingFiles = ['next.config.js', 'src/middleware.ts'].filter((f) => exists(f));
+if (routingFiles.length) add({id: 'conv-routing', kind: 'convention', title: 'Маршрутизация и переезды адресов', code: routingFiles, rule: `${exists('next.config.js') ? `redirects() в next.config.js: ${/redirects\s*\(/.test(nextCfg) ? 'есть' : 'нет'}; ` : ''}middleware: ${exists('src/middleware.ts') ? 'есть' : 'нет'}`, where: routingFiles, signals: {}});
 
 // ── 7. usedBy по импортам (упрощённая версия validate-kit) + приоритет ──────────────────────
 const srcFiles = walk('src').filter((f) => /\.(tsx?|mdx?)$/.test(f));
