@@ -58,7 +58,7 @@
     {
       "name": "navigation",
       "package": "@gravity-ui/navigation",
-      "version": "^6.4.2",
+      "version": "^6.5.0",
       "peer": [
         "@gravity-ui/uikit@^7.42.0"
       ],
@@ -104,7 +104,7 @@
     {
       "name": "page-constructor",
       "package": "@gravity-ui/page-constructor",
-      "version": "^8.22.0",
+      "version": "^8.23.0",
       "peer": [
         "@gravity-ui/uikit@^7.1.1",
         "sass",

@@ -19,8 +19,9 @@
 // scenario (?<param>=<id>). Опциональный `ready` (селектор) в манифесте — явный контракт готовности.
 // NB: the served build must have the scenario switch alive — `VITE_SCENARIOS=1 npm run build`
 // (plain build tree-shakes the dev-gated switch → every scenario would be a noop).
-// Graceful degradation: playwright недоступен → автоматический static-only (complete=false, браузерные
-// ячейки coverage = skipped; с --strict → exit 4).
+// Playwright: проект → GRAVITY_GATE_PLAYWRIGHT → рядом с харнесом → глобальные пакеты npm (одна установка
+//   на машину закрывает все временные проекты). Graceful degradation: playwright недоступен → автоматический
+//   static-only (complete=false, браузерные ячейки coverage = skipped; с --strict → exit 4).
 // Emits <outDir>/verdict.json and a console summary.
 import { runStatic } from './static-checks.mjs';
 import { gateDom, gateLayout } from './gate.mjs';
@@ -117,14 +118,33 @@ const manifest = readManifest(projectAbs);
 if (manifest.error) invalidExit('manifest_error', { manifest_error: manifest.error });
 
 if (!staticOnlyFlag) {
-  // резолвим playwright СНАЧАЛА от проверяемого проекта (харнес может лежать в плагине без своих node_modules)
-  try {
-    const { createRequire } = await import('module');
-    const req = createRequire(path.join(projectAbs, 'package.json'));
-    ({ chromium } = req('playwright'));
-  } catch {}
-  if (!chromium) { try { ({ chromium } = await import('playwright')); } catch {} }
-  if (!chromium) console.error('⚠ playwright недоступен → деградация в static-only (полная проверка: npm i -D playwright && npx playwright install chromium)');
+  // Playwright ищем цепочкой: проверяемый проект → GRAVITY_GATE_PLAYWRIGHT (папка проекта / node_modules /
+  // сам пакет) → рядом с харнесом → глобальные пакеты npm (npm_config_prefix, затем `npm root -g`).
+  // Одна установка на машину (`npm i -g playwright && playwright install chromium`) закрывает все
+  // временные проекты тестера; проектная установка по-прежнему в приоритете.
+  const { createRequire } = await import('module');
+  const tryFrom = (dir) => { try { return createRequire(path.join(dir, 'package.json'))('playwright'); } catch { return null; } };
+  const globalRoots = async () => {
+    const roots = [];
+    const prefix = process.env.npm_config_prefix;
+    if (prefix) roots.push(process.platform === 'win32' ? path.join(prefix, 'node_modules') : path.join(prefix, 'lib', 'node_modules'));
+    try {
+      const { execSync } = await import('child_process');
+      roots.push(execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 15000 }).trim());
+    } catch {}
+    return roots.filter(Boolean);
+  };
+  const candidates = [
+    ['project', () => tryFrom(projectAbs)],
+    ['GRAVITY_GATE_PLAYWRIGHT', () => (process.env.GRAVITY_GATE_PLAYWRIGHT ? tryFrom(path.resolve(process.env.GRAVITY_GATE_PLAYWRIGHT)) : null)],
+    ['harness', async () => { try { return await import('playwright'); } catch { return null; } }],
+    ['global npm', async () => { for (const r of await globalRoots()) { const m = tryFrom(r); if (m) return m; } return null; }],
+  ];
+  for (const [source, get] of candidates) {
+    const mod = await get();
+    if (mod && mod.chromium) { ({ chromium } = mod); if (source !== 'project') console.error(`· playwright: ${source}`); break; }
+  }
+  if (!chromium) console.error('⚠ playwright недоступен → деградация в static-only. Полная проверка: один раз на машину `npm i -g playwright && playwright install chromium` (гейт найдёт сам), либо в проект `npm i -D playwright && npx playwright install chromium`, либо путь к установке в GRAVITY_GATE_PLAYWRIGHT');
 }
 
 const st = runStatic(projectAbs);

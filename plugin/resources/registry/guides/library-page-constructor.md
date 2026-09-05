@@ -48,7 +48,7 @@ Sub-блоки (`card-layout`/`slider` `children` — любой sub-блок): 
 - **Выделение плана:** флага `popular`/`highlighted` у pricing-сабблоков НЕТ. У `PriceCard` `theme`
   (`'default'|'light'|'dark'`) красит **только текст** (в `PriceCard.css` нет `background` на `_theme_`); поверхность —
   отдельный проп `backgroundColor`. Значит `theme:'dark'` **в одиночку = белый текст на прозрачном → невидимо**
-  (verified browser PC 8.13 + source page-constructor@8.22: в `PriceCard.css` под `_theme_dark`/`_theme_light`
+  (verified browser PC 8.13 + source page-constructor@8.23: в `PriceCard.css` под `_theme_dark`/`_theme_light`
   только `color`, фон — отдельный элемент `__background` от `backgroundColor`). Выделяй: `border: 'line'` (рамка, безопасно; тип `CardBorder` =
   `'shadow'|'line'|'none'` — НЕ boolean, `border: true` не примется типом; verified .d.ts) ЛИБО тёмный
   `backgroundColor` **+ парный** `theme:'dark'` (тёмный фон + белый текст, verified) / светлый `backgroundColor` +
