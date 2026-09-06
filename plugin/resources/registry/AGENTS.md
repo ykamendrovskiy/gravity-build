@@ -10,6 +10,8 @@ interface-foundations → recipe → gravity-foundations → libraries. Марш
 **Вход — Figma-макет** (ссылка/fileKey/node-id)? Перед всем остальным — `guides/figma-mapping.md`
 (source-intake: протокол чтения канала, карта имён кита, политика фиделити «макет = что строить,
 registry = как»); выход переноса включает конфликт-отчёт.
+**Выход — Figma-макет** («положи прототип в Figma», «обнови макет по коду») — `guides/figma-reverse.md`
+(source-out: устройство кита ↔ код, откуда ключи, принципы, самопроверка и отчёт переноса).
 
 **Если прямой фетч upstream заблокирован** (WebFetch / gh недоступны) — **первый офлайн-путь: типы уже
 установленного пакета** (`package.json → types`, co-located `.d.ts` — маршрут в `guides/reference-props.md`);
