@@ -20,7 +20,7 @@ import {NotFound, NoSearchResults, InternalError, AccessDenied} from '@gravity-u
 <PlaceholderContainer image={<NotFound />} title="Здесь пока пусто" actions={[{text: 'Добавить', onClick}]} />
 ```
 
-## Имена (verified, v2.1) — под UI-Stack-состояния
+## Имена (verified illustrations@2.1.1 — 21/21 экспортов пакета) — под UI-Stack-состояния
 
 - пусто / первый запуск → `NotFound` / `UnableToDisplay` (или **доменная**: `Folder` / `Project` / `Database` / `Disk` / `Network` / `Bucket`)
 - нет результатов фильтра → `NoSearchResults`

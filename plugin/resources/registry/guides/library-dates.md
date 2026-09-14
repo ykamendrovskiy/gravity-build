@@ -37,15 +37,16 @@ dateTime({input, timeZone});                          // конструктор 
 - **Локаль ГРУЗИТСЯ, а не только ставится.** `lang` в `ThemeProvider` задаёт язык, но данные локали
   надо загрузить: `await settings.loadLocale('ru')` из `@gravity-ui/date-utils` **до** рендера — иначе
   даты рисуются в дефолтной локали. При переключении языка — грузи до switch; при мультиязычии — прелоад
-  всех нужных локалей на старте. (verified date-components@4.0 dist/docs/INDEX.md + date-utils@2.7 `settings.loadLocale`)
+  всех нужных локалей на старте. (verified date-components@4.1 dist/docs/INDEX.md + date-utils@2.7 `settings.loadLocale`)
 - **Invalid-даты (v4): displayed молча ≠ value.** С 4.0.0 поле **показывает** невалидную дату (напр. `31.02`)
   и не снапает её к валидной; но `onUpdate` зовётся **только на валидном значении** → connected value молча
   остаётся прежним, отображаемый текст с ним расходится. Лови невалид через `validationState="invalid"` +
   `errorMessage` (out-of-bounds min/max поле само рисует как invalid). Сигнатура: `onUpdate: (value: DateTime | null) => void`.
-  (verified date-components@4.0 — стенд + Playwright, dist/docs/components/DateField.md)
+  (verified date-components@4.1 — стенд + Playwright на 4.0 + dist/docs/components/DateField.md; дельта 4.0→4.1 трогает
+  только `RelativeRangeDatePicker`)
 - **onUpdate только на валидном (v4).** `RelativeDateField`/`DateField` НЕ стреляют `onUpdate` на промежуточных
   невалидных вводах (набор «now-1d» посимвольно = onUpdate только на «now» и «now-1d») — не вешай на них
-  per-keystroke реакции (лайв-фильтр «по мере ввода»). (verified date-components@4.0 — стенд + Playwright)
+  per-keystroke реакции (лайв-фильтр «по мере ввода»). (verified date-components@4.1 — стенд + Playwright на 4.0, код полей в 4.1 не менялся)
 
 ## Интеграция
 

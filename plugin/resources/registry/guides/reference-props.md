@@ -52,11 +52,12 @@ Route-only либы из `routing[]` (charts / dashkit / aikit / graph / timelin
 - `library-icons` — офлайн-сабсет имён иконок (имя иконки ≠ проп: сверяй там).
 - `AGENTS.md` (companion) — общий fallback при заблокированном фетче.
 
-*Provenance: пути verified npm-pack'ом по пинам роутера (page-constructor 8.23 и navigation 6.5 — пересверены
-2026-09-05; uikit 7.49 и date-components 4.0 — 2026-09-03; остальные 2026-09-01: components 4.24 / table 1.20 /
-date-utils 2.7 / dynamic-forms 5.23 / markdown-editor 15.46 / icons 2.22 / illustrations 2.1) — поле `types` и
-покомпонентные пути сверены у всех 11 пакетов, расхождений нет (date-components 4.0 держит `types`=`dist/cjs/index.d.ts`
-и компоненты в `dist/esm/components/`, плюс с v4 везёт AI-доки в `dist/docs/` — маршрут в `library-dates`;
-page-constructor 8.23 держит `types`=`build/cjs/index.d.ts`); README@tag выборочно: uikit Button (200 @ v7.49.0),
-page-constructor (200 @ v8.23.0), navigation AsideHeader (200 @ v6.5.0), components ConfirmDialog — все отдают 200 на
-тегах текущих пинов.*
+*Provenance: пути verified npm-pack'ом по пинам роутера (navigation 6.6 / table 1.21 / date-components 4.1 /
+dynamic-forms 5.29 / page-constructor 8.23.2 — пересверены 2026-09-14; uikit 7.49 — 2026-09-03; остальные
+2026-09-01: components 4.24 / date-utils 2.7 / markdown-editor 15.46 / icons 2.22 / illustrations 2.1) — поле `types`
+и покомпонентные пути сверены у всех 11 пакетов, расхождений нет (date-components 4.1 держит
+`types`=`dist/cjs/index.d.ts` и компоненты в `dist/esm/components/`, плюс с v4 везёт AI-доки в `dist/docs/` —
+маршрут в `library-dates`; page-constructor 8.23.2 держит `types`=`build/cjs/index.d.ts`); README@tag выборочно:
+uikit Button (200 @ v7.49.0), page-constructor (200 @ v8.23.2), navigation AsideHeader (200 @ v6.6.0),
+date-components DateField (200 @ v4.1.0), dynamic-forms корневой (200 @ v5.29.2). **У table покомпонентных README
+в репо нет вовсе** (404 и на 1.20.2, и на 1.21.1 — не «тег отстал»): для него п.3 = корневой README @ тег.*

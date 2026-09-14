@@ -44,7 +44,7 @@
 - **`Table` не имеет пропа `width`** — это проп uikit `Table` (`width="max"`; компонента `DataTable` в uikit
   НЕ существует) → TS2322 при копировании. Полная ширина здесь —
   `attributes={{style:{width:'100%'}}}`. А вот **`stickyHeader` — ЕСТЬ** (`BaseTable.d.ts`, boolean; ранняя
-  формулировка «нет обоих» была неверна, verified table@1.20.2 .d.ts).
+  формулировка «нет обоих» была неверна, verified table@1.21.1 .d.ts + tsc-репро).
 
 ## Выбор строк — обязательная обвязка (useRowSelectionFixedHandler)
 
@@ -169,7 +169,7 @@ th.gt-table__header-cell[class*="_id_<колонка-поглотитель>"] {
 переполняется). Тройка «fixed + width:auto поглотителю + min-width таблицы» — неделимый канон.
 
 **Горизонтальная скролл-модель:** `Table`/`BaseTable` рендерит **голый `<table>` без scroll-контейнера**
-(verified `BaseTable.js`); на узких ширинах сумма `size` распирает страницу (горизонтальный оверфлоу всего
+(verified table@1.21.1 `BaseTable.js`); на узких ширинах сумма `size` распирает страницу (горизонтальный оверфлоу всего
 документа). Канон: оберни **только таблицу** в `<div style={{overflowX:'auto', maxWidth:'100%'}}>` — НЕ
 ActionsPanel и не всю рабочую область (сломаешь whole-page-sticky панели, `pattern-actions-panel`).
 Соседний факт мобильной полосы: шапка страницы с кнопками (`Flex justifyContent="space-between"`) на
