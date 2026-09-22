@@ -14,8 +14,11 @@
    `https://raw.githubusercontent.com/gravity-ui/<repo>/v<версия-пина>/src/components/<Name>/README.md`
    — `<repo>` = имя пакета без `@gravity-ui/`; версию бери из `registry.json` (`libraries[].version`), тег = `v` +
    версия без `^` (пин `^7.42.0` → тег `v7.42.0`). У navigation рядом лежит и `README-ru.md`.
-   **Тега пина может не быть** (git-теги отстают от npm-релизов — кейс markdown-editor): 404 на теге ≠ «доки
-   нет» → корневой README ровно опубликованной версии: `npm view <пакет>@<версия> readme`.
+   **Исключение ровно одно** (сверено по всем 11 репозиториям на пинах 2026-09-21: у десяти плоский `v<версия>`
+   отдаёт 200) — 404 на теге ≠ «доки нет». Кейс **markdown-editor**: репо монорепный, тег =
+   `markdown-editor-v<версия>` (`v15.47.0` → 404, `markdown-editor-v15.47.0` → 200); покомпонентных README там
+   нет — на теге лежат корневой `README.md` и `AGENTS.md`. Если и префиксная форма 404 → корневой README ровно
+   опубликованной версии: `npm view <пакет>@<версия> readme`.
 4. **Фетч недоступен** → НЕ гадай и не «дособирай по памяти»: пункта 2 достаточно (пакет уже установлен).
 
 ## Где типы в каждом пакете (verified по пинам роутера)
@@ -52,12 +55,14 @@ Route-only либы из `routing[]` (charts / dashkit / aikit / graph / timelin
 - `library-icons` — офлайн-сабсет имён иконок (имя иконки ≠ проп: сверяй там).
 - `AGENTS.md` (companion) — общий fallback при заблокированном фетче.
 
-*Provenance: пути verified npm-pack'ом по пинам роутера (navigation 6.6 / table 1.21 / date-components 4.1 /
-dynamic-forms 5.29 / page-constructor 8.23.2 — пересверены 2026-09-14; uikit 7.49 — 2026-09-03; остальные
-2026-09-01: components 4.24 / date-utils 2.7 / markdown-editor 15.46 / icons 2.22 / illustrations 2.1) — поле `types`
+*Provenance: пути verified npm-pack'ом по пинам роутера (dynamic-forms 5.35 / markdown-editor 15.47 — пересверены
+2026-09-21; date-utils 2.7.2 — 2026-09-15; navigation 6.6 / table 1.21 / date-components 4.1 / page-constructor 8.23.2 —
+2026-09-14; uikit 7.49 — 2026-09-03; остальные 2026-09-01: components 4.24 / icons 2.22 / illustrations 2.1) — поле `types`
 и покомпонентные пути сверены у всех 11 пакетов, расхождений нет (date-components 4.1 держит
 `types`=`dist/cjs/index.d.ts` и компоненты в `dist/esm/components/`, плюс с v4 везёт AI-доки в `dist/docs/` —
 маршрут в `library-dates`; page-constructor 8.23.2 держит `types`=`build/cjs/index.d.ts`); README@tag выборочно:
 uikit Button (200 @ v7.49.0), page-constructor (200 @ v8.23.2), navigation AsideHeader (200 @ v6.6.0),
-date-components DateField (200 @ v4.1.0), dynamic-forms корневой (200 @ v5.29.2). **У table покомпонентных README
+date-components DateField (200 @ v4.1.0), dynamic-forms корневой (200 @ v5.35.0), date-utils корневой
+(200 @ v2.7.2), markdown-editor корневой + `AGENTS.md` (200 @ markdown-editor-v15.47.0; плоский `v15.47.0` — 404,
+см. п.3). **У table покомпонентных README
 в репо нет вовсе** (404 и на 1.20.2, и на 1.21.1 — не «тег отстал»): для него п.3 = корневой README @ тег.*

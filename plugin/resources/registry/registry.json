@@ -39,7 +39,7 @@
       "version": "^7.49.0",
       "docs": {
         "guide": "guides/library-uikit.md",
-        "upstream": "https://github.com/gravity-ui/uikit/blob/main/AGENTS.md"
+        "upstream": "https://github.com/gravity-ui/uikit/blob/v7.49.0/AGENTS.md"
       },
       "summary": "Базовые контролы + guard имён (RadioButton→SegmentedRadioGroup, монолитный Tabs, TreeList из корня, Heading→Text, Badge→Label). Сверяй имя перед импортом; детальный API — upstream AGENTS.md."
     },
@@ -111,7 +111,7 @@
         "vite-plugin-node-polyfills"
       ],
       "docs": {
-        "upstream": "https://github.com/gravity-ui/page-constructor/blob/main/AGENTS.md",
+        "upstream": "https://github.com/gravity-ui/page-constructor/blob/v8.23.2/AGENTS.md",
         "guide": "guides/library-page-constructor.md"
       },
       "summary": "Config-driven лендинг-блоки (PageConstructorProvider). Конфиги блоков — из editor/data/templates/*.json установленного пакета + .d.ts, не угадывай. Нужны Vite-фиксы (~-alias + node-polyfills) + SCSS."
@@ -119,7 +119,7 @@
     {
       "name": "dynamic-forms",
       "package": "@gravity-ui/dynamic-forms",
-      "version": "^5.29.2",
+      "version": "^5.35.0",
       "peer": [
         "@gravity-ui/uikit@^7.42.0"
       ],
@@ -147,7 +147,7 @@
     {
       "name": "date-utils",
       "package": "@gravity-ui/date-utils",
-      "version": "^2.7.1",
+      "version": "^2.7.2",
       "docs": {
         "guide": "guides/library-dates.md"
       },
@@ -157,14 +157,14 @@
     {
       "name": "markdown-editor",
       "package": "@gravity-ui/markdown-editor",
-      "version": "^15.46.0",
+      "version": "^15.47.0",
       "peer": [
         "@gravity-ui/uikit@^7.42.0",
         "@gravity-ui/components@^4.22.0"
       ],
       "docs": {
         "guide": "guides/library-markdown-editor.md",
-        "upstream": "https://github.com/gravity-ui/markdown-editor/blob/main/AGENTS.md"
+        "upstream": "https://github.com/gravity-ui/markdown-editor/blob/markdown-editor-v15.47.0/AGENTS.md"
       },
       "bundle": "markdown-editor",
       "summary": "Редактор WYSIWYG+Markup в стиле Гравити. major 15 = эра uikit@7. Ставь ВЕСЬ bundle (~12 @diplodoc/* peer-deps). Обвязка вкрутки + грабли (ToasterProvider! stickyToolbar!) — guide; детальный API — upstream AGENTS.md."
@@ -185,7 +185,7 @@
       "packages": [
         {
           "package": "@gravity-ui/markdown-editor",
-          "version": "^15.46.0"
+          "version": "^15.47.0"
         },
         {
           "package": "@gravity-ui/components",
@@ -273,7 +273,7 @@
         },
         {
           "package": "@gravity-ui/date-utils",
-          "version": "^2.7.1"
+          "version": "^2.7.2"
         }
       ],
       "antiPatterns": [
@@ -288,7 +288,7 @@
       "packages": [
         {
           "package": "@gravity-ui/dynamic-forms",
-          "version": "^5.29.2"
+          "version": "^5.35.0"
         },
         {
           "package": "final-form",
@@ -452,7 +452,7 @@
       "avoid": "textarea + своя разметка; сторонние редакторы по памяти",
       "why": "WYSIWYG+Markup в стиле Гравити; есть upstream AGENTS.md → route, не угадывай API.",
       "guide": "guides/library-markdown-editor.md",
-      "upstream": "https://github.com/gravity-ui/markdown-editor/blob/main/AGENTS.md"
+      "upstream": "https://github.com/gravity-ui/markdown-editor/blob/markdown-editor-v15.47.0/AGENTS.md"
     },
     {
       "want": "Форма на react-final-form с готовыми высокоуровневыми полями",
