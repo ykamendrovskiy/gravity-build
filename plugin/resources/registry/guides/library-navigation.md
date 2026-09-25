@@ -1,6 +1,6 @@
 # Каталог: navigation (каркас приложения)
 
-`@gravity-ui/navigation` — компоненты каркаса приложения поверх uikit: левое меню, мобильная шапка, страница настроек. У библиотеки нет upstream AI-доков → этот каталог — основной источник; пропы/детали бери из README и Storybook (<https://preview.gravity-ui.com/navigation>).
+`@gravity-ui/navigation` — компоненты каркаса приложения поверх uikit: левое меню, мобильная шапка, страница настроек. Библиотека **везёт AI-доки в пакете** — `node_modules/@gravity-ui/navigation/build/docs/` (`INDEX.md` + по файлу на компонент, для установленной версии; verified navigation@7.0 npm-pack, лежали и в 6.6) — детальный API бери там, Storybook (<https://preview.gravity-ui.com/navigation>) — живые примеры. Этот каталог — слоты, грабли и обвязка поверх них.
 
 ## Каталог по назначению
 
@@ -17,7 +17,7 @@
 | `Title` | Заголовок секции в навигации. |
 | `TopAlert` | Алерт-полоса вверху приложения. |
 
-## AsideHeader: слоты, итемы, футер, лого (verified navigation@6.6 / .d.ts + tsc, write-back Storage CD)
+## AsideHeader: слоты, итемы, футер, лого (verified navigation@7.0 / .d.ts + tsc + браузер, write-back Storage CD)
 
 **Слоты сверху вниз** (сетка вертикальная, названия обманчивы):
 
@@ -32,7 +32,7 @@ renderFooter={(data) => <FooterItem …/>}   ← низ
   футере (типовой промах: «sub» звучит как вторичное → уехало наверх под лого).
 - **Симметрии subheader↔footer НЕТ:** низ — только функция `renderFooter`, итемы в ней — `<FooterItem>`.
   **`FooterItem` экспортируется из корня** (`import {FooterItem} from '@gravity-ui/navigation'` — verified tsc
-  navigation@6.6; не ищи deep-путей: сквозной реэкспорт root→components→AsideHeader).
+  navigation@7.0; не ищи deep-путей: сквозной реэкспорт root→components→AsideHeader).
 - **Кастом-контент пункта (аватар-профиль и т.п.) — через `itemWrapper`, НЕ кастом-рядом:**
   `<FooterItem id="profile" title="Аккаунт" itemWrapper={(params, makeItem) => makeItem({...params,
   icon: <Avatar text="YC" theme="brand" size="m"/>})}/>` — ховер, сетка/инсеты и клик-механика штатного
@@ -54,7 +54,7 @@ CSS-переменные `--gn-aside-header-*` (`background-color`, `item-curren
 `icon-place` (заскоупленная по ID на menu-items-бар) его не покрыла → поехала ширина кнопок. Корпоративный
 брендинг-слой — дом в **service-profile (theme)**, не в компонентных селекторах.
 
-## Модель высоты и вьюпорт-замок (замер 4 вариантов обвязки на 6.1.2; source verified navigation@6.6)
+## Модель высоты и вьюпорт-замок (замер 4 вариантов обвязки на 6.1.2; source + Playwright verified navigation@7.0)
 
 - **Ни `AsideHeader`, ни `PageLayout`-пара НЕ ограничивают высоту content-pane** — модель высоты у обеих
   обвязок одна и by design: контент растёт, скроллится ДОКУМЕНТ, рельса остаётся на месте (aside —
@@ -79,6 +79,7 @@ CSS-переменные `--gn-aside-header-*` (`background-color`, `item-curren
 
 - `AsideHeader` читает контекст мобильности — оборачивай приложение в `MobileProvider` (`scaffold-app-shell`).
 - Версию бери из `registry.json` (`libraries[]`); не откатывай на старые мажоры (теряются скругления hover/selected).
+- **v7 (с 7.0.0) сменил раскладку AsideHeader, не API пропов:** кнопка сворачивания — контрол у края рядом с последним `FooterItem` (появляется по ховеру), `collapseButtonWrapper` оборачивает только его — полноширинный контент низа клади в `renderFooter`; в развёрнутом меню длинные заголовки переносятся на 2 строки (ряд выше); плотность — `menuDensity: 'default' | 'compact'` (ручка профиля). Список — `build/docs/` и CHANGELOG 7.0.0.
 - Полный сценарий «дашборд с AsideHeader + таблицей» — `recipe-dashboard`.
 
 ## See also

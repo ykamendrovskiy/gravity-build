@@ -55,14 +55,15 @@ Route-only либы из `routing[]` (charts / dashkit / aikit / graph / timelin
 - `library-icons` — офлайн-сабсет имён иконок (имя иконки ≠ проп: сверяй там).
 - `AGENTS.md` (companion) — общий fallback при заблокированном фетче.
 
-*Provenance: пути verified npm-pack'ом по пинам роутера (dynamic-forms 5.35 / markdown-editor 15.47 — пересверены
-2026-09-21; date-utils 2.7.2 — 2026-09-15; navigation 6.6 / table 1.21 / date-components 4.1 / page-constructor 8.23.2 —
-2026-09-14; uikit 7.49 — 2026-09-03; остальные 2026-09-01: components 4.24 / icons 2.22 / illustrations 2.1) — поле `types`
+*Provenance: пути verified npm-pack'ом по пинам роутера (uikit 7.50.1 / navigation 7.0 / page-constructor 8.23.4 / dynamic-forms 5.36 — пересверены
+2026-09-25; markdown-editor 15.47 — 2026-09-21; date-utils 2.7.2 — 2026-09-15; table 1.21 / date-components 4.1 —
+2026-09-14; остальные 2026-09-01: components 4.24 / icons 2.22 / illustrations 2.1) — поле `types`
 и покомпонентные пути сверены у всех 11 пакетов, расхождений нет (date-components 4.1 держит
 `types`=`dist/cjs/index.d.ts` и компоненты в `dist/esm/components/`, плюс с v4 везёт AI-доки в `dist/docs/` —
-маршрут в `library-dates`; page-constructor 8.23.2 держит `types`=`build/cjs/index.d.ts`); README@tag выборочно:
-uikit Button (200 @ v7.49.0), page-constructor (200 @ v8.23.2), navigation AsideHeader (200 @ v6.6.0),
-date-components DateField (200 @ v4.1.0), dynamic-forms корневой (200 @ v5.35.0), date-utils корневой
+маршрут в `library-dates`; page-constructor 8.23.4 держит `types`=`build/cjs/index.d.ts`; navigation 7.0 везёт AI-доки в `build/docs/` —
+маршрут в `library-navigation`); README@tag выборочно:
+uikit Button (200 @ v7.50.1), page-constructor (200 @ v8.23.4), navigation AsideHeader (200 @ v7.0.0),
+date-components DateField (200 @ v4.1.0), dynamic-forms корневой (200 @ v5.36.0), date-utils корневой
 (200 @ v2.7.2), markdown-editor корневой + `AGENTS.md` (200 @ markdown-editor-v15.47.0; плоский `v15.47.0` — 404,
 см. п.3). **У table покомпонентных README
 в репо нет вовсе** (404 и на 1.20.2, и на 1.21.1 — не «тег отстал»): для него п.3 = корневой README @ тег.*

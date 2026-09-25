@@ -28,7 +28,7 @@ PC-маршрута: чужой хост / голый embed без ресета 
 | `type` | Назначение |
 |---|---|
 | `header-block` | Заголовок секции: title + description + CTA |
-| `hero-block` | Full-bleed hero с фоном. **`title` обязателен** (с 8.23.1 вынесен в `HeroBlockContent` как `Required` — конфиг без него даёт TS2741; verified page-constructor@8.23.2 `.d.ts` + tsc) |
+| `hero-block` | Full-bleed hero с фоном. **`title` обязателен** (с 8.23.1 вынесен в `HeroBlockContent` как `Required` — конфиг без него даёт TS2741; verified page-constructor@8.23.4 `.d.ts` + tsc) |
 | `extended-features-block` / `promo-features-block` | Фичи: иконка + title + текст |
 | `card-layout-block` | Сетка карточек (BasicCard / PriceCard / …) |
 | `slider-block` | Слайдер card-контента |

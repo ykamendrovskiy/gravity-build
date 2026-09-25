@@ -30,7 +30,7 @@ import {Plus, Gear} from '@gravity-ui/icons';
 
 ## Иконка в контроле — слот + размер
 
-Как Гравити ждёт иконку **в контроле** (verified uikit@7.49 source). Применяй широко.
+Как Гравити ждёт иконку **в контроле** (verified uikit@7.50 source). Применяй широко.
 
 **Правильный слот + размер:**
 - **Отступы:** в `Button` слот центрирует/отбивает сам. **В инпутах (`startContent`) — НЕ автоматом:** uikit-слот
@@ -62,7 +62,7 @@ import {Plus, Gear} from '@gravity-ui/icons';
 <Label size="s" icon={<Icon data={Tag} size={14}/>}>тег</Label>
 ```
 
-⚠️ **Автоматика есть только у `Button`** (verified uikit@7.49 source): `BUTTON_ICON_SIZE_MAP` (`Button/constants`)
+⚠️ **Автоматика есть только у `Button`** (и с 7.50 — у `unstable_Menu`: `MenuItem` сайзит свой `icon` той же картой по `size` меню через общий `prepareIcon`; verified uikit@7.50 source): `BUTTON_ICON_SIZE_MAP` (`Button/constants`)
 с этими значениями кладётся в `ButtonIconSizeContext`, а `Button.Icon` клонирует дочернюю `<Icon>` с этим
 размером, **если у неё нет своего `size`** (или пары `width`+`height`); голая иконка в `children` кнопки
 заворачивается в `Button.Icon` сама. Для остальных контролов шкала ниже — рекомендация, размер ставишь сам:

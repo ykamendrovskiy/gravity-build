@@ -40,7 +40,7 @@ import {DynamicView, dynamicViewConfig} from '@gravity-ui/dynamic-forms';
 - `registry.json` — schema-driven форма vs ручная (routing) + bundle `dynamic-forms` peer-граф (`bundles[]`).
 - `recipe-settings-form.md` — ручная форма настроек (для сравнения); `pattern-form` — спек формы.
 
-*Provenance (verified dynamic-forms@5.35, 2026-09-21): tsc-репро на пине — `DynamicField` / `DynamicView` /
+*Provenance (verified dynamic-forms@5.36, 2026-09-25): tsc-репро на пине — `DynamicField` / `DynamicView` /
 `Spec` / `FormValue` / `dynamicConfig` / `dynamicViewConfig` / `configure` / `Lang` экспортируются, `DynamicView.value`
 типизирован `FormValue` (не произвольный); «нет upstream AI-доков» подтверждено — в пакете только корневой
 readme апстрима, AGENTS-дока в репо на теге 404.*
